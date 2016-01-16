@@ -1,0 +1,442 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>impala on yarn | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="利用llama进行 impala on yarn">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="impala on yarn"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	impala on yarn
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2016-01-10T10:51:21.000Z" itemprop="datePublished">2016-01-10</time>
+    更新日期:<time datetime="2016-01-16T01:41:47.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Llama__u5B89_u88C5_u542F_u52A8"><span class="toc-number">1.</span> <span class="toc-text">Llama 安装启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4FEE_u6539_Impala__u8BA9_u5176_u611F_u77E5_Llama"><span class="toc-number">2.</span> <span class="toc-text">修改 Impala 让其感知 Llama</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u78B0_u89C1_u7684_u95EE_u9898"><span class="toc-number">3.</span> <span class="toc-text">碰见的问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#UNKNOW_HOST"><span class="toc-number">3.1.</span> <span class="toc-text">UNKNOW HOST</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#CGroup"><span class="toc-number">3.2.</span> <span class="toc-text">CGroup</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#llama_HA"><span class="toc-number">3.3.</span> <span class="toc-text">llama HA</span></a></li></ol></li></ol>
+			</div>
+		
+        <p>利用 llama 这个中间件 进行 impala on yarn</p>
+<a id="more"></a>
+<p>Llama 用于 Impala on yarn 作为一个代理，向 yarn 申请资源提交任务 <a href="http://archive-primary.cloudera.com/cdh5/cdh/5/" target="_blank" rel="external">下载地址</a></p>
+<hr>
+<h2 id="Llama__u5B89_u88C5_u542F_u52A8"><a href="#Llama__u5B89_u88C5_u542F_u52A8" class="headerlink" title="Llama 安装启动"></a>Llama 安装启动</h2><p>解压后在 <code>$LLAMA_HOME/llama-dist/target/llama-1.0.0-cdh5.4.0.tar.gz</code></p>
+<p>修改 <code>yarn-site.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.scheduler.minimum-allocation-mb<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>0<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.scheduler.minimum-allocation-vcores<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>0<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>mapreduce_shuffle,llama_nm_plugin<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.nodemanager.aux-services.llama_nm_plugin.class<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>com.cloudera.llama.nm.LlamaNMAuxiliaryService<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>修改 <code>core-site.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>hadoop.proxyuser.llama.hosts<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>*<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>hadoop.proxyuser.llama.groups<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>*<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>修改 <code>conf/llama-site.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">name</span>&gt;</span>llama.am.server.thrift.address<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">value</span>&gt;</span>192.168.7.11:15000<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">name</span>&gt;</span>llama.nm.server.thrift.address<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">value</span>&gt;</span>192.168.7.11:15100<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>配置 HA</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>llama.am.cluster.id<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>llama<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>llama.am.ha.enabled<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>llama.am.ha.zk-base<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>/llama<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>llama.am.ha.zk-quorum<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="title">value</span>&gt;</span>192.168.7.13:2181,192.168.7.15:2181,192.168.7.16:2181<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>修改 <code>llamaadmin.xml</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>llamaadmin.server.thrift.address<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>192.168.7.11:15002<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>修改 <code>libexec/llama-env.sh</code>  ，建好 log文件夹，修改777权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LLAMA_AM_SERVER_CONF=/usr/<span class="built_in">local</span>/datacenter/llama/conf</span><br><span class="line"><span class="built_in">export</span> LLAMA_AM_SERVER_LOG=/usr/<span class="built_in">local</span>/datacenter/llama/<span class="built_in">log</span></span><br></pre></td></tr></table></figure>
+<p>把 $HADOOP_HOME/share/hadoop 下  hdfs 、common、 yarn 的jar ，软连接到 $LLAMA_HOME/lib 下，后同样，需要把 llama 的 jar 加入到 hadoop classpath 里，我用软连接的方式。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/datacenter/llama/lib/llama-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/<span class="built_in">local</span>/datacenter/hadoop/lib/</span><br><span class="line">ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/datacenter/llama/lib/metrics-core-<span class="number">3.0</span>.<span class="number">1</span>.jar /usr/<span class="built_in">local</span>/datacenter/hadoop/lib/</span><br><span class="line">ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/datacenter/llama/lib/libthrift-<span class="number">0.9</span>.<span class="number">0</span>.jar /usr/<span class="built_in">local</span>/datacenter/hadoop/lib/</span><br></pre></td></tr></table></figure>
+<p>环境变量设置 <code>HADOOP_HOME</code> 在 2 台机器分别启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">nohup ./llama &amp;</span><br></pre></td></tr></table></figure>
+<p>访问 <a href="http://192.168.7.11:15001" target="_blank" rel="external">http://192.168.7.11:15001</a> 和 <a href="http://192.168.7.12:15001" target="_blank" rel="external">http://192.168.7.12:15001</a> （这里的 queueCrossref 和 nodesCrossref 为空是正常的，当有任务提交到 yarn 上时，资源分配后，这里才会显示很多其他信息）</p>
+<p><img src="/images/impala/20160110/1.png" alt=""></p>
+<p><img src="/images/impala/20160110/2.png" alt=""></p>
+<hr>
+<h2 id="u4FEE_u6539_Impala__u8BA9_u5176_u611F_u77E5_Llama"><a href="#u4FEE_u6539_Impala__u8BA9_u5176_u611F_u77E5_Llama" class="headerlink" title="修改 Impala 让其感知 Llama"></a>修改 Impala 让其感知 Llama</h2><p>1.准备工作已经完毕，下面设置 impala 的文件 <code>/etc/default/impala</code> 里添加 <code>enable_rm</code> <code>llama_addresses</code> <code>fair_scheduler_allocation_path</code> <code>cgroup_hierarchy_path</code></p>
+<p>2.首先启动 cgroup 服务，如果没有安装先通过yum安装</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service cgconfig start</span><br></pre></td></tr></table></figure>
+<p>注意：设置<code>cgroup_hierarchy_path</code> 为 <code>/cgroup/cpu</code>  注意需要修改子目录权限，让其可写</p>
+<p>如果是CentOS6（centos5 不支持cgroup好像，所以不能用 impala on yarn）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">IMPALA_SERVER_ARGS=&#34; \&#10;    -log_dir=$&#123;IMPALA_LOG_DIR&#125; \&#10;    -catalog_service_host=$&#123;IMPALA_CATALOG_SERVICE_HOST&#125; \&#10;    -state_store_port=$&#123;IMPALA_STATE_STORE_PORT&#125; \&#10;    -use_statestore \&#10;    -state_store_host=$&#123;IMPALA_STATE_STORE_HOST&#125; \&#10;    -enable_rm=true \&#10;    -rm_always_use_defaults=true \&#10;    -llama_addresses=192.168.7.11:15000,192.168.7.12:15000 \&#10;    -fair_scheduler_allocation_path=&#39;/usr/local/datacenter/hadoop/etc/hadoop/fair-scheduler.xml&#39; \&#10;    -cgroup_hierarchy_path=&#39;`/cgroup/cpu&#39; \&#10;    -be_port=$&#123;IMPALA_BACKEND_PORT&#125;&#34;</span><br></pre></td></tr></table></figure>
+<p>3.然后，重启yarn 重启 impala-server，发现有4个客户端连接到 llama 上</p>
+<p><img src="/images/impala/20160110/3.png" alt=""></p>
+<p>4.然后提交一个任务，可以发现一个常驻的 application 在 yarn 上，无论开多少个 impala-shell 均只有一个。10分钟后此 application 状态变为 fail 且自动关闭</p>
+<p><img src="/images/impala/20160110/4.png" alt=""></p>
+<hr>
+<h2 id="u78B0_u89C1_u7684_u95EE_u9898"><a href="#u78B0_u89C1_u7684_u95EE_u9898" class="headerlink" title="碰见的问题"></a>碰见的问题</h2><h3 id="UNKNOW_HOST"><a href="#UNKNOW_HOST" class="headerlink" title="UNKNOW HOST"></a><font color="#c89226">UNKNOW HOST</font></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">com.cloudera.llama.util.LlamaException: RESERVATION_ASKING_UNKNOWN_NODE&#10;- Reservation &#39;9348b4b355578e9f:16ce0ead700fff95&#39;,&#10;  expansion &#39;null&#39; asking for a resource on node &#39;node007013&#39; that does not exist.</span><br></pre></td></tr></table></figure>
+<p>是因为 我的 yarn 虽然 ResourceManager 启动起来了，yarn web ui 正常，但各个节点 NodeManager 启动失败了，逐一启动，排除自身问题，直到正常为止  <code>yarn-deamon.sh start nodemanager</code></p>
+<h3 id="CGroup"><a href="#CGroup" class="headerlink" title="CGroup"></a><font color="#c89226">CGroup</font></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ERROR: CGroup xxxxx does not have a /tasks file</span><br></pre></td></tr></table></figure>
+<p>这个原因可能是   没开启CGroup服务 且 没有把 cgroup 路径设置 为  <code>/cgroup/cpu</code> 下</p>
+<h3 id="llama_HA"><a href="#llama_HA" class="headerlink" title="llama HA"></a><font color="#c89226">llama HA</font></h3><p>llama HA 本身是没有问题的，验证方式可以 kill 掉 active llama pid ，然后看 standby 的是否会转变成 active，<br>然后此时 通过 web ui 是看不到有客户端 impala-server 连接的，可以启动一个 impala-shell ，就能看到此机器连接上了 llama active了</p>
+<p>资料</p>
+<ul>
+<li><a href="http://cloudera.github.io/llama/RunningLlama.html" target="_blank" rel="external">http://cloudera.github.io/llama/RunningLlama.html</a></li>
+<li><a href="http://www.cloudera.com/content/www/en-us/documentation/archive/impala/2-x/2-1-x/topics/impala_resource_management.html" target="_blank" rel="external">http://www.cloudera.com/content/www/en-us/documentation/archive/impala/2-x/2-1-x/topics/impala_resource_management.html</a></li>
+<li><a href="http://www.cloudera.com/content/www/en-us/documentation/enterprise/latest/topics/cdh_hag_llama_ha.html" target="_blank" rel="external">http://www.cloudera.com/content/www/en-us/documentation/enterprise/latest/topics/cdh_hag_llama_ha.html</a></li>
+<li><a href="http://ae.yyuap.com/pages/viewpage.action?pageId=918464" target="_blank" rel="external">http://ae.yyuap.com/pages/viewpage.action?pageId=918464</a></li>
+</ul>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/impala/">impala</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/impala/">impala</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    
+    <a href="/blog/2016/01/10/hbase-data-transfer/" class="alignright next" title="hbase data transfer">hbase data transfer</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2016/01/10/impala-on-yarn/" data-title="impala on yarn" data-url="http://yoursite.com/blog/2016/01/10/impala-on-yarn/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

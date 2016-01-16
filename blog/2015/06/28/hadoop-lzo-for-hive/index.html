@@ -1,0 +1,478 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>hadoop lzo for hive | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="hadoop lzo 压缩">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="hadoop lzo for hive"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	hadoop lzo for hive
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-06-28T13:33:02.000Z" itemprop="datePublished">2015-06-28</time>
+    更新日期:<time datetime="2016-01-16T04:16:47.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u80CC_u666F"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u538B_u7F29_u7B97_u6CD5_u662F_u5982_u4F55_u9009_u62E9_u7684_uFF1F"><span class="toc-number">1.1.</span> <span class="toc-text"> 压缩算法是如何选择的？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u751F_u4EA7_u73AF_u5883_u9002_u5408_u7528lzo_u4E48_uFF1F"><span class="toc-number">1.2.</span> <span class="toc-text">生产环境适合用lzo么？</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bzip2__u538B_u7F29"><span class="toc-number">2.</span> <span class="toc-text">bzip2 压缩</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#lzo__u73AF_u5883_u51C6_u5907"><span class="toc-number">3.</span> <span class="toc-text">lzo 环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u4E0B_u8F7D_u3001_u89E3_u538B_u5E76_u7F16_u8BD1lzo_u5305"><span class="toc-number">3.1.</span> <span class="toc-text">下载、解压并编译lzo包</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7F16_u8BD1_u5B89_u88C5Hadoop-LZO"><span class="toc-number">3.2.</span> <span class="toc-text">编译安装Hadoop-LZO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u914D_u7F6EHadoop_u73AF_u5883_u53D8_u91CF"><span class="toc-number">3.3.</span> <span class="toc-text">配置Hadoop环境变量</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9700_u8981_u6CE8_u610F_u7684_u51E0_u70B9"><span class="toc-number">3.4.</span> <span class="toc-text">需要注意的几点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u538B_u7F29_u6838_u5FC3_u4EE3_u7801"><span class="toc-number">4.</span> <span class="toc-text">压缩核心代码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u6CE8_u610F"><span class="toc-number">4.1.</span> <span class="toc-text">注意</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6D4B_u8BD5_u7ED3_u679C"><span class="toc-number">5.</span> <span class="toc-text">测试结果</span></a></li></ol>
+			</div>
+		
+        <p>hadoop hdfs 的压缩</p>
+<a id="more"></a>
+<p>当集群的hdfs增长速度很快时，需要对hdfs进行压缩，以减少硬件资金开销。</p>
+<p>本文结合网上文章、已上某大型互联网公司生产环境同事经验，及本地测试验证，总结出此文。</p>
+<hr>
+<h2 id="u80CC_u666F"><a href="#u80CC_u666F" class="headerlink" title="背景"></a>背景</h2><p>集群目前有57台机器，共1.2 PB数据，为了减少在硬件上的资金开销，需要对现有的数据进行压缩。</p>
+<ul>
+<li>对load到hive前的 hdfs 文件，采取保留最近6个月内的数据，6-3个月内的数据 访问概率小，采用 bzip2 压缩</li>
+<li>对load到hive里的 hdfs 文件，采取近乎全量lzo压缩</li>
+</ul>
+<h3 id="u538B_u7F29_u7B97_u6CD5_u662F_u5982_u4F55_u9009_u62E9_u7684_uFF1F"><a href="#u538B_u7F29_u7B97_u6CD5_u662F_u5982_u4F55_u9009_u62E9_u7684_uFF1F" class="headerlink" title="压缩算法是如何选择的？"></a><font color="#20afb4"> 压缩算法是如何选择的？</font></h3><ol>
+<li><p>首先，load hive前的数据，使用的较少，一般都是对hive表进行统计操作，但也有可能会有脱离 “正规套路” 的现象，例如外界有某个脚本或客户端，读取整个目录的情况，要尽量“浓缩”且“兼容”，只能bzip2了，可以压缩10倍空间，且可以有Linux命令，解压文件，以便check源文件。</p>
+</li>
+<li><p>其次，load hive里的数据，使用的较多，压缩率和处理速度是成反比的，因此需要选择一个适中的算法，lzo 和 snappy 都是合适的，但业界一般都用lzo，因此就选择了lzo。（其实如果有充分时间，可以对lzo和snappy做对比的）lzo 压缩后能少 60%-70%</p>
+</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">压缩格式	split	native	压缩率	速度	是否hadoop自带	linux命令	换成压缩格式后，原来的应用程序是否要修改</span><br><span class="line">gzip	否	是	很高	比较快	是，直接使用	有	        和文本处理一样，不需要修改</span><br><span class="line">lzo	是	是	比较高	很快	否，需要安装	有	        需要建索引，还需要指定输入格式</span><br><span class="line">snappy	否	是	比较高	很快	否，需要安装	没有	        和文本处理一样，不需要修改</span><br><span class="line">bzip2	是	否	最高	慢	是，直接使用	有	        和文本处理一样，不需要修改</span><br></pre></td></tr></table></figure>
+<h3 id="u751F_u4EA7_u73AF_u5883_u9002_u5408_u7528lzo_u4E48_uFF1F"><a href="#u751F_u4EA7_u73AF_u5883_u9002_u5408_u7528lzo_u4E48_uFF1F" class="headerlink" title="生产环境适合用lzo么？"></a><font color="#20afb4">生产环境适合用lzo么？</font></h3><p>适合，但需要做处理。普通的hdfs文件是textfile，由于lzo不支持spilt，即一个文件不能被多个map并行处理，因此需要对textfile创建lzo索引，以支持spilt。但是生产环境，这种方式不适用，</p>
+<p>每天每个hive表的分区目录下，都有很多文件，如果还要维护一个定时任务去创建索引，代价太大，也不方便。因此，我们可以用 sequeneceFile 的方式，用block做存储，就可以split的。</p>
+<p>需要做的只有2步，首先，按分区lzo sequenceFile 压缩原始hive表的数据。其次，按sequenceFile创建hive表（STORED AS SEQUENCEFILE），再导入压缩后的数据。是不是更简单？</p>
+<hr>
+<h2 id="bzip2__u538B_u7F29"><a href="#bzip2__u538B_u7F29" class="headerlink" title="bzip2 压缩"></a>bzip2 压缩</h2><p>建议用 hadoop streaming 的方式来做（下面是HUE中的配置）,方便 代码少</p>
+<p><img src="/images/hadoop/20150628/1.png" alt=""><br><img src="/images/hadoop/20150628/2.png" alt=""></p>
+<hr>
+<h2 id="lzo__u73AF_u5883_u51C6_u5907"><a href="#lzo__u73AF_u5883_u51C6_u5907" class="headerlink" title="lzo 环境准备"></a>lzo 环境准备</h2><h3 id="u4E0B_u8F7D_u3001_u89E3_u538B_u5E76_u7F16_u8BD1lzo_u5305"><a href="#u4E0B_u8F7D_u3001_u89E3_u538B_u5E76_u7F16_u8BD1lzo_u5305" class="headerlink" title="下载、解压并编译lzo包"></a><font color="#c39d2c">下载、解压并编译lzo包</font></h3><p>(我的百度云备用地址 <a href="http://pan.baidu.com/s/1qW7N6ws" target="_blank" rel="external"><font color="#465999">http://pan.baidu.com/s/1qW7N6ws</font></a>)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.oberhumer.com/opensource/lzo/download/lzo-<span class="number">2.06</span>.tar.gz</span><br><span class="line">tar -zxvf lzo-<span class="number">2.06</span>.tar.gz</span><br><span class="line"><span class="built_in">cd</span> lzo-<span class="number">2.06</span></span><br><span class="line"><span class="built_in">export</span> CFLAGS=-m64</span><br><span class="line">./configure -enable-shared -prefix=/usr/<span class="built_in">local</span>/hadoop/lzo/</span><br><span class="line">make &amp;&amp; sudo make install</span><br></pre></td></tr></table></figure>
+<p>编译完lzo包之后，会在<code>/usr/local/hadoop/lzo/</code>生成一些文件，目录结构如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">ls <span class="operator">-l</span> /usr/<span class="built_in">local</span>/hadoop/lzo/</span><br><span class="line">drwxr-xr-x <span class="number">3</span> root root <span class="number">4096</span> Mar <span class="number">21</span> <span class="number">17</span>:<span class="number">23</span> include</span><br><span class="line">drwxr-xr-x <span class="number">2</span> root root <span class="number">4096</span> Mar <span class="number">21</span> <span class="number">17</span>:<span class="number">23</span> lib</span><br><span class="line">drwxr-xr-x <span class="number">3</span> root root <span class="number">4096</span> Mar <span class="number">21</span> <span class="number">17</span>:<span class="number">23</span> share</span><br></pre></td></tr></table></figure>
+<p>将/usr/local/hadoop/lzo目录下的所有文件打包，并同步到集群中的所有机器上。</p>
+<p>在编译lzo包的时候，需要一些环境，可以用下面的命令安装好lzo编译环境<code>yum -y install  lzo-devel zlib-devel  gcc autoconf automake libtool</code></p>
+<h3 id="u7F16_u8BD1_u5B89_u88C5Hadoop-LZO"><a href="#u7F16_u8BD1_u5B89_u88C5Hadoop-LZO" class="headerlink" title="编译安装Hadoop-LZO"></a><font color="#c39d2c">编译安装Hadoop-LZO</font></h3><p>下载Twitter hadoop-lzo</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/twitter/hadoop-lzo.git</span><br></pre></td></tr></table></figure>
+<p>修改hadoop版本</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">properties</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">project.build.sourceEncoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="title">project.build.sourceEncoding</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">hadoop.current.version</span>&gt;</span>2.3.0<span class="tag">&lt;/<span class="title">hadoop.current.version</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">hadoop.old.version</span>&gt;</span>1.0.4<span class="tag">&lt;/<span class="title">hadoop.old.version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">properties</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>编译，准备Hadoop lzo 环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> CFLAGS=-m64</span><br><span class="line"><span class="built_in">export</span> CXXFLAGS=-m64</span><br><span class="line"><span class="built_in">export</span> C_INCLUDE_PATH=/usr/<span class="built_in">local</span>/hadoop/lzo/include</span><br><span class="line"><span class="built_in">export</span> LIBRARY_PATH=/usr/<span class="built_in">local</span>/hadoop/lzo/lib</span><br><span class="line">mvn clean package -Dmaven.test.skip=<span class="literal">true</span></span><br><span class="line"><span class="built_in">cd</span> target/native/Linux-amd64-<span class="number">64</span></span><br><span class="line">tar -cBf - -C lib . | tar -xBvf - -C ~</span><br><span class="line">cp ~/libgplcompression* <span class="variable">$HADOOP_HOME</span>/lib/native/</span><br><span class="line">cp target/hadoop-lzo-<span class="number">0.4</span>.<span class="number">20</span>-SNAPSHOT.jar  <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/</span><br></pre></td></tr></table></figure>
+<p>在<code>tar -cBf - -C lib . | tar -xBvf - -C ~</code>命令之后，会在~目录下生成一下几个文件(即打包目录的东西并解压)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">ls <span class="operator">-l</span></span><br><span class="line">-rw-r--r--  <span class="number">1</span> libgplcompression.a</span><br><span class="line">-rw-r--r--  <span class="number">1</span> libgplcompression.la</span><br><span class="line">lrwxrwxrwx  <span class="number">1</span> libgplcompression.so -&gt; libgplcompression.so.<span class="number">0.0</span>.<span class="number">0</span></span><br><span class="line">lrwxrwxrwx  <span class="number">1</span> libgplcompression.so.<span class="number">0</span> -&gt; libgplcompression.so.<span class="number">0.0</span>.<span class="number">0</span></span><br><span class="line">-rwxr-xr-x  <span class="number">1</span> libgplcompression.so.<span class="number">0.0</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>其中 <code>libgplcompression.so</code> 和 <code>libgplcompression.so.0</code> 是链接文件，指向 <code>libgplcompression.so.0.0.0</code><br>将刚刚生成的 <code>libgplcompression*</code> 和 <code>target/hadoop-lzo-0.4.20-SNAPSHOT.jar</code> 同步到集群中的所有机器对应的目录。</p>
+<h3 id="u914D_u7F6EHadoop_u73AF_u5883_u53D8_u91CF"><a href="#u914D_u7F6EHadoop_u73AF_u5883_u53D8_u91CF" class="headerlink" title="配置Hadoop环境变量"></a>配置Hadoop环境变量</h3><p>1、在Hadoop中的<code>$HADOOP_HOME/etc/hadoop/hadoop-env.sh</code>加上配置 <code>export LD_LIBRARY_PATH=/usr/local/hadoop/lzo/lib</code></p>
+<p>2、在<code>$HADOOP_HOME/etc/hadoop/core-site.xml</code>加上如下配置：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>io.compression.codecs<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span></span><br><span class="line">     org.apache.hadoop.io.compress.GzipCodec,</span><br><span class="line">     org.apache.hadoop.io.compress.DefaultCodec,</span><br><span class="line">     com.hadoop.compression.lzo.LzoCodec,</span><br><span class="line">     com.hadoop.compression.lzo.LzopCodec,</span><br><span class="line">     org.apache.hadoop.io.compress.BZip2Codec</span><br><span class="line">  <span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>io.compression.codec.lzo.class<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>com.hadoop.compression.lzo.LzoCodec<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>3、在<code>$HADOOP_HOME/etc/hadoop/mapred-site.xml</code>加上如下配置</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>mapred.compress.map.output<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>mapred.map.output.compression.codec<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>com.hadoop.compression.lzo.LzoCodec<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>mapred.child.env<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>LD_LIBRARY_PATH=/usr/local/hadoop/lzo/lib<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>将刚刚修改的配置文件全部同步到集群的所有机器上，并重启Hadoop集群（如果用CM来管理，则可以不用重启），这样就可以在Hadoop中使用lzo。</p>
+<h3 id="u9700_u8981_u6CE8_u610F_u7684_u51E0_u70B9"><a href="#u9700_u8981_u6CE8_u610F_u7684_u51E0_u70B9" class="headerlink" title="需要注意的几点"></a><font color="#c39d2c">需要注意的几点</font></h3><p>集群机器的环境变量</p>
+<p>1.建立<code>mkdir -p /usr/local/hadoop/lzo</code> 文件夹存放library，并修改文件夹权限 <code>chmod -R 777  /usr/local/hadoop/lzo</code></p>
+<p>2.cloudera manager 的 hadoop 依赖的 本地库 路径 <code>/usr/lib/hadoop/lib/native/</code> ，并把刚才编译得到的 lzo 本地库 放置 <code>/usr/lib/hadoop/lib/native/libgplcompression*</code><br>并 <code>chmod 777</code>，同理把编译好的 lzo jar 放置到 <code>/usr/lib/hadoop/hadoop-lzo-0.4.20-SNAPSHOT.jar</code> 并修改权限。</p>
+<p>3.建立全局变量 ，不能设置到 <code>.bash_profile</code>里，因为此变量不跟用户挂钩.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"export LD_LIBRARY_PATH=/usr/local/hadoop/lzo/lib"</span> &gt;&gt; /etc/profile</span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+<p>4.如果集群有 spark on yarn ，则还需要设置 spark 让其知道 lzo 环境</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">"export SPARK_LIBRARY_PATH=<span class="variable">$SPARK_LIBRARY_PATH</span>:/usr/lib/hadoop/lib/native/"</span> &gt;&gt; /etc/profile</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export SPARK_SUBMIT_LIBRARY_PATH=<span class="variable">$SPARK_SUBMIT_LIBRARY_PATH</span>:/usr/lib/hadoop/lib/native/"</span> &gt;&gt; /etc/profile</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"export SPARK_CLASSPATH=<span class="variable">$SPARK_CLASSPATH</span>:/usr/lib/hadoop/hadoop-lzo-0.4.20-SNAPSHOT.jar"</span> &gt;&gt; /etc/profile</span><br><span class="line"><span class="built_in">source</span> /etc/profile</span><br></pre></td></tr></table></figure>
+<p>5.如果是通过 HUE 查询 hive 压缩表数据,则需要配置 HiveServer2 的环境变量, 我是通过 cloudera manager 管理的，所以在 “HiveServer2 环境高级配置代码段” 里配置即可。附cdh issue <a href="https://github.com/cloudera/hue/issues/204" target="_blank" rel="external">地址</a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LD_LIBRARY_PATH=/usr/<span class="built_in">local</span>/hadoop/lzo/lib</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u538B_u7F29_u6838_u5FC3_u4EE3_u7801"><a href="#u538B_u7F29_u6838_u5FC3_u4EE3_u7801" class="headerlink" title="压缩核心代码"></a>压缩核心代码</h2><p>利用 hadoop api 的方式 ，用 hadoop jar <your jar=""> 来进行压缩，不用写 MR 更方便</your></p>
+<figure class="highlight xml"><figcaption><span>pom.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br></pre></td><td class="code"><pre><span class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">project</span> <span class="attribute">xmlns</span>=<span class="value">"http://maven.apache.org/POM/4.0.0"</span></span><br><span class="line">         <span class="attribute">xmlns:xsi</span>=<span class="value">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">         <span class="attribute">xsi:schemaLocation</span>=<span class="value">"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">modelVersion</span>&gt;</span>4.0.0<span class="tag">&lt;/<span class="title">modelVersion</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>com.test<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-lzo<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">version</span>&gt;</span>0.0.1<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">packaging</span>&gt;</span>jar<span class="tag">&lt;/<span class="title">packaging</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>hadoop-lzo<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>compress hadoop hdfs and reimport into hive table<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- local compile lzo jar --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>com.test.lzo<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-lzo<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">version</span>&gt;</span>0.4.20<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">scope</span>&gt;</span>system<span class="tag">&lt;/<span class="title">scope</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">systemPath</span>&gt;</span>$&#123;project.basedir&#125;/hadoop-lzo-0.4.20-SNAPSHOT.jar<span class="tag">&lt;/<span class="title">systemPath</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- hadoop --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-common<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.3.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-hdfs<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.3.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-client<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.3.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">&lt;!-- Logging --&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>slf4j-api<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">version</span>&gt;</span>1.7.2<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">version</span>&gt;</span>1.2.16<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.slf4j<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>slf4j-log4j12<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">version</span>&gt;</span>1.7.2<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">exclusions</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">exclusion</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>log4j<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">exclusion</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">exclusions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;/<span class="title">dependencies</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">build</span>&gt;</span></span><br><span class="line">        <span class="comment">&lt;!--&lt;finalName&gt;hadoop-lzo&lt;/finalName&gt;--&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="title">resources</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">resource</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">directory</span>&gt;</span>src/main/resources<span class="tag">&lt;/<span class="title">directory</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">includes</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">include</span>&gt;</span>**/*<span class="tag">&lt;/<span class="title">include</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">includes</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- 允许使用变量替换资源文件 --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">filtering</span>&gt;</span>true<span class="tag">&lt;/<span class="title">filtering</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">resource</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">resources</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;<span class="title">pluginManagement</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">plugins</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">plugin</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.3.2<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">plugin</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>maven-compiler-plugin<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">configuration</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">source</span>&gt;</span>1.6<span class="tag">&lt;/<span class="title">source</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">target</span>&gt;</span>1.6<span class="tag">&lt;/<span class="title">target</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">encoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="title">encoding</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="title">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">plugins</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">pluginManagement</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">plugins</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.maven.plugins<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>maven-surefire-plugin<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">skipTests</span>&gt;</span>true<span class="tag">&lt;/<span class="title">skipTests</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">configuration</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line">            <span class="tag">&lt;<span class="title">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>maven-source-plugin<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">attach</span>&gt;</span>true<span class="tag">&lt;/<span class="title">attach</span>&gt;</span></span><br><span class="line">                    <span class="comment">&lt;!--&lt;encoding&gt;UTF-8&lt;/encoding&gt;--&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">executions</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">execution</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">phase</span>&gt;</span>compile<span class="tag">&lt;/<span class="title">phase</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">goals</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="title">goal</span>&gt;</span>jar<span class="tag">&lt;/<span class="title">goal</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="title">goals</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="title">execution</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">executions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">plugin</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>maven-javadoc-plugin<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.1<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">attach</span>&gt;</span>true<span class="tag">&lt;/<span class="title">attach</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">encoding</span>&gt;</span>UTF-8<span class="tag">&lt;/<span class="title">encoding</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">executions</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">execution</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">phase</span>&gt;</span>compile<span class="tag">&lt;/<span class="title">phase</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">goals</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="title">goal</span>&gt;</span>jar<span class="tag">&lt;/<span class="title">goal</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="title">goals</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="title">execution</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">executions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line">            <span class="tag">&lt;<span class="title">plugin</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>maven-assembly-plugin<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">                <span class="comment">&lt;!-- 添加上版本,如果去掉此version,则jar包里会出现重复的xml --&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.2-beta-5<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">configuration</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">appendAssemblyId</span>&gt;</span>false<span class="tag">&lt;/<span class="title">appendAssemblyId</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">descriptorRefs</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">descriptorRef</span>&gt;</span>jar-with-dependencies<span class="tag">&lt;/<span class="title">descriptorRef</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="title">descriptorRefs</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">archive</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">manifest</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="title">mainClass</span>&gt;</span>com.test.Main<span class="tag">&lt;/<span class="title">mainClass</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="title">manifest</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="title">archive</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="title">executions</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;<span class="title">execution</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">id</span>&gt;</span>make-assembly<span class="tag">&lt;/<span class="title">id</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">phase</span>&gt;</span>package<span class="tag">&lt;/<span class="title">phase</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;<span class="title">goals</span>&gt;</span></span><br><span class="line">                            <span class="tag">&lt;<span class="title">goal</span>&gt;</span>assembly<span class="tag">&lt;/<span class="title">goal</span>&gt;</span></span><br><span class="line">                        <span class="tag">&lt;/<span class="title">goals</span>&gt;</span></span><br><span class="line">                    <span class="tag">&lt;/<span class="title">execution</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;/<span class="title">executions</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">plugin</span>&gt;</span></span><br><span class="line"></span><br><span class="line">        <span class="tag">&lt;/<span class="title">plugins</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">build</span>&gt;</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="title">project</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FSDataInputStream;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileStatus;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileSystem;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.BytesWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IOUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.SequenceFile;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.compress.CompressionCodec;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.util.ReflectionUtils;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String LZO = <span class="string">"com.hadoop.compression.lzo.LzoCodec"</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> String FS = <span class="string">"hdfs://localhost:8020"</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">compress</span><span class="params">(String inputPath, String outputPath)</span> </span>&#123;</span><br><span class="line">        Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line">        conf.set(<span class="string">"fs.defaultFS"</span>, FS);</span><br><span class="line">        FSDataInputStream inputStream = <span class="keyword">null</span>;</span><br><span class="line">        SequenceFile.Writer writer = <span class="keyword">null</span>;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            FileSystem fs = FileSystem.get(conf);</span><br><span class="line">            Path input = <span class="keyword">new</span> Path(inputPath);</span><br><span class="line">            inputStream = fs.open(input);</span><br><span class="line">            FileStatus stat = fs.getFileStatus(input);</span><br><span class="line"></span><br><span class="line">            BufferedReader buff = <span class="keyword">new</span> BufferedReader(<span class="keyword">new</span> InputStreamReader(inputStream));</span><br><span class="line"></span><br><span class="line">            BytesWritable EMPTY_KEY = <span class="keyword">new</span> BytesWritable();<span class="comment">//   key</span></span><br><span class="line"><span class="comment">//            Text value = new Text();</span></span><br><span class="line"></span><br><span class="line">            Path seqFile = <span class="keyword">new</span> Path(outputPath);</span><br><span class="line">            CompressionCodec codec = (CompressionCodec) ReflectionUtils.newInstance(Class.forName(LZO), conf);</span><br><span class="line">            writer = SequenceFile.createWriter(conf,</span><br><span class="line">                    SequenceFile.Writer.file(seqFile), SequenceFile.Writer.keyClass(BytesWritable.class),</span><br><span class="line">                    SequenceFile.Writer.valueClass(Text.class),</span><br><span class="line">                    SequenceFile.Writer.compression(SequenceFile.CompressionType.BLOCK, codec));</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">            String str = <span class="string">""</span>;</span><br><span class="line">            System.out.println(<span class="string">"begin"</span>);</span><br><span class="line">            <span class="keyword">while</span> ((str = buff.readLine()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">                writer.append(EMPTY_KEY, <span class="keyword">new</span> Text(str));</span><br><span class="line">            &#125;</span><br><span class="line">            System.out.println(<span class="string">"done"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">            IOUtils.closeStream(inputStream);</span><br><span class="line">            IOUtils.closeStream(writer);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u6CE8_u610F"><a href="#u6CE8_u610F" class="headerlink" title="注意"></a><font color="#c39d2c">注意</font></h3><p>SequenceFile 是 key-value 型格式，即使 key 不输出任何值，也会 “占位”，所以压缩完文件 可以利用下面命令 看一下，第一列会有一列空占位</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop fs -text &lt;yourlzofile&gt; | head</span><br></pre></td></tr></table></figure>
+<p>判断一个文件是否是 SequenceFile ， 可以新建 hive 表 store as SEQUENCEFILE ，然后 类似这样 load 进去</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">load data inpath <span class="string">'hdfs://localhost:8020/data/xiaolong.yuanxl/lzo/'</span> overwrite into table yxl_<span class="built_in">test</span> partition(b=<span class="string">'pcc'</span>,year=<span class="string">'2015'</span>,month=<span class="string">'06'</span>,day=<span class="string">'17'</span>);</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u6D4B_u8BD5_u7ED3_u679C"><a href="#u6D4B_u8BD5_u7ED3_u679C" class="headerlink" title="测试结果"></a>测试结果</h2><p>数据准备：</p>
+<ul>
+<li>t1 数据文件 300M  压缩后 118M</li>
+<li>t2 数据文件 800M压缩后 305M</li>
+</ul>
+<p>hql 测试示例：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- HQL(1)</span></span><br><span class="line"><span class="operator"><span class="keyword">select</span> * <span class="keyword">from</span> t2 <span class="keyword">left</span> <span class="keyword">outer</span> <span class="keyword">join</span> t1 <span class="keyword">on</span> t2.uid=t1.uid <span class="keyword">group</span> <span class="keyword">by</span> t2.<span class="keyword">uuid</span>,t2.ip;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">--HQL(2)</span></span><br><span class="line"><span class="operator"><span class="keyword">select</span> <span class="keyword">count</span>(<span class="keyword">distinct</span> t2.deviceid) <span class="keyword">from</span> t2 <span class="keyword">left</span> <span class="keyword">outer</span> <span class="keyword">join</span> t1 <span class="keyword">on</span> t2.uid=t1.uid <span class="keyword">group</span> <span class="keyword">by</span> t2.deviceid,t2.<span class="keyword">uuid</span>,t2.ip ;</span></span><br></pre></td></tr></table></figure>
+<p>测试结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">表情况	HQL	Mapper 	Time</span><br><span class="line">均压	<span class="number">1</span>	<span class="number">2</span>	Time taken: <span class="number">83.887</span> seconds	 Fetched: <span class="number">920746</span> row(s)</span><br><span class="line">未压t1	<span class="number">1</span>	<span class="number">3</span>	Time taken: <span class="number">78.108</span> seconds	 Fetched: <span class="number">920746</span> row(s)</span><br><span class="line">均未压	<span class="number">1</span>	<span class="number">6</span>	Time taken: <span class="number">98.233</span> seconds	 Fetched: <span class="number">920746</span> row(s)</span><br><span class="line"></span><br><span class="line">均压	<span class="number">2</span>	<span class="number">3</span>	Time taken: <span class="number">100.466</span> seconds	 Fetched: <span class="number">606651</span> row(s)</span><br><span class="line">未压t1	<span class="number">2</span>	<span class="number">3</span>	Time taken: <span class="number">91.218</span> seconds	 Fetched: <span class="number">606651</span> row(s)</span><br><span class="line">均未压	<span class="number">2</span>	<span class="number">5</span>	Time taken: <span class="number">95.349</span> seconds	 Fetched: <span class="number">606651</span> row(s)</span><br></pre></td></tr></table></figure>
+<font color="#9f2e4d">注意：数据文件压缩完后，尽量大一些，hadoop 2.3.0 600M的hdfs文件才会启动3个mapper，当然这个也跟环境有关系。</font>
+
+
+<hr>
+<p>参考资料：</p>
+<ul>
+<li><a href="http://www.iteblog.com/archives/992" target="_blank" rel="external"><font color="#465999"> lzo压缩1——环境准备及压缩 </font></a></li>
+<li><a href="http://www.iteblog.com/archives/996" target="_blank" rel="external"><font color="#465999"> lzo压缩2——创建lzo索引 </font></a></li>
+</ul>
+<p>感谢同事 张龙 分享并指导经验，以至于少走很多弯路。</p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/hadoop/">hadoop</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/hadoop/">hadoop</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/07/03/install-hadoop-cluster-with-cloudera-manager/" class="alignleft prev" title="install hadoop cluster with cloudera manager">install hadoop cluster with cloudera manager</a>
+    
+    
+    <a href="/blog/2015/04/29/try-python-fabric/" class="alignright next" title="try python fabric">try python fabric</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/06/28/hadoop-lzo-for-hive/" data-title="hadoop lzo for hive" data-url="http://yoursite.com/blog/2015/06/28/hadoop-lzo-for-hive/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

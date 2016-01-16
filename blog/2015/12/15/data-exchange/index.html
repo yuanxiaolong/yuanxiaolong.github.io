@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>data exchange | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="数据交换 常见场景及方法">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="data exchange"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	data exchange
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-12-15T15:54:41.000Z" itemprop="datePublished">2015-12-15</time>
+    更新日期:<time datetime="2016-01-16T03:16:11.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hive_u8868_u96C6_u7FA4_u95F4_u8FC1_u79FB"><span class="toc-number">2.</span> <span class="toc-text">hive表集群间迁移</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hive_u8868_u662F_u975E_u5206_u533A_u8868"><span class="toc-number">2.1.</span> <span class="toc-text"> hive表是非分区表 </span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hive_u662F_u5206_u533A_u8868"><span class="toc-number">2.2.</span> <span class="toc-text"> hive是分区表 </span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#sqoop__u5BFC_u5165_u6570_u636E"><span class="toc-number">3.</span> <span class="toc-text">sqoop 导入数据</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u65E0_u5206_u533A"><span class="toc-number">3.1.</span> <span class="toc-text"> 无分区 </span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5206_u533A_u8868"><span class="toc-number">3.2.</span> <span class="toc-text"> 分区表 </span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5176_u4ED6"><span class="toc-number">4.</span> <span class="toc-text">其他</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u540E_u8BB0_u8865_u5145"><span class="toc-number">4.1.</span> <span class="toc-text">后记补充</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#u95EE_u9898_u4E00_3A__u6700_u8FD1__u4F7F_u7528hive_u8868_u7684_u5B57_u6BB5_u65F6_uFF0C_u53D1_u73B0_u9519_u4F4D_u4E86"><span class="toc-number">4.1.1.</span> <span class="toc-text">问题一: 最近 使用hive表的字段时，发现错位了</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u95EE_u9898_u4E8C_3A__u5BFC_u51FA_u6570_u636E_u4F1A_u81EA_u52A8_u628A__u6570_u5B570__u548C_u975E_u96F6_mysql__u6570_u636E_uFF0C_u8F6C_u6362_u5230hive__u4E3A_true_false"><span class="toc-number">4.1.2.</span> <span class="toc-text">问题二: 导出数据会自动把 数字0 和非零 mysql 数据，转换到hive 为 true false</span></a></li></ol></li></ol></li></ol>
+			</div>
+		
+        <p>本文将介绍一下常见的几种数据交换的场景，及解决方法</p>
+<a id="more"></a>
+<p>1.不同集群之间 hdfs 文件 或 hive表 迁移</p>
+<p>2.利用sqoop实现按日增量导入，及状态表的全量覆盖</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><ul>
+<li>hadoop2</li>
+<li>sqoop-1.4.6.bin__hadoop-2.0.4-alpha</li>
+<li>hive</li>
+</ul>
+<hr>
+<h2 id="hive_u8868_u96C6_u7FA4_u95F4_u8FC1_u79FB"><a href="#hive_u8868_u96C6_u7FA4_u95F4_u8FC1_u79FB" class="headerlink" title="hive表集群间迁移"></a>hive表集群间迁移</h2><p>利用hadoop distcp命令，例如把hive 的 test库下的g_info表导入到数据目录下，如果仅仅是文件拷贝而不涉及hive表，则这一条命令就可以了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop distcp hdfs://<span class="number">192.168</span>.<span class="number">1.169</span>:<span class="number">9000</span>/user/hive/warehouse/test.db/t1 hdfs://<span class="number">192.168</span>.<span class="number">7.11</span>:<span class="number">9000</span>/user/hive/warehouse/test.db/t1_cp</span><br></pre></td></tr></table></figure>
+<h3 id="hive_u8868_u662F_u975E_u5206_u533A_u8868"><a href="#hive_u8868_u662F_u975E_u5206_u533A_u8868" class="headerlink" title="hive表是非分区表"></a><font color="#d67b0f"> hive表是非分区表 </font></h3><p>1.先创建「外部表」</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">external</span> <span class="keyword">TABLE</span> t1_cp(</span><br><span class="line">  a <span class="built_in">bigint</span>,</span><br><span class="line">  b <span class="built_in">int</span>,</span><br><span class="line">  <span class="keyword">c</span> <span class="built_in">int</span>)</span><br><span class="line"><span class="keyword">COMMENT</span> <span class="string">'Created by xiaolong.yuanxl 20151211'</span></span><br><span class="line"><span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span></span><br><span class="line">  <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\t'</span></span><br><span class="line">  <span class="keyword">LINES</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\n'</span></span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> TEXTFILE location <span class="string">'hdfs://192.168.7.11:9000/user/hive/warehouse/test.db/t1_cp'</span>;</span></span><br></pre></td></tr></table></figure>
+<p>2.通过load data的方式加载数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">LOAD</span> <span class="keyword">DATA</span> INPATH <span class="string">'hdfs://192.168.7.11:9000/user/hive/warehouse/test.db/t1_cp/'</span> <span class="keyword">INTO</span> <span class="keyword">TABLE</span> t1_cp;</span></span><br></pre></td></tr></table></figure>
+<h3 id="hive_u662F_u5206_u533A_u8868"><a href="#hive_u662F_u5206_u533A_u8868" class="headerlink" title="hive是分区表"></a><font color="#d67b0f"> hive是分区表 </font></h3><p>1.如果hive是分区表，则迁移复制过来的目录结构应该带「分区文件夹」的，所以不能直接一次性导入，因此需要先创建「外部表」且添加「分区信息」，去掉「数据目录」</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">external</span> <span class="keyword">TABLE</span> t1_cp(</span><br><span class="line">  a <span class="built_in">bigint</span>,</span><br><span class="line">  b <span class="built_in">int</span>,</span><br><span class="line">  <span class="keyword">c</span> <span class="built_in">int</span>)</span><br><span class="line"><span class="keyword">COMMENT</span> <span class="string">'Created by xiaolong.yuanxl 20151211'</span></span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (</span><br><span class="line">  <span class="string">`pdt`</span> <span class="keyword">string</span>)</span><br><span class="line"><span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span></span><br><span class="line">  <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\t'</span></span><br><span class="line">  <span class="keyword">LINES</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\n'</span></span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> TEXTFILE;</span></span><br></pre></td></tr></table></figure>
+<p>2.利用 <code>hadoop distcp</code> 命令把数据复制到 hive <code>show create table t1_cp</code> 下的 location 数据目录下</p>
+<p>3.由于一个表的分区信息可能很多，甚至几千个，所以需要用脚本自动化来实现「添加分区」及「导入数据」的过程 （注意：根据自己的实际情况，修改路径及 awk截取字符串的位置）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/sh</span></span><br><span class="line">ret=`hadoop fs -ls hdfs://<span class="number">192.168</span>.<span class="number">7.168</span>:<span class="number">9000</span>/user/hive/warehouse/user.db/channel_user_reg_t | awk <span class="string">'&#123;print substr($8,78)&#125;'</span>`</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> pt <span class="keyword">in</span> <span class="variable">$&#123;ret[@]&#125;</span></span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"hive -e \"use user;alter table channel_user_reg_t add partition (pdt="</span>\<span class="string">"<span class="variable">$&#123;pt&#125;</span>\""</span>) location \<span class="string">"/user/hive/warehouse/user.db/channel_user_reg_t/pdt=<span class="variable">$&#123;pt&#125;</span>\";\""</span></span><br><span class="line">    hive <span class="operator">-e</span> <span class="string">"use user;alter table channel_user_reg_t add partition (pdt="</span>\<span class="string">"<span class="variable">$&#123;pt&#125;</span>\""</span>) location \<span class="string">"/user/hive/warehouse/user.db/channel_user_reg_t/pdt=<span class="variable">$&#123;pt&#125;</span>\";"</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<p>4.执行脚本 <code>nohup sh your.sh &amp;</code></p>
+<hr>
+<h2 id="sqoop__u5BFC_u5165_u6570_u636E"><a href="#sqoop__u5BFC_u5165_u6570_u636E" class="headerlink" title="sqoop 导入数据"></a>sqoop 导入数据</h2><p>一般我们的导入，有「全量覆盖」或「按日新增」 两种方式，而这2种方式，都要先做两件事情</p>
+<p>1.创建内部表，如果是「按日增量」则需要添加 partition 语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t1_cp(</span><br><span class="line">  a <span class="built_in">bigint</span>,</span><br><span class="line">  b <span class="built_in">int</span>,</span><br><span class="line">  <span class="keyword">c</span> <span class="built_in">int</span>)</span><br><span class="line"><span class="keyword">COMMENT</span> <span class="string">'Created by xiaolong.yuanxl 20151211'</span></span><br><span class="line">PARTITIONED <span class="keyword">BY</span> (</span><br><span class="line">  <span class="string">`pdt`</span> <span class="keyword">string</span>)</span><br><span class="line"><span class="keyword">ROW</span> <span class="keyword">FORMAT</span> <span class="keyword">DELIMITED</span></span><br><span class="line">  <span class="keyword">FIELDS</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\t'</span></span><br><span class="line">  <span class="keyword">LINES</span> <span class="keyword">TERMINATED</span> <span class="keyword">BY</span> <span class="string">'\n'</span></span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">AS</span> TEXTFILE;</span></span><br></pre></td></tr></table></figure>
+<p>2.建立分区</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">alter</span> <span class="keyword">table</span> t1_cp <span class="keyword">ADD</span> <span class="keyword">PARTITION</span> (pdt=<span class="string">'2015-12-12'</span>);</span></span><br></pre></td></tr></table></figure>
+<p>3.执行sqoop导入命令</p>
+<h3 id="u65E0_u5206_u533A"><a href="#u65E0_u5206_u533A" class="headerlink" title="无分区"></a><font color="#d67b0f"> 无分区 </font></h3><font color="#b65b25" size="3">注:下面是一行命令</font>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sqoop import --connect <span class="string">"jdbc:mysql://127.0.0.1:3306/test"</span> --username sqoop --password sqoop \</span><br><span class="line">--query <span class="string">"select id,name,age,created from test.school where created &gt;= '2015-12-10 00:00:00' and created &lt; '2015-12-11 00:00:00' and \$CONDITIONS "</span> \</span><br><span class="line">--target-dir <span class="string">"/user/hive/warehouse/test.db/t2"</span> \</span><br><span class="line">--delete-target-dir \</span><br><span class="line">--fields-terminated-by <span class="string">'\t'</span> \</span><br><span class="line">--hive-database <span class="string">"test"</span> --hive-table <span class="string">"t2"</span> \</span><br><span class="line">--verbose -m <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>重要参数说明</p>
+<ul>
+<li><code>--query</code> 代表需要执行的sql语句，其中需要硬性添加一个 <code>$CONDITIONS</code> 变量，注意shell环境$符号需要转义</li>
+<li><code>--target-dir</code> 代表sqoop执行mr完后的输出目录，跟query成对出现</li>
+<li><code>--delete-target-dir</code> 代表每次删除目录，然后重新覆盖导入</li>
+<li><code>--fields-terminated-by</code> 字段间分隔符</li>
+<li><code>--m</code> 代表mapreduce中 map 个数</li>
+</ul>
+<h3 id="u5206_u533A_u8868"><a href="#u5206_u533A_u8868" class="headerlink" title="分区表"></a><font color="#d67b0f"> 分区表 </font></h3><font color="#b65b25" size="3">注:下面是一行命令</font>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sqoop import --connect <span class="string">"jdbc:mysql://127.0.0.1:3306/test"</span> --username sqoop --password sqoop \</span><br><span class="line">--query <span class="string">"select id,name,age,created from test.school where created &gt;= '2015-12-10 00:00:00' and created &lt; '2015-12-11 00:00:00' and \$CONDITIONS "</span> \</span><br><span class="line">--target-dir <span class="string">"/user/hive/warehouse/test.db/t2” \</span><br><span class="line">--append --fields-terminated-by '\t' \</span><br><span class="line">--hive-database "</span><span class="built_in">test</span><span class="string">" --hive-table "</span>t2<span class="string">" \</span><br><span class="line">--verbose -m 1</span></span><br></pre></td></tr></table></figure>
+<p>重要参数说明</p>
+<ul>
+<li><code>--append</code> 追加模式，不会增量，仅仅增加数据文件。因此需要用sql控制增量</li>
+<li>不要添加 <code>--delete-target-dir</code></li>
+</ul>
+<hr>
+<h2 id="u5176_u4ED6"><a href="#u5176_u4ED6" class="headerlink" title="其他"></a>其他</h2><p>1.有些数据库，会有中文的问题，需要在sql中添加转义，例如</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">convert(binary convert(title using latin1) using gbk) as title</span><br></pre></td></tr></table></figure>
+<p>2.sqoop会用 <code>hadoop-env.sh</code> 里配置的 <code>$JAVA_HOME</code> 指向的 jdk，而不会关心系统环境变量</p>
+<p>3.如果需要自动化，可以利用shell获取时间，然后每日crontab导入</p>
+<h3 id="u540E_u8BB0_u8865_u5145"><a href="#u540E_u8BB0_u8865_u5145" class="headerlink" title="后记补充"></a>后记补充</h3><h4 id="u95EE_u9898_u4E00_3A__u6700_u8FD1__u4F7F_u7528hive_u8868_u7684_u5B57_u6BB5_u65F6_uFF0C_u53D1_u73B0_u9519_u4F4D_u4E86"><a href="#u95EE_u9898_u4E00_3A__u6700_u8FD1__u4F7F_u7528hive_u8868_u7684_u5B57_u6BB5_u65F6_uFF0C_u53D1_u73B0_u9519_u4F4D_u4E86" class="headerlink" title="问题一: 最近 使用hive表的字段时，发现错位了"></a>问题一: 最近 使用hive表的字段时，发现错位了</h4><p>原因是字段内容本身有 \t 字符，然后删除表，设定sqoop脚本为 \001 字符，然后创建hive表分割字符为 \001  换行符也是一样（hive只支持\n）</p>
+<p>可以添加 <code>--hive-drop-import-delims</code> （Drops \n, \r, and \01 from string fields when importing to Hive.）参数</p>
+<h4 id="u95EE_u9898_u4E8C_3A__u5BFC_u51FA_u6570_u636E_u4F1A_u81EA_u52A8_u628A__u6570_u5B570__u548C_u975E_u96F6_mysql__u6570_u636E_uFF0C_u8F6C_u6362_u5230hive__u4E3A_true_false"><a href="#u95EE_u9898_u4E8C_3A__u5BFC_u51FA_u6570_u636E_u4F1A_u81EA_u52A8_u628A__u6570_u5B570__u548C_u975E_u96F6_mysql__u6570_u636E_uFF0C_u8F6C_u6362_u5230hive__u4E3A_true_false" class="headerlink" title="问题二: 导出数据会自动把 数字0 和非零 mysql 数据，转换到hive 为 true false"></a>问题二: 导出数据会自动把 数字0 和非零 mysql 数据，转换到hive 为 true false</h4><p>引用自：<a href="http://www.cnblogs.com/cenyuhai/archive/2013/09/06/3306073.html" target="_blank" rel="external">http://www.cnblogs.com/cenyuhai/archive/2013/09/06/3306073.html</a></p>
+<p>jdbc会把 tinyint（1）认为是 java.sql.Types.BIT ,然后sqoop就会转为Boolean了</p>
+<ul>
+<li><p>解决方法1：</p>
+<ul>
+<li>在连接上加上一句话 tinyInt1isBit=false 例如  jdbc:mysql://localhost/test?tinyInt1isBit=false</li>
+</ul>
+</li>
+<li><p>解决方法2：</p>
+<ul>
+<li>hive使用 –map-column-hive foo=tinyint</li>
+<li>非hive使用–map-column-java foo=integer</li>
+</ul>
+</li>
+</ul>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/sqoop/">sqoop</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/sqoop/">sqoop</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/12/27/hive-hbase-handler/" class="alignleft prev" title="hive hbase handler">hive hbase handler</a>
+    
+    
+    <a href="/blog/2015/12/15/write-cabot-alert-by-wechat-plugin/" class="alignright next" title="write cabot alert by wechat plugin">write cabot alert by wechat plugin</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/12/15/data-exchange/" data-title="data exchange" data-url="http://yoursite.com/blog/2015/12/15/data-exchange/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

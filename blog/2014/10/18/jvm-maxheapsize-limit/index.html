@@ -1,0 +1,419 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>jvm MaxHeapSize limit | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="设置jvm的最大分配内存">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="jvm MaxHeapSize limit"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	jvm MaxHeapSize limit
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-10-18T13:50:55.000Z" itemprop="datePublished">2014-10-18</time>
+    更新日期:<time datetime="2016-01-16T07:39:25.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883"><span class="toc-number">1.</span> <span class="toc-text">环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FC7_u7A0B"><span class="toc-number">2.</span> <span class="toc-text">过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8D44_u6599"><span class="toc-number">3.</span> <span class="toc-text">资料</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#exe4j"><span class="toc-number">4.</span> <span class="toc-text">exe4j</span></a></li></ol>
+			</div>
+		
+        <p>调整jvm最大堆内存参数，限制操作系统分配太多的内存给jvm</p>
+<a id="more"></a>
+<p>最近在做简单的压力测试时，发现jvm进程会吃掉1G+的内存，并持续压测后，稳定在400M。</p>
+<p>但是，由于进程是跑在别人的数据库服务器上，当然越精简越好。eclipse、tomcat之前也设置过-xMx，但印象不深，这次深了。</p>
+<hr>
+<h2 id="u73AF_u5883"><a href="#u73AF_u5883" class="headerlink" title="环境"></a>环境</h2><p>测试机win7,16G内存。没错，是windows机器。</p>
+<font color="#7c837f">(如果是linux下只用加 java -xMx1024m 这样就可以了，文章主要目的是对比设置参数前后的情况)</font>
+
+<p><img src="/images/jvm/20141016/1.png" alt=""></p>
+<hr>
+<h2 id="u8FC7_u7A0B"><a href="#u8FC7_u7A0B" class="headerlink" title="过程"></a>过程</h2><p>先看一下最开始的jvm情况，用jconsole连上进程，可以看到最开始吃掉了1G内存！后来下滑</p>
+<p><img src="/images/jvm/20141016/2.png" alt=""></p>
+<p><img src="/images/jvm/20141016/3.png" alt=""></p>
+<p>后来设置了 -xMx128m ，新启动另一个进程，起作用了.</p>
+<p><img src="/images/jvm/20141016/4.png" alt=""></p>
+<p>来一张任务管理器的图，方便对比<br><img src="/images/jvm/20141016/5.png" alt=""></p>
+<p>用 <font color="#976d24">jinfo</font>命令看一下参数，确实对的上</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">C:\Program Files\Java\jdk1.<span class="number">6.0</span>_39\bin&gt;jinfo -flag MaxHeapSize <span class="number">10400</span></span><br><span class="line">-XX:MaxHeapSize=<span class="number">134217728</span></span><br><span class="line"></span><br><span class="line">C:\Program Files\Java\jdk1.<span class="number">6.0</span>_39\bin&gt;jinfo -flag MaxHeapSize <span class="number">5728</span></span><br><span class="line">-XX:MaxHeapSize=<span class="number">4292870144</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u8D44_u6599"><a href="#u8D44_u6599" class="headerlink" title="资料"></a>资料</h2><p>JVM初始分配的内存由-Xms指定，默认是物理内存的1/64；JVM最大分配的内存由-Xmx指定，默认是物理内存的1/4。</p>
+<p>默认空余堆内存小于 40%时，JVM就会增大堆直到-Xmx的最大限制；空余堆内存大于70%时，JVM会减少堆直到-Xms的最小限制。</p>
+<hr>
+<h2 id="exe4j"><a href="#exe4j" class="headerlink" title="exe4j"></a>exe4j</h2><p>附上一张exe4j改vm参数的地方，是用exe4j将java程序做成了exe，在win下方便运行<br><img src="/images/jvm/20141016/6.png" alt=""></p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/jvm/">jvm</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/jvm/">jvm</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2014/10/18/js-and-coffee-mixed-code-on-nodejs/" class="alignleft prev" title="js and coffee mixed code on nodejs">js and coffee mixed code on nodejs</a>
+    
+    
+    <a href="/blog/2014/09/23/design-transfer-data-structure-for-netty/" class="alignright next" title="design transfer data structure for netty">design transfer data structure for netty</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2014/10/18/jvm-maxheapsize-limit/" data-title="jvm MaxHeapSize limit" data-url="http://yoursite.com/blog/2014/10/18/jvm-maxheapsize-limit/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

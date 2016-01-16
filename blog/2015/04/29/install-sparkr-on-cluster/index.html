@@ -1,0 +1,456 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>install sparkR on cluster | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="sparkR集群安装实践">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="install sparkR on cluster"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	install sparkR on cluster
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-29T09:13:42.000Z" itemprop="datePublished">2015-04-29</time>
+    更新日期:<time datetime="2016-01-16T04:21:09.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u7F16_u8BD1_u5B89_u88C5R_uFF0C_u5728_u6240_u6709hadoop_u8282_u70B9"><span class="toc-number">1.1.</span> <span class="toc-text">编译安装R，在所有hadoop节点</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u7F16_u8BD1sparkR"><span class="toc-number">1.2.</span> <span class="toc-text">编译sparkR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5B_u672C_u5730_5D__u6D4B_u8BD5sparkR"><span class="toc-number">1.3.</span> <span class="toc-text">[本地] 测试sparkR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5B_u96C6_u7FA4_5D__u6D4B_u8BD5sparkR"><span class="toc-number">1.4.</span> <span class="toc-text">[集群] 测试sparkR</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6D4B_u8BD5_u547D_u4EE4"><span class="toc-number">1.5.</span> <span class="toc-text">测试命令</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5907_u6CE8"><span class="toc-number">2.</span> <span class="toc-text">备注</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u591A_u7528_u6237_u73AF_u5883"><span class="toc-number">3.</span> <span class="toc-text">多用户环境</span></a></li></ol>
+			</div>
+		
+        <p>sparkR是一个以R语言包装的 spark 客户端</p>
+<a id="more"></a>
+<p>安装sparkR ，运行在 yarn 的集群上</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><p>分析人员熟悉R，但不熟悉scala，R只能单机，遇到大文件，则无法分布式分析。spark是高效的计算框架，资源可以委托yarn管理，sparkR就是各取所长的客户端。</p>
+<hr>
+<h3 id="u7F16_u8BD1_u5B89_u88C5R_uFF0C_u5728_u6240_u6709hadoop_u8282_u70B9"><a href="#u7F16_u8BD1_u5B89_u88C5R_uFF0C_u5728_u6240_u6709hadoop_u8282_u70B9" class="headerlink" title="编译安装R，在所有hadoop节点"></a><font color="#dc721c">编译安装R，在所有hadoop节点</font></h3><p>1.进入 <a href="http://www.r-project.org/" target="_blank" rel="external"><font color="#465999"> R官网 </font></a>，点击 <code>download R</code> 进入镜像站点，点击第一个 <code>http://cran.rstudio.com/</code> （不要进入China站点，因为里面没有src源码）</p>
+<p>2.点击左侧导航 <code>R Sources</code> 进入下载页面，复制 <a href="http://cran.rstudio.com/src/base/R-3/R-3.1.2.tar.gz" target="_blank" rel="external"><font color="#465999"> http://cran.rstudio.com/src/base/R-3/R-3.1.2.tar.gz </font></a>,可以通过wget下载到服务器上 ,我的云盘共享<a href="http://pan.baidu.com/s/1qW7e6Zy" target="_blank" rel="external"><font color="#465999"> 点击这里 </font></a></p>
+<p>3.在编译R之前，需要通过yum安装以下几个程序</p>
+<ul>
+<li><code>yum install gcc-gfortran</code><br>否则报”configure: error: No F77 compiler found”错误</li>
+<li><code>yum install gcc gcc-c++</code><br>否则报”configure: error: C++ preprocessor “/lib/cpp” fails sanity check”错误</li>
+<li><code>yum install readline-devel</code><br>否则报”–with-readline=yes (default) and headers/libs are not available”错误</li>
+<li><code>yum install libXt-devel</code><br>否则报”configure: error: –with-x=yes (default) and X11 headers/libs are not available”错误</li>
+<li><code>yum install  curl curl-devel</code><br>是为了保证 R 的 devtool 包能加载成功，如果使用到这个包的话</li>
+</ul>
+<p>4.<code>tar zxvf R-3.1.2.tar.gz &amp;&amp; cd R-3.1.2</code></p>
+<p>5.<code>./configure</code></p>
+<p>6.<code>make &amp;&amp; make install</code></p>
+<font color="#9a9f95">PS:如果需要预先实验编译步骤是否正确，可以在一台机器上手动编译，再测试一下R </font>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">Type <span class="string">'demo()'</span> <span class="keyword">for</span> some demos, <span class="string">'help()'</span> <span class="keyword">for</span> on-line <span class="built_in">help</span>, or</span><br><span class="line"><span class="string">'help.start()'</span> <span class="keyword">for</span> an HTML browser interface to help.</span><br><span class="line">Type <span class="string">'q()'</span> to quit R.</span><br><span class="line"></span><br><span class="line">&gt; x&lt;-c(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>)</span><br><span class="line">&gt; y&lt;-c(<span class="number">102</span>,<span class="number">299</span>,<span class="number">301</span>)</span><br><span class="line">&gt; model&lt;-lm(y~x)</span><br><span class="line">&gt; summary(model)</span><br><span class="line"></span><br><span class="line">Call:</span><br><span class="line">lm(formula = y ~ x)</span><br><span class="line"></span><br><span class="line">Residuals:</span><br><span class="line"><span class="number">2</span> <span class="number">3</span></span><br><span class="line">-<span class="number">32.5</span> <span class="number">65.0</span> -<span class="number">32.5</span></span><br><span class="line"></span><br><span class="line">Coefficients:</span><br><span class="line">Estimate Std. Error t value Pr(&gt;|t|)</span><br><span class="line">(Intercept) <span class="number">35.00</span> <span class="number">121.60</span> <span class="number">0.288</span> <span class="number">0.822</span></span><br><span class="line">x <span class="number">99.50</span> <span class="number">56.29</span> <span class="number">1.768</span> <span class="number">0.328</span></span><br><span class="line"></span><br><span class="line">Residual standard error: <span class="number">79.61</span> on <span class="number">1</span> degrees of freedom</span><br><span class="line">Multiple R-squared: <span class="number">0.7575</span>, Adjusted R-squared: <span class="number">0.5151</span></span><br><span class="line">F-statistic: <span class="number">3.124</span> on <span class="number">1</span> and <span class="number">1</span> DF, p-value: <span class="number">0.3278</span></span><br><span class="line"></span><br><span class="line">&gt; proc.time()</span><br><span class="line">user system elapsed</span><br><span class="line"><span class="number">0.300</span> <span class="number">0.024</span> <span class="number">97.456</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="u7F16_u8BD1sparkR"><a href="#u7F16_u8BD1sparkR" class="headerlink" title="编译sparkR"></a><font color="#dc721c">编译sparkR</font></h3><p>可以通过git clone 代码到机器上编译好后，把编译好的fat jar 放到集群上，不需要在集群上每个机器编译sparkR</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/amplab-extras/SparkR-pkg.git</span><br><span class="line"><span class="built_in">cd</span> SparkR-pkg/</span><br><span class="line">SPARK_HADOOP_VERSION=<span class="number">2.3</span>.<span class="number">0</span>-cdh5.<span class="number">0.1</span> ./install-dev.sh</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">[root@com SparkR-pkg]<span class="comment"># SPARK_HADOOP_VERSION=2.3.0-cdh5.0.1 ./install-dev.sh</span></span><br><span class="line">* installing *<span class="built_in">source</span>* package ‘SparkR’ ...</span><br><span class="line">** libs</span><br><span class="line">** arch -</span><br><span class="line">./sbt/sbt assembly</span><br><span class="line">Attempting to fetch sbt</span><br><span class="line"><span class="comment">######################################################################## 100.0%</span></span><br><span class="line">Launching sbt from sbt/sbt-launch-<span class="number">0.13</span>.<span class="number">6</span>.jar</span><br><span class="line"><span class="comment">##########中间很多输出</span></span><br><span class="line">[success] Total time: <span class="number">103</span> s, completed Apr <span class="number">29</span>, <span class="number">2015</span> <span class="number">5</span>:<span class="number">41</span>:<span class="number">21</span> PM</span><br><span class="line">cp <span class="operator">-f</span> target/scala-<span class="number">2.10</span>/sparkr-assembly-<span class="number">0.1</span>.jar ../inst/</span><br><span class="line">R CMD SHLIB -o SparkR.so string_<span class="built_in">hash</span>_code.c</span><br><span class="line">make[<span class="number">1</span>]: Entering directory `/data/xiaolong.yuanxl/SparkR-pkg/pkg/src<span class="string">'</span><br><span class="line">gcc -std=gnu99 -I/usr/local/lib64/R/include -DNDEBUG  -I/usr/local/include    -fpic  -g -O2  -c string_hash_code.c -o string_hash_code.o</span><br><span class="line">gcc -std=gnu99 -shared -L/usr/local/lib64 -o SparkR.so string_hash_code.o</span><br><span class="line">make[1]: Leaving directory `/data/xiaolong.yuanxl/SparkR-pkg/pkg/src'</span></span><br><span class="line">installing to /data/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/libs</span><br><span class="line">** R</span><br><span class="line">** inst</span><br><span class="line">** preparing package <span class="keyword">for</span> lazy loading</span><br><span class="line">Creating a generic <span class="keyword">function</span> <span class="keyword">for</span> ‘lapply’ from package ‘base’ <span class="keyword">in</span> package ‘SparkR’</span><br><span class="line">Creating a generic <span class="keyword">function</span> <span class="keyword">for</span> ‘Filter’ from package ‘base’ <span class="keyword">in</span> package ‘SparkR’</span><br><span class="line">** <span class="built_in">help</span></span><br><span class="line">*** installing <span class="built_in">help</span> indices</span><br><span class="line">** building package indices</span><br><span class="line">** testing <span class="keyword">if</span> installed package can be loaded</span><br><span class="line">* DONE (SparkR)</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="5B_u672C_u5730_5D__u6D4B_u8BD5sparkR"><a href="#5B_u672C_u5730_5D__u6D4B_u8BD5sparkR" class="headerlink" title="[本地] 测试sparkR"></a><font color="#dc721c">[本地] 测试sparkR</font></h3><p>提交方式有2种，一种交互命令行方式，另一种通过脚本提交（类似hive 和 hive -e）。</p>
+<p>1.命令行交互模式</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[root@com SparkR-pkg]<span class="comment"># ./sparkR</span></span><br><span class="line"></span><br><span class="line">R version <span class="number">3.1</span>.<span class="number">2</span> (<span class="number">2014</span>-<span class="number">10</span>-<span class="number">31</span>) -- <span class="string">"Pumpkin Helmet"</span></span><br><span class="line">Copyright (C) <span class="number">2014</span> The R Foundation <span class="keyword">for</span> Statistical Computing</span><br><span class="line">Platform: x86_64-unknown-linux-gnu (<span class="number">64</span>-bit)</span><br><span class="line"></span><br><span class="line">R is free software and comes with ABSOLUTELY NO WARRANTY.</span><br><span class="line">You are welcome to redistribute it under certain conditions.</span><br><span class="line">Type <span class="string">'license()'</span> or <span class="string">'licence()'</span> <span class="keyword">for</span> distribution details.</span><br><span class="line"></span><br><span class="line">  Natural language support but running <span class="keyword">in</span> an English locale</span><br><span class="line"></span><br><span class="line">R is a collaborative project with many contributors.</span><br><span class="line">Type <span class="string">'contributors()'</span> <span class="keyword">for</span> more information and</span><br><span class="line"><span class="string">'citation()'</span> on how to cite R or R packages <span class="keyword">in</span> publications.</span><br><span class="line"></span><br><span class="line">Type <span class="string">'demo()'</span> <span class="keyword">for</span> some demos, <span class="string">'help()'</span> <span class="keyword">for</span> on-line <span class="built_in">help</span>, or</span><br><span class="line"><span class="string">'help.start()'</span> <span class="keyword">for</span> an HTML browser interface to help.</span><br><span class="line">Type <span class="string">'q()'</span> to quit R.</span><br><span class="line"></span><br><span class="line">[SparkR] Initializing with classpath /data/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/sparkr-assembly-<span class="number">0.1</span>.jar</span><br><span class="line"><span class="comment">###中间省略</span></span><br><span class="line">Launching java with <span class="built_in">command</span>  java   -Xmx512m -cp <span class="string">'/data/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/sparkr-assembly-0.1.jar:'</span> edu.berkeley.cs.amplab.sparkr.SparkRBackend /tmp/RtmpFB317a/backend_port455e439257bf</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">29</span> <span class="number">17</span>:<span class="number">42</span>:<span class="number">59</span> WARN NativeCodeLoader: Unable to load native-hadoop library <span class="keyword">for</span> your platform... using <span class="built_in">builtin</span>-java classes <span class="built_in">where</span> applicable</span><br><span class="line"></span><br><span class="line"> Welcome to SparkR!</span><br><span class="line"> Spark context is available as sc</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+<p>2.脚本提交</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line">[root@com SparkR-pkg]<span class="comment"># ./lib/SparkR/sparkR-submit  ./examples/pi.R local[2]</span></span><br><span class="line">Running /root/spark-<span class="number">1.1</span>.<span class="number">0</span>//bin/spark-submit --class edu.berkeley.cs.amplab.sparkr.SparkRRunner --files ./examples/pi.R  /root/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/sparkr-assembly-<span class="number">0.1</span>.jar ./examples/pi.R <span class="built_in">local</span>[<span class="number">2</span>]</span><br><span class="line">-------------------------------------------------&gt;</span><br><span class="line">old java home=&gt; /usr/java/jdk1.<span class="number">7.0</span>_55-cloudera/</span><br><span class="line">/etc/hadoop/conf</span><br><span class="line">new java home /usr/java/jdk1.<span class="number">6.0</span>_31/</span><br><span class="line"></span><br><span class="line">Spark assembly has been built with Hive, including Datanucleus jars on classpath</span><br><span class="line">WARNING: ignoring environment value of R_HOME</span><br><span class="line">Loading required package: methods</span><br><span class="line">[SparkR] Initializing with classpath /root/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/sparkr-assembly-<span class="number">0.1</span>.jar</span><br><span class="line"></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">52</span> INFO spark.SecurityManager: Changing view acls to: root,</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">52</span> INFO spark.SecurityManager: Changing modify acls to: root,</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">52</span> INFO spark.SecurityManager: SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(root, ); users with modify permissions: Set(root, )</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO slf4j.Slf4jLogger: Slf4jLogger started</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO Remoting: Starting remoting</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO Remoting: Remoting started; listening on addresses :[akka.tcp://sparkDriver@com.hunantv.logservernode2:<span class="number">47089</span>]</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO Remoting: Remoting now listens on addresses: [akka.tcp://sparkDriver@com.hunantv.logservernode2:<span class="number">47089</span>]</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO util.Utils: Successfully started service <span class="string">'sparkDriver'</span> on port <span class="number">47089</span>.</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO spark.SparkEnv: Registering MapOutputTracker</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO spark.SparkEnv: Registering BlockManagerMaster</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">53</span> INFO storage.DiskBlockManager: Created <span class="built_in">local</span> directory at /tmp/spark-local-<span class="number">20150423175153</span>-<span class="number">0</span>caa</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO util.Utils: Successfully started service <span class="string">'Connection manager for block manager'</span> on port <span class="number">60352</span>.</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO network.ConnectionManager: Bound socket to port <span class="number">60352</span> with id = ConnectionManagerId(com.hunantv.logservernode2,<span class="number">60352</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO storage.MemoryStore: MemoryStore started with capacity <span class="number">265.0</span> MB</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO storage.BlockManagerMaster: Trying to register BlockManager</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO storage.BlockManagerMasterActor: Registering block manager com.hunantv.logservernode2:<span class="number">60352</span> with <span class="number">265.0</span> MB RAM</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO storage.BlockManagerMaster: Registered BlockManager</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO spark.HttpFileServer: HTTP File server directory is /tmp/spark-<span class="number">92</span>c60115-<span class="number">974</span>e-<span class="number">4178</span>-<span class="number">86</span>c1<span class="operator">-d</span>5ce689383f4</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO spark.HttpServer: Starting HTTP Server</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO server.Server: jetty-<span class="number">8</span>.y.z-SNAPSHOT</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO server.AbstractConnector: Started SocketConnector@<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">33381</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO util.Utils: Successfully started service <span class="string">'HTTP file server'</span> on port <span class="number">33381</span>.</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO server.Server: jetty-<span class="number">8</span>.y.z-SNAPSHOT</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO server.AbstractConnector: Started SelectChannelConnector@<span class="number">0.0</span>.<span class="number">0.0</span>:<span class="number">4040</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO util.Utils: Successfully started service <span class="string">'SparkUI'</span> on port <span class="number">4040</span>.</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> INFO ui.SparkUI: Started SparkUI at http://com.hunantv.logservernode2:<span class="number">4040</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">54</span> WARN util.NativeCodeLoader: Unable to load native-hadoop library <span class="keyword">for</span> your platform... using <span class="built_in">builtin</span>-java classes <span class="built_in">where</span> applicable</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">55</span> INFO spark.SparkContext: Added JAR file:///root/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/sparkr-assembly-<span class="number">0.1</span>.jar at http://com.hunantv.logservernode2:<span class="number">33381</span>/jars/sparkr-assembly-<span class="number">0.1</span>.jar with timestamp <span class="number">1429782715609</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">55</span> INFO util.Utils: Copying /root/xiaolong.yuanxl/SparkR-pkg/./examples/pi.R to /tmp/spark-<span class="number">64</span>f7170f-<span class="number">21</span>ed-<span class="number">4551</span>-<span class="number">8</span>c1d-<span class="number">1843895</span>a8e47/pi.R</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">55</span> INFO spark.SparkContext: Added file file:/root/xiaolong.yuanxl/SparkR-pkg/./examples/pi.R at http://com.hunantv.logservernode2:<span class="number">33381</span>/files/pi.R with timestamp <span class="number">1429782715611</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">55</span> INFO util.AkkaUtils: Connecting to HeartbeatReceiver: akka.tcp://sparkDriver@com.hunantv.logservernode2:<span class="number">47089</span>/user/HeartbeatReceiver</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO spark.SparkContext: Starting job: collect at NativeMethodAccessorImpl.java:-<span class="number">2</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.DAGScheduler: Got job <span class="number">0</span> (collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>) with <span class="number">2</span> output partitions (allowLocal=<span class="literal">false</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.DAGScheduler: Final stage: Stage <span class="number">0</span>(collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.DAGScheduler: Parents of final stage: List()</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.DAGScheduler: Missing parents: List()</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.DAGScheduler: Submitting Stage <span class="number">0</span> (RRDD[<span class="number">1</span>] at RDD at RRDD.scala:<span class="number">19</span>), <span class="built_in">which</span> has no missing parents</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO storage.MemoryStore: ensureFreeSpace(<span class="number">73784</span>) called with curMem=<span class="number">0</span>, maxMem=<span class="number">277842493</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO storage.MemoryStore: Block broadcast_0 stored as values <span class="keyword">in</span> memory (estimated size <span class="number">72.1</span> KB, free <span class="number">264.9</span> MB)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.DAGScheduler: Submitting <span class="number">2</span> missing tasks from Stage <span class="number">0</span> (RRDD[<span class="number">1</span>] at RDD at RRDD.scala:<span class="number">19</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.TaskSchedulerImpl: Adding task <span class="built_in">set</span> <span class="number">0.0</span> with <span class="number">2</span> tasks</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> WARN scheduler.TaskSetManager: Stage <span class="number">0</span> contains a task of very large size (<span class="number">391</span> KB). The maximum recommended task size is <span class="number">100</span> KB.</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.TaskSetManager: Starting task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">0</span>, localhost, PROCESS_LOCAL, <span class="number">401308</span> bytes)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO scheduler.TaskSetManager: Starting task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">1</span>, localhost, PROCESS_LOCAL, <span class="number">401308</span> bytes)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO executor.Executor: Running task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">0</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO executor.Executor: Running task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">1</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO executor.Executor: Fetching http://com.hunantv.logservernode2:<span class="number">33381</span>/files/pi.R with timestamp <span class="number">1429782715611</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO util.Utils: Fetching http://com.hunantv.logservernode2:<span class="number">33381</span>/files/pi.R to /tmp/fetchFileTemp5460076502660272005.tmp</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO executor.Executor: Fetching http://com.hunantv.logservernode2:<span class="number">33381</span>/jars/sparkr-assembly-<span class="number">0.1</span>.jar with timestamp <span class="number">1429782715609</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">56</span> INFO util.Utils: Fetching http://com.hunantv.logservernode2:<span class="number">33381</span>/jars/sparkr-assembly-<span class="number">0.1</span>.jar to /tmp/fetchFileTemp4739048988763487952.tmp</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO executor.Executor: Adding file:/tmp/spark-<span class="number">64</span>f7170f-<span class="number">21</span>ed-<span class="number">4551</span>-<span class="number">8</span>c1d-<span class="number">1843895</span>a8e47/sparkr-assembly-<span class="number">0.1</span>.jar to class loader</span><br><span class="line">WARNING: ignoring environment value of R_HOME</span><br><span class="line"><span class="number">100000</span></span><br><span class="line"><span class="number">100000</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO sparkr.RRDD: Times: boot = <span class="number">0.401</span> s, init = <span class="number">0.010</span> s, broadcast = <span class="number">0.000</span> s, <span class="built_in">read</span>-input = <span class="number">0.004</span> s, compute = <span class="number">0.255</span> s, write-output = <span class="number">0.001</span> s, total = <span class="number">0.671</span> s</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO executor.Executor: Finished task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">1</span>). <span class="number">622</span> bytes result sent to driver</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.TaskSetManager: Finished task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">1</span>) <span class="keyword">in</span> <span class="number">1324</span> ms on localhost (<span class="number">1</span>/<span class="number">2</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO sparkr.RRDD: Times: boot = <span class="number">0.396</span> s, init = <span class="number">0.006</span> s, broadcast = <span class="number">0.003</span> s, <span class="built_in">read</span>-input = <span class="number">0.005</span> s, compute = <span class="number">0.302</span> s, write-output = <span class="number">0.001</span> s, total = <span class="number">0.713</span> s</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO executor.Executor: Finished task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">0</span>). <span class="number">622</span> bytes result sent to driver</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.TaskSetManager: Finished task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">0.0</span> (TID <span class="number">0</span>) <span class="keyword">in</span> <span class="number">1365</span> ms on localhost (<span class="number">2</span>/<span class="number">2</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.DAGScheduler: Stage <span class="number">0</span> (collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>) finished <span class="keyword">in</span> <span class="number">1.386</span> s</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.TaskSchedulerImpl: Removed TaskSet <span class="number">0.0</span>, whose tasks have all completed, from pool</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO spark.SparkContext: Job finished: collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>, took <span class="number">1.663123356</span> s</span><br><span class="line">Pi is roughly <span class="number">3.14104</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO spark.SparkContext: Starting job: collect at NativeMethodAccessorImpl.java:-<span class="number">2</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.DAGScheduler: Got job <span class="number">1</span> (collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>) with <span class="number">2</span> output partitions (allowLocal=<span class="literal">false</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.DAGScheduler: Final stage: Stage <span class="number">1</span>(collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.DAGScheduler: Parents of final stage: List()</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.DAGScheduler: Missing parents: List()</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.DAGScheduler: Submitting Stage <span class="number">1</span> (RRDD[<span class="number">2</span>] at RDD at RRDD.scala:<span class="number">19</span>), <span class="built_in">which</span> has no missing parents</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO storage.MemoryStore: ensureFreeSpace(<span class="number">8000</span>) called with curMem=<span class="number">73784</span>, maxMem=<span class="number">277842493</span></span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO storage.MemoryStore: Block broadcast_1 stored as values <span class="keyword">in</span> memory (estimated size <span class="number">7.8</span> KB, free <span class="number">264.9</span> MB)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.DAGScheduler: Submitting <span class="number">2</span> missing tasks from Stage <span class="number">1</span> (RRDD[<span class="number">2</span>] at RDD at RRDD.scala:<span class="number">19</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.TaskSchedulerImpl: Adding task <span class="built_in">set</span> <span class="number">1.0</span> with <span class="number">2</span> tasks</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> WARN scheduler.TaskSetManager: Stage <span class="number">1</span> contains a task of very large size (<span class="number">391</span> KB). The maximum recommended task size is <span class="number">100</span> KB.</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.TaskSetManager: Starting task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">2</span>, localhost, PROCESS_LOCAL, <span class="number">401308</span> bytes)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO scheduler.TaskSetManager: Starting task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">3</span>, localhost, PROCESS_LOCAL, <span class="number">401308</span> bytes)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO executor.Executor: Running task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">3</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">57</span> INFO executor.Executor: Running task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">2</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO sparkr.RRDD: Times: boot = <span class="number">0.009</span> s, init = <span class="number">0.007</span> s, broadcast = <span class="number">0.000</span> s, <span class="built_in">read</span>-input = <span class="number">0.005</span> s, compute = <span class="number">0.000</span> s, write-output = <span class="number">0.001</span> s, total = <span class="number">0.022</span> s</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO executor.Executor: Finished task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">2</span>). <span class="number">618</span> bytes result sent to driver</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO scheduler.TaskSetManager: Finished task <span class="number">0.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">2</span>) <span class="keyword">in</span> <span class="number">42</span> ms on localhost (<span class="number">1</span>/<span class="number">2</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO sparkr.RRDD: Times: boot = <span class="number">0.016</span> s, init = <span class="number">0.007</span> s, broadcast = <span class="number">0.001</span> s, <span class="built_in">read</span>-input = <span class="number">0.004</span> s, compute = <span class="number">0.000</span> s, write-output = <span class="number">0.001</span> s, total = <span class="number">0.029</span> s</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO executor.Executor: Finished task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">3</span>). <span class="number">618</span> bytes result sent to driver</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO scheduler.TaskSetManager: Finished task <span class="number">1.0</span> <span class="keyword">in</span> stage <span class="number">1.0</span> (TID <span class="number">3</span>) <span class="keyword">in</span> <span class="number">48</span> ms on localhost (<span class="number">2</span>/<span class="number">2</span>)</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO scheduler.TaskSchedulerImpl: Removed TaskSet <span class="number">1.0</span>, whose tasks have all completed, from pool</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO scheduler.DAGScheduler: Stage <span class="number">1</span> (collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>) finished <span class="keyword">in</span> <span class="number">0.054</span> s</span><br><span class="line"><span class="number">15</span>/<span class="number">04</span>/<span class="number">23</span> <span class="number">17</span>:<span class="number">51</span>:<span class="number">58</span> INFO spark.SparkContext: Job finished: collect at NativeMethodAccessorImpl.java:-<span class="number">2</span>, took <span class="number">0.066888288</span> s</span><br><span class="line">Num elements <span class="keyword">in</span> RDD  <span class="number">200000</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="5B_u96C6_u7FA4_5D__u6D4B_u8BD5sparkR"><a href="#5B_u96C6_u7FA4_5D__u6D4B_u8BD5sparkR" class="headerlink" title="[集群] 测试sparkR"></a><font color="#dc721c">[集群] 测试sparkR</font></h3><p>集群测试需要修改 sparkR的部分脚本 （sparkR 和 sparkR-submit）</p>
+<ol>
+<li>添加 yarn 依赖包 <font color="#209a1c">（/root/spark-1.1.0/assembly/target/scala-2.10/spark-assembly-1.1.0-hadoop2.3.0-cdh5.0.1.jar）</font></li>
+<li>添加配置环境变量 <font color="#209a1c">（MASTER、SPARK_HOME、YARN_CONF_DIR、JAVA_HOME、R_PROFILE_USER）</font></li>
+<li>指定 master 为 yarn <font color="#209a1c">（MASTER=”yarn-client”）</font></li>
+<li>设置 spark 的 driver 的内存大小<font color="#209a1c">（SPARK_MEM）</font></li>
+<li>设置 spark driver 的个数 <font color="#209a1c"> (没设置，脚本里有变量) </font></li>
+</ol>
+<ul>
+<li><font color="#aa1613"> sparkR 脚本 </font>
+
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span><br><span class="line"></span></span><br><span class="line">FWDIR=<span class="string">"<span class="variable">$(cd `dirname $0`; pwd)</span>"</span></span><br><span class="line"><span class="built_in">export</span> MASTER=<span class="string">"yarn-client"</span></span><br><span class="line"><span class="built_in">export</span> PROJECT_HOME=<span class="string">"<span class="variable">$FWDIR</span>"</span></span><br><span class="line"><span class="built_in">export</span> SPARK_HOME=/root/spark-<span class="number">1.1</span>.<span class="number">0</span>/</span><br><span class="line"><span class="built_in">export</span> YARN_CONF_DIR=/etc/hadoop/conf</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/jdk1.<span class="number">7.0</span>_55-cloudera/</span><br><span class="line"><span class="built_in">export</span> SPARK_MEM=<span class="number">1</span>g</span><br><span class="line">MASTER=yarn-client</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$CLASSPATH</span></span><br><span class="line"><span class="built_in">export</span> CLASSPATH=<span class="variable">$CLASSPATH</span>:/root/spark-<span class="number">1.1</span>.<span class="number">0</span>/assembly/target/scala-<span class="number">2.10</span>/spark-assembly-<span class="number">1.1</span>.<span class="number">0</span>-hadoop2.<span class="number">3.0</span>-cdh5.<span class="number">0.1</span>.jar</span><br><span class="line"></span><br><span class="line"><span class="built_in">unset</span> YARN_CONF_DIR</span><br><span class="line"><span class="built_in">unset</span> JAVA_HOME</span><br><span class="line"><span class="built_in">export</span> YARN_CONF_DIR=/etc/hadoop/conf:/root/spark-<span class="number">1.1</span>.<span class="number">0</span>/assembly/target/scala-<span class="number">2.10</span>/spark-assembly-<span class="number">1.1</span>.<span class="number">0</span>-hadoop2.<span class="number">3.0</span>-cdh5.<span class="number">0.1</span>.jar</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> R_PROFILE_USER=<span class="string">"/tmp/sparkR.profile"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$#</span> <span class="operator">-gt</span> <span class="number">0</span> ]; <span class="keyword">then</span></span><br><span class="line">  <span class="comment"># If we are running an R program, only set libPaths and use Rscript</span></span><br><span class="line">cat &gt; /tmp/sparkR.profile &lt;&lt; EOF</span><br><span class="line">.First &lt;- <span class="function"><span class="title">function</span></span>() &#123;</span><br><span class="line">  projecHome &lt;- Sys.getenv(<span class="string">"PROJECT_HOME"</span>)</span><br><span class="line">  .libPaths(c(paste(projecHome,<span class="string">"/lib"</span>, sep=<span class="string">""</span>), .libPaths()))</span><br><span class="line">  Sys.setenv(NOAWT=<span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">  Rscript <span class="string">"<span class="variable">$@</span>"</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line"></span><br><span class="line">  <span class="comment"># If we don't have an R file to run, initialize context and run R</span></span><br><span class="line">cat &gt; /tmp/sparkR.profile &lt;&lt; EOF</span><br><span class="line">.First &lt;- <span class="function"><span class="title">function</span></span>() &#123;</span><br><span class="line">  projecHome &lt;- Sys.getenv(<span class="string">"PROJECT_HOME"</span>)</span><br><span class="line">  Sys.setenv(NOAWT=<span class="number">1</span>)</span><br><span class="line">  .libPaths(c(paste(projecHome,<span class="string">"/lib"</span>, sep=<span class="string">""</span>), .libPaths()))</span><br><span class="line">  library(SparkR)</span><br><span class="line">  sc &lt;- sparkR.init(Sys.getenv(<span class="string">"MASTER"</span>, <span class="built_in">unset</span> = <span class="string">""</span>))</span><br><span class="line">  assign(<span class="string">"sc"</span>, sc, envir=.GlobalEnv)</span><br><span class="line">  cat(<span class="string">"\n Welcome to SparkR!"</span>)</span><br><span class="line">  cat(<span class="string">"\n Spark context is available as sc\n"</span>)</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">  R</span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><font color="#aa1613"> sparkR-submit 脚本 </font>
+
+</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> MASTER=<span class="string">"yarn-client"</span></span><br><span class="line"><span class="built_in">export</span> PROJECT_HOME=<span class="string">"<span class="variable">$FWDIR</span>"</span></span><br><span class="line"><span class="built_in">export</span> SPARK_HOME=/root/spark-<span class="number">1.1</span>.<span class="number">0</span>/</span><br><span class="line"><span class="built_in">export</span> YARN_CONF_DIR=/etc/hadoop/conf</span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/jdk1.<span class="number">7.0</span>_55-cloudera/</span><br><span class="line"><span class="built_in">export</span> SPARK_MEM=<span class="number">1</span>g</span><br><span class="line">MASTER=yarn-client</span><br><span class="line"><span class="built_in">echo</span> <span class="variable">$CLASSPATH</span></span><br><span class="line"><span class="built_in">export</span> CLASSPATH=<span class="variable">$CLASSPATH</span>:/data/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/spark-assembly-<span class="number">1.1</span>.<span class="number">0</span>-hadoop2.<span class="number">3.0</span>-cdh5.<span class="number">0.1</span>.jar</span><br><span class="line"><span class="built_in">export</span> R_LIBS=/data/xiaolong.yuanxl/SparkR-pkg/lib</span><br><span class="line"></span><br><span class="line"><span class="built_in">unset</span> YARN_CONF_DIR</span><br><span class="line"><span class="built_in">unset</span> JAVA_HOME</span><br><span class="line"><span class="built_in">export</span> YARN_CONF_DIR=/etc/hadoop/conf:/data/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/spark-assembly-<span class="number">1.1</span>.<span class="number">0</span>-hadoop2.<span class="number">3.0</span>-cdh5.<span class="number">0.1</span>.jar</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> R_PROFILE_USER=<span class="string">"/tmp/sparkR.profile"</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="u6D4B_u8BD5_u547D_u4EE4"><a href="#u6D4B_u8BD5_u547D_u4EE4" class="headerlink" title="测试命令"></a><font color="#9fbf1e">测试命令</font></h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./sparkR-submit --master yarn-client ../../examples/pi.R yarn-client <span class="number">4</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u5907_u6CE8"><a href="#u5907_u6CE8" class="headerlink" title="备注"></a>备注</h2><p>用户权限问题可以通过组解决，后面2个是启动sparkR和install.packages时没有权限的错误</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">usermod <span class="operator">-a</span> -G groupA user</span><br><span class="line">chmod <span class="number">777</span> /tmp/sparkR.profile</span><br><span class="line">chmod <span class="number">777</span> /data/xiaolong.yuanxl/SparkR-pkg/lib</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u591A_u7528_u6237_u73AF_u5883"><a href="#u591A_u7528_u6237_u73AF_u5883" class="headerlink" title="多用户环境"></a>多用户环境</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ln <span class="operator">-s</span> /data/xiaolong.yuanxl/SparkR-pkg/sparkR  /usr/bin/sparkR</span><br><span class="line">ln <span class="operator">-s</span> /data/xiaolong.yuanxl/SparkR-pkg/lib/SparkR/sparkR-submit  /usr/bin/sparkR-submit</span><br></pre></td></tr></table></figure>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/spark/">spark</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/spark/">spark</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/04/29/try-python-fabric/" class="alignleft prev" title="try python fabric">try python fabric</a>
+    
+    
+    <a href="/blog/2015/04/29/oozie-jobtracker-not-in-whitelist/" class="alignright next" title="oozie jobtracker not in whitelist">oozie jobtracker not in whitelist</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/04/29/install-sparkr-on-cluster/" data-title="install sparkR on cluster" data-url="http://yoursite.com/blog/2015/04/29/install-sparkr-on-cluster/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

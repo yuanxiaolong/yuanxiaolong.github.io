@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>zookeeper distribute read write lock | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="zookeeper分布式锁">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="zookeeper distribute read write lock"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	zookeeper distribute read write lock
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-01-13T15:02:26.000Z" itemprop="datePublished">2015-01-13</time>
+    更新日期:<time datetime="2016-01-16T04:27:26.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u601D_u60F3"><span class="toc-number">2.</span> <span class="toc-text">思想</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4EE3_u7801"><span class="toc-number">3.</span> <span class="toc-text">代码</span></a></li></ol>
+			</div>
+		
+        <p>利用zookeeper实现分布式读写锁，来协调业务一致</p>
+<a id="more"></a>
+<p>zookeeper实现读写锁,读并发,写等待其他进程释放，并获取锁，执行写逻辑</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><p>zookeeper实例，单机或伪分布式，全分布式任选，可以参照我上篇文章搭建个伪分布式的。</p>
+<p>利用如下命令，利用zk客户端连接到zk实例，其中2182是 <code>zoo.cfg</code>的clientPort</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>//bin/zkCli.sh -server <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2182</span></span><br></pre></td></tr></table></figure>
+<p>新建<code>读锁</code>和<code>写锁</code>的路径，<code>/lock/read/</code> 和 <code>/lock/write/</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[zk: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2182</span>(CONNECTED) <span class="number">8</span>] create /lock/<span class="built_in">read</span> <span class="built_in">read</span>Lock</span><br><span class="line">Created /lock/<span class="built_in">read</span></span><br><span class="line"></span><br><span class="line">[zk: <span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2182</span>(CONNECTED) <span class="number">8</span>] create /lock/write writeLock</span><br><span class="line">Created /lock/write</span><br></pre></td></tr></table></figure>
+<p>由于互斥锁，只需要在不同进程上，create 相同路径的 znode 即可由zk保证，并发下只有1个进程获得锁，十分简单。</p>
+<p>这里实现的是,读写锁（读并发、写等待）。</p>
+<hr>
+<h2 id="u601D_u60F3"><a href="#u601D_u60F3" class="headerlink" title="思想"></a>思想</h2><ul>
+<li>引用 <a href="http://www.wuzesheng.com/?p=2609" target="_blank" rel="external">http://www.wuzesheng.com/?p=2609</a><ul>
+<li>6.读写锁(Read/Write Lock)<ul>
+<li>我们知道，读写锁跟互斥锁相比不同的地方是，它分成了读和写两种模式，多个读可以并发执行，但写和读、写都互斥，不能同时执行行。利用ZooKeeper，在上面的基础上，稍做修改也可以实现传统的读写锁的语义，下面是基本的步骤:</li>
+<li>每个进程都在ZooKeeper上创建一个临时的顺序结点(Ephemeral Sequential) /locks/lock_${seq}</li>
+</ul>
+</li>
+<li>${seq}最小的一个或多个结点为当前的持锁者，多个是因为多个读可以并发</li>
+<li>需要写锁的进程，Watch比它次小的进程对应的结点</li>
+<li>需要读锁的进程，Watch比它小的最后一个写进程对应的结点</li>
+<li>当前结点释放锁后，所有Watch该结点的进程都会被通知到，他们成为新的持锁者，如此循环反复</li>
+</ul>
+</li>
+</ul>
+<p>解释一下：</p>
+<p>1.<font color="#9b1fa1">写并发</font>时：zk保证了 <code>Ephemeral Sequential</code> 序号自增，且应该根据时序，让节点依次得到 <code>写锁</code>.</p>
+<p>例如有write-01、write-02、write-03，那么<br>write-02 需要等 write-01 写完后才能执行写动作, write-03 在 write-02后写，这样保持了业务的并发，类似“九连环” 。<br>场景，对订单付款，产生3个并发，那么 write-01 ，先向账户扣款，同时标记订单状态为已完成。那么 write-02 执行时候，就不会产生重复扣了。</p>
+<p>2.<font color="#9b1fa1">读并发</font>时：由于每个进程并不关心当前其他进程在读什么，相反需要关心最后一个写的进程，不然并发时其他进程未写完时就读，就产生了脏读。</p>
+<p>所以，这里要获取 write-MaxNo 并所有读进程，都对这个 write-MaxNo znode 设置 watch，当此 znode 写动作执行完后,触发 <code>deleteNode</code> 事件,回调到 read上的 watcher。</p>
+<hr>
+<h2 id="u4EE3_u7801"><a href="#u4EE3_u7801" class="headerlink" title="代码"></a>代码</h2><p>Step 1.入口我们模拟 3个读锁 3个写锁的并发，利用线程池</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> corePoolSize = <span class="number">5</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> maximumPoolSize = <span class="number">10</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> keepAliveTime = <span class="number">3</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> maximumLinkedQueueSize = <span class="number">200000</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 固定线程池</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ThreadPoolExecutor pool = <span class="keyword">new</span> ThreadPoolExecutor(</span><br><span class="line">		corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS,</span><br><span class="line">		<span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;(maximumLinkedQueueSize),</span><br><span class="line">		<span class="keyword">new</span> ThreadPoolExecutor.AbortPolicy());</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">	<span class="comment">//先并发写锁</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">		WriteLockThread thread = <span class="keyword">new</span> WriteLockThread(<span class="string">"Thread-Write-"</span> + (i+<span class="number">1</span>));</span><br><span class="line">		pool.execute(thread);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">//后在写锁基础上,并发读锁</span></span><br><span class="line">	<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">		ReadLockThread thread = <span class="keyword">new</span> ReadLockThread(<span class="string">"Thread-Read-"</span> + (i+<span class="number">1</span>));</span><br><span class="line">		pool.execute(thread);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Step 2.线程产生读锁</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ReadLockThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TIMEOUT = <span class="number">3000</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String WRITE_LOCK_PATH = <span class="string">"/lock/write"</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String WRITE_SIGNAL = <span class="string">"write-"</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">ReadLockThread</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.name = name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		ZooKeeper zkp = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="comment">// 1.建立zk connect</span></span><br><span class="line">			zkp = <span class="keyword">new</span> ZooKeeper(<span class="string">"116.211.20.207:2182"</span>, TIMEOUT, <span class="keyword">null</span>);</span><br><span class="line">			<span class="comment">// 2.创建一个EPHEMERAL类型的节点，会话关闭后它会自动被删除</span></span><br><span class="line">			zkp.create(<span class="string">"/lock/read/read-"</span>, <span class="keyword">this</span>.name.getBytes(),</span><br><span class="line">					Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);</span><br><span class="line">			<span class="comment">// 3.sleep 1秒,故意让其它线程也create这个znode,形成读并发的效果</span></span><br><span class="line">			Thread.sleep(<span class="number">1000</span>);</span><br><span class="line">			<span class="comment">// 4.查看当前写锁,并在最后一个写锁上注册watcher</span></span><br><span class="line">			List&lt;String&gt; children = zkp.getChildren(WRITE_LOCK_PATH, <span class="keyword">null</span>);</span><br><span class="line">			String maxWriteLockName = maxSeq(children);</span><br><span class="line">			<span class="comment">// 5.在写锁上注册wathcer</span></span><br><span class="line">			String writeLock = WRITE_LOCK_PATH + <span class="string">"/"</span> + maxWriteLockName;</span><br><span class="line">			Stat stat = zkp.exists(writeLock , <span class="keyword">new</span> MyReadBusinessLogic(<span class="keyword">this</span>.name,zkp));</span><br><span class="line">			<span class="keyword">if</span> (stat != <span class="keyword">null</span>) &#123;</span><br><span class="line">				System.out.println(<span class="string">"[read theard] register watcher in "</span> + writeLock + <span class="string">" success!"</span>);</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="comment">//很有可能在40行到44行这段时间内,写锁已经被释放了,所以,这里直接执行读逻辑</span></span><br><span class="line">				System.out.println(<span class="string">"lastest writeLock node has been delete, now I can direct execute read bussiness"</span>);</span><br><span class="line">				doReadBussiness(<span class="keyword">this</span>.name);</span><br><span class="line">				zkp.close();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//获取最大seq</span></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> String <span class="title">maxSeq</span><span class="params">(List&lt;String&gt; list)</span> </span>&#123;</span><br><span class="line">		String maxSeq = <span class="string">""</span>;</span><br><span class="line">		<span class="keyword">int</span> max = -<span class="number">1</span>; <span class="comment">//初始化</span></span><br><span class="line">		<span class="keyword">if</span> (list != <span class="keyword">null</span> &amp;&amp; !list.isEmpty()) &#123;</span><br><span class="line">			<span class="keyword">if</span> (StringUtils.containsIgnoreCase(list.get(<span class="number">0</span>), WRITE_SIGNAL)) &#123;</span><br><span class="line">				String m = StringUtils.remove(list.get(<span class="number">0</span>), WRITE_SIGNAL);</span><br><span class="line">				max = Integer.parseInt(m);</span><br><span class="line">				maxSeq = list.get(<span class="number">0</span>);</span><br><span class="line">			&#125;</span><br><span class="line">			<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">1</span>; i &lt; list.size(); i++) &#123;</span><br><span class="line">				<span class="keyword">if</span> (StringUtils.containsIgnoreCase(list.get(i), WRITE_SIGNAL)) &#123;</span><br><span class="line">					<span class="keyword">int</span> temp = Integer.parseInt(StringUtils.remove(list.get(i), WRITE_SIGNAL));</span><br><span class="line">					<span class="keyword">if</span> (max &lt; temp)&#123;</span><br><span class="line">						max = temp;</span><br><span class="line">						maxSeq = list.get(i);</span><br><span class="line">					&#125;</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> maxSeq;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//mock</span></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doReadBussiness</span><span class="params">(String bussinessNo)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"do read My Bussiness! "</span> + bussinessNo);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Step 3.产生写锁线程</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.lock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Collections;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.lang.StringUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.CreateMode;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooDefs.Ids;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.data.Stat;</span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * 创建线程,产生并发写</span><br><span class="line"> *</span><br><span class="line"> * <span class="doctag">@author</span> xiaolong.yuanxl</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WriteLockThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> TIMEOUT = <span class="number">3000</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String WRITE_LOCK_PATH = <span class="string">"/lock/write"</span>;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> String name;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">WriteLockThread</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.name = name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		ZooKeeper zkp = <span class="keyword">null</span>;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="comment">// 1.建立zk connect</span></span><br><span class="line">			zkp = <span class="keyword">new</span> ZooKeeper(<span class="string">"116.211.20.207:2182"</span>, TIMEOUT, <span class="keyword">null</span>);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 2.创建一个EPHEMERAL类型的节点，会话关闭后它会自动被删除</span></span><br><span class="line">			String currentPath = zkp.create(WRITE_LOCK_PATH + <span class="string">"/write-"</span>, <span class="keyword">this</span>.name.getBytes(),</span><br><span class="line">					Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);</span><br><span class="line">			System.out.println(<span class="string">"current: "</span> + currentPath);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 3.sleep 6秒,故意让其它线程也create这个znode,形成并发的效果,同时与读锁也能够一起产生并发</span></span><br><span class="line">			Thread.sleep(<span class="number">6000</span>);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 4.查看当前写锁,并在前一个写锁上注册watcher,形成“九连环”</span></span><br><span class="line">			List&lt;String&gt; children = zkp.getChildren(WRITE_LOCK_PATH, <span class="keyword">null</span>);</span><br><span class="line">			Collections.sort(children);<span class="comment">//由于前缀一样,因此可以用自然排序</span></span><br><span class="line">			String current = StringUtils.remove(currentPath, WRITE_LOCK_PATH + <span class="string">"/"</span>);</span><br><span class="line">			<span class="keyword">int</span> index = children.indexOf(current);</span><br><span class="line"></span><br><span class="line">			<span class="comment">// 4.1 如果存在前一个节点,则向前一个节点注册watcher,并在watcher里执行完逻辑后再close</span></span><br><span class="line">			<span class="keyword">if</span> (-<span class="number">1</span> != index &amp;&amp; index != <span class="number">0</span>) &#123;</span><br><span class="line">				System.out.println(<span class="keyword">this</span>.name + <span class="string">" mine: "</span> + current + <span class="string">" preview: "</span> + children.get(index-<span class="number">1</span>));</span><br><span class="line">				<span class="comment">//前一个节点</span></span><br><span class="line">				String previewNodePath = WRITE_LOCK_PATH + <span class="string">"/"</span> + children.get(index-<span class="number">1</span>);</span><br><span class="line">				Stat stat = zkp.exists(previewNodePath , <span class="keyword">new</span> MyWriteBusinessLogic(<span class="keyword">this</span>.name,zkp));</span><br><span class="line">				<span class="keyword">if</span> (stat != <span class="keyword">null</span>) &#123;</span><br><span class="line">					System.out.println(<span class="string">"[write thread] register watcher in "</span> + previewNodePath + <span class="string">" success!"</span>);</span><br><span class="line">				&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">					<span class="comment">//很有可能在46行到50行这段时间内,前一个节点已经释放了锁,所以这里会注册不成功,由于当前节点已经是最小的了,所以可以直接执行逻辑</span></span><br><span class="line">					System.out.println(<span class="string">"preview node has been delete, now I can direct execute write bussiness"</span>);</span><br><span class="line">					doWriteBussiness(<span class="keyword">this</span>.name);</span><br><span class="line">					zkp.close();</span><br><span class="line">				&#125;</span><br><span class="line">			&#125;<span class="keyword">else</span> &#123;</span><br><span class="line">				<span class="comment">//4.2 如果当前节点为第一个,则close</span></span><br><span class="line">				Thread.sleep(<span class="number">3000</span>);<span class="comment">//这里需要等待3秒再关闭连接,形成阻塞,让其他线程注册Watcher成功</span></span><br><span class="line">				zkp.close();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line"></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//mock</span></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">doWriteBussiness</span><span class="params">(String bussinessNo)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"do write My Bussiness! "</span> + bussinessNo);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Step 4.读锁watcher回调的业务逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.lock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.WatchedEvent;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher.Event.EventType;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> *  读锁watch回调</span><br><span class="line"> *</span><br><span class="line"> * <span class="doctag">@author</span> xiaolong.yuanxl</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyReadBusinessLogic</span> <span class="keyword">implements</span> <span class="title">Watcher</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> ZooKeeper zkp;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> String bussinessNo;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">MyReadBusinessLogic</span><span class="params">(String bussinessNo,ZooKeeper zkp)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.bussinessNo = bussinessNo;</span><br><span class="line">		<span class="keyword">this</span>.zkp = zkp;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent event)</span> </span>&#123;</span><br><span class="line">		<span class="comment">//如果前一个对象上的锁释放了,这里回调获取感知</span></span><br><span class="line">		<span class="keyword">if</span> (EventType.NodeDeleted.getIntValue() == event.getType().getIntValue()) &#123;</span><br><span class="line">			System.out.println(<span class="string">"[callback read thread] max write node has been deleted, path: "</span> + event.getPath());</span><br><span class="line">			doReadBussiness(bussinessNo,event.getPath());</span><br><span class="line">			<span class="comment">//close</span></span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				zkp.close();</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//mock</span></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">doReadBussiness</span><span class="params">(String bussinessNo,String path)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"path deleted! "</span> + path + <span class="string">" do My read Bussiness! "</span> + bussinessNo);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Step 5.写锁watcher回调的业务逻辑</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.lock;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.WatchedEvent;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.ZooKeeper;</span><br><span class="line"><span class="keyword">import</span> org.apache.zookeeper.Watcher.Event.EventType;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * 写锁watch回调</span><br><span class="line"> *</span><br><span class="line"> * <span class="doctag">@author</span> xiaolong.yuanxl</span><br><span class="line"> */</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyWriteBusinessLogic</span> <span class="keyword">implements</span> <span class="title">Watcher</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> ZooKeeper zkp;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> String bussinessNo;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">MyWriteBusinessLogic</span><span class="params">(String bussinessNo,ZooKeeper zkp)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">this</span>.bussinessNo = bussinessNo;</span><br><span class="line">		<span class="keyword">this</span>.zkp = zkp;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">process</span><span class="params">(WatchedEvent event)</span> </span>&#123;</span><br><span class="line">		<span class="comment">//如果前一个对象上的锁释放了,这里回调获取感知</span></span><br><span class="line">		<span class="keyword">if</span> (EventType.NodeDeleted.getIntValue() == event.getType().getIntValue()) &#123;</span><br><span class="line">			System.out.println(<span class="string">"[callback write thread] preview node has been deleted, path: "</span> + event.getPath());</span><br><span class="line">			doBussiness(bussinessNo,event.getPath());</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				<span class="comment">//close</span></span><br><span class="line">				zkp.close();</span><br><span class="line">			&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">//mock</span></span><br><span class="line">	<span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">doBussiness</span><span class="params">(String bussinessNo,String path)</span></span>&#123;</span><br><span class="line">		System.out.println(<span class="string">"path deleted! "</span> + path + <span class="string">" do My write Bussiness! "</span> + bussinessNo);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Step 6.执行后输出类似如下，可见 read thread 同时对最后一个写锁znode <code>write-0000000040</code>添加 watcher，等待最大写锁znode写完毕close后，触发watcher执行逻辑<br>，同时写锁 <code>write-0000000040</code>向<code>write-0000000039</code> 加watcher，<code>write-0000000039</code>向<code>write-0000000038</code>加watcher，<code>write-0000000038</code>由于没有<br>前一个节点，不加wathcer</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">current: /lock/write/write-<span class="number">0000000038</span></span><br><span class="line">current: /lock/write/write-<span class="number">0000000039</span></span><br><span class="line">current: /lock/write/write-<span class="number">0000000040</span></span><br><span class="line">[<span class="built_in">read</span> theard] register watcher <span class="keyword">in</span> /lock/write/write-<span class="number">0000000040</span> success!</span><br><span class="line">[<span class="built_in">read</span> theard] register watcher <span class="keyword">in</span> /lock/write/write-<span class="number">0000000040</span> success!</span><br><span class="line">[<span class="built_in">read</span> theard] register watcher <span class="keyword">in</span> /lock/write/write-<span class="number">0000000040</span> success!</span><br><span class="line">Thread-Write-<span class="number">2</span> mine: write-<span class="number">0000000040</span> preview: write-<span class="number">0000000039</span></span><br><span class="line">Thread-Write-<span class="number">3</span> mine: write-<span class="number">0000000039</span> preview: write-<span class="number">0000000038</span></span><br><span class="line">[write thread] register watcher <span class="keyword">in</span> /lock/write/write-<span class="number">0000000038</span> success!</span><br><span class="line">[write thread] register watcher <span class="keyword">in</span> /lock/write/write-<span class="number">0000000039</span> success!</span><br><span class="line">[callback write thread] preview node has been deleted, path: /lock/write/write-<span class="number">0000000038</span></span><br><span class="line">path deleted! /lock/write/write-<span class="number">0000000038</span> <span class="keyword">do</span> My write Bussiness! Thread-Write-<span class="number">3</span></span><br><span class="line">[callback write thread] preview node has been deleted, path: /lock/write/write-<span class="number">0000000039</span></span><br><span class="line">path deleted! /lock/write/write-<span class="number">0000000039</span> <span class="keyword">do</span> My write Bussiness! Thread-Write-<span class="number">2</span></span><br><span class="line">[callback <span class="built_in">read</span> thread] max write node has been deleted, path: /lock/write/write-<span class="number">0000000040</span></span><br><span class="line">[callback <span class="built_in">read</span> thread] max write node has been deleted, path: /lock/write/write-<span class="number">0000000040</span></span><br><span class="line">[callback <span class="built_in">read</span> thread] max write node has been deleted, path: /lock/write/write-<span class="number">0000000040</span></span><br><span class="line">path deleted! /lock/write/write-<span class="number">0000000040</span> <span class="keyword">do</span> My <span class="built_in">read</span> Bussiness! Thread-Read-<span class="number">3</span></span><br><span class="line">path deleted! /lock/write/write-<span class="number">0000000040</span> <span class="keyword">do</span> My <span class="built_in">read</span> Bussiness! Thread-Read-<span class="number">2</span></span><br><span class="line">path deleted! /lock/write/write-<span class="number">0000000040</span> <span class="keyword">do</span> My <span class="built_in">read</span> Bussiness! Thread-Read-<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>PS: 所有代码在 <a href="https://github.com/yuanxiaolong/ZookeeperDemo" target="_blank" rel="external"><font color="#388014">Github</font></a>上，clone后 运行 <code>mvn eclipse:eclipse</code>获取依赖</p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/zookeeper/">zookeeper</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/zookeeper/">zookeeper</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/04/28/deploy-shadowsocks-on-vps/" class="alignleft prev" title="deploy shadowsocks on VPS">deploy shadowsocks on VPS</a>
+    
+    
+    <a href="/blog/2015/01/11/zookeeper-and-dubbo/" class="alignright next" title="zookeeper and dubbo">zookeeper and dubbo</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/01/13/zookeeper-distribute-read-write-lock/" data-title="zookeeper distribute read write lock" data-url="http://yoursite.com/blog/2015/01/13/zookeeper-distribute-read-write-lock/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

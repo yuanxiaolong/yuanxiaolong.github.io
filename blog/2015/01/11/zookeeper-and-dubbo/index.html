@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>zookeeper and dubbo | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="利用zookeeper搭建dubbo">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="zookeeper and dubbo"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	zookeeper and dubbo
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-01-11T15:17:17.000Z" itemprop="datePublished">2015-01-11</time>
+    更新日期:<time datetime="2016-01-16T04:30:35.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907_3A"><span class="toc-number">1.</span> <span class="toc-text">环境准备:</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#zookeeper_Install__u4F2A_u5206_u5E03_u5F0F"><span class="toc-number">2.</span> <span class="toc-text">zookeeper Install 伪分布式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dubbo_admin__u5B89_u88C5_uFF08web_u7BA1_u7406_u5DE5_u5177_uFF09"><span class="toc-number">3.</span> <span class="toc-text">dubbo admin 安装（web管理工具）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#dubbo_Provider_Consumer__u793A_u4F8B"><span class="toc-number">4.</span> <span class="toc-text">dubbo Provider Consumer 示例</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Provider"><span class="toc-number">4.1.</span> <span class="toc-text">Provider</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Consumer"><span class="toc-number">4.2.</span> <span class="toc-text">Consumer</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u5148_u542F_u52A8Provider_uFF0C_u518D_u542F_u52A8Consumer"><span class="toc-number">4.3.</span> <span class="toc-text">先启动Provider，再启动Consumer</span></a></li></ol></li></ol>
+			</div>
+		
+        <p>安装Dubbo，并利用zookeeper作为注册中心</p>
+<a id="more"></a>
+<p>Dubbo 是在阿里广泛应用的RPC框架，简单方便。zookeeper用于实现HA常用的一种方案。</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907_3A"><a href="#u73AF_u5883_u51C6_u5907_3A" class="headerlink" title="环境准备:"></a>环境准备:</h2><p>Dubbo <a href="http://alibaba.github.io/dubbo-doc-static/Home-zh.htm" target="_blank" rel="external"><font color="#5365c6">首页</font></a></p>
+<ul>
+<li>zookeeper <a href="http://www.apache.org/dist/zookeeper/" target="_blank" rel="external"><font color="#5365c6">download</font></a></li>
+<li>tomcat6 <a href="http://www.apache.org/dist/tomcat/tomcat-6/v6.0.41/bin/" target="_blank" rel="external"><font color="#5365c6">download</font></a></li>
+</ul>
+<hr>
+<h2 id="zookeeper_Install__u4F2A_u5206_u5E03_u5F0F"><a href="#zookeeper_Install__u4F2A_u5206_u5E03_u5F0F" class="headerlink" title="zookeeper Install 伪分布式"></a>zookeeper Install 伪分布式</h2><p>1.解压下载好的zookeeper，到服务器上，解压并重命名</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.apache.org/dist/zookeeper/stable/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>.tar.gz</span><br><span class="line">tar zxvf zookeeper-<span class="number">3.4</span>.<span class="number">6</span>.tar.gz</span><br><span class="line">mv zookeeper-<span class="number">3.4</span>.<span class="number">6</span> zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>2.进入conf目录，复制配置文件，并修改参数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">cp zoo_sample.cfg zoo.cfg</span><br><span class="line">vi zoo.cfg</span><br><span class="line"></span><br><span class="line">tickTime=<span class="number">2000</span>  </span><br><span class="line">initLimit=<span class="number">5</span>  </span><br><span class="line">syncLimit=<span class="number">2</span>  </span><br><span class="line">dataDir=/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/data</span><br><span class="line">dataLogDir=/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/logs</span><br><span class="line">clientPort=<span class="number">2182</span></span><br><span class="line">server.<span class="number">1</span>=<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">8880</span>:<span class="number">7770</span>  </span><br><span class="line">server.<span class="number">2</span>=<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">8881</span>:<span class="number">7771</span>  </span><br><span class="line">server.<span class="number">3</span>=<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">8882</span>:<span class="number">7772</span></span><br></pre></td></tr></table></figure>
+<p>其中需要修改的 <code>dataDir</code> <code>dataLogDir</code> <code>clientPort</code> ，端口不能重复! 一般我喜欢在conf同级目录下 新建 <code>data</code> 和 <code>logs</code> 文件夹</p>
+<ul>
+<li>引用 <a href="http://coolxing.iteye.com/blog/1871009" target="_blank" rel="external">http://coolxing.iteye.com/blog/1871009</a><ul>
+<li><b><font color="#323d89">initLimit</font></b>: zookeeper集群中的包含多台server, 其中一台为leader, 集群中其余的server为follower. initLimit参数配置初始化连接时, follower和leader之间的最长心跳时间. 此时该参数设置为5, 说明时间限制为5倍tickTime, 即5*2000=10000ms=10s.</li>
+<li><b><font color="#323d89">syncLimit</font></b>: 该参数配置leader和follower之间发送消息, 请求和应答的最大时间长度. 此时该参数设置为2, 说明时间限制为2倍tickTime, 即4000ms.</li>
+<li><b><font color="#323d89">server.X=A:B:C</font></b> 其中X是一个数字, 表示这是第几号server. A是该server所在的IP地址. B配置该server和集群中的leader交换消息所使用的端口. C配置选举leader时所使用的端口. 由于配置的是伪集群模式, 所以各个server的B, C参数必须不同.</li>
+</ul>
+</li>
+</ul>
+<p>3.进入 conf/zoo.cfg 里指定的 data 文件夹，新建<code>myid</code>文件，用于标识此zk实例是集群中的哪一个,该数字必须和 <code>zoo.cfg</code> 文件中的 <code>server.X</code> 中的X相对应.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/data</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"1"</span> &gt; myid</span><br></pre></td></tr></table></figure>
+<p>4.同理 cp 出 zk2 和 zk3 ，注意修改 data 、 logs、clientPort 、myid 这4个地方，然后依次启动zk ( 关闭stop 重启restart 状态status ) 并看启动情况</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/</span><br><span class="line">sh zkServer.sh start</span><br><span class="line">less ./zookeeper.out</span><br></pre></td></tr></table></figure>
+<p>5.这时查看zk的进程，是否是预期的3个，以及状态（2个foller、1个leader）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[web@web02 bin]$ ps -ef | grep zoo</span><br><span class="line">web        <span class="number">553</span>     <span class="number">1</span>  <span class="number">0</span> <span class="number">10</span>:<span class="number">22</span> ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> /usr/java/jdk1.<span class="number">6.0</span>_20/bin/java -Dzookeeper.log.dir=. -Dzookeeper.root.logger=INFO,CONSOLE -cp /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../build/classes:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../build/lib/*.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../lib/slf4j-log4j12-<span class="number">1.6</span>.<span class="number">1</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../lib/slf4j-api-<span class="number">1.6</span>.<span class="number">1</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../lib/netty-<span class="number">3.7</span>.<span class="number">0</span>.Final.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../lib/<span class="built_in">log</span>4j-<span class="number">1.2</span>.<span class="number">16</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../lib/jline-<span class="number">0.9</span>.<span class="number">94</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../zookeeper-<span class="number">3.4</span>.<span class="number">6</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../src/java/lib/*.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../conf: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=<span class="literal">false</span> org.apache.zookeeper.server.quorum.QuorumPeerMain /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../conf/zoo.cfg</span><br><span class="line">web        <span class="number">778</span>     <span class="number">1</span>  <span class="number">0</span> <span class="number">10</span>:<span class="number">26</span> ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> /usr/java/jdk1.<span class="number">6.0</span>_20/bin/java -Dzookeeper.log.dir=. -Dzookeeper.root.logger=INFO,CONSOLE -cp /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../build/classes:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../build/lib/*.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../lib/slf4j-log4j12-<span class="number">1.6</span>.<span class="number">1</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../lib/slf4j-api-<span class="number">1.6</span>.<span class="number">1</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../lib/netty-<span class="number">3.7</span>.<span class="number">0</span>.Final.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../lib/<span class="built_in">log</span>4j-<span class="number">1.2</span>.<span class="number">16</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../lib/jline-<span class="number">0.9</span>.<span class="number">94</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../zookeeper-<span class="number">3.4</span>.<span class="number">6</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../src/java/lib/*.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../conf: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=<span class="literal">false</span> org.apache.zookeeper.server.quorum.QuorumPeerMain /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../conf/zoo.cfg</span><br><span class="line">web       <span class="number">1167</span>     <span class="number">1</span>  <span class="number">0</span> <span class="number">10</span>:<span class="number">37</span> ?        <span class="number">00</span>:<span class="number">00</span>:<span class="number">01</span> /usr/java/jdk1.<span class="number">6.0</span>_20/bin/java -Dzookeeper.log.dir=. -Dzookeeper.root.logger=INFO,CONSOLE -cp /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../build/classes:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../build/lib/*.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../lib/slf4j-log4j12-<span class="number">1.6</span>.<span class="number">1</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../lib/slf4j-api-<span class="number">1.6</span>.<span class="number">1</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../lib/netty-<span class="number">3.7</span>.<span class="number">0</span>.Final.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../lib/<span class="built_in">log</span>4j-<span class="number">1.2</span>.<span class="number">16</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../lib/jline-<span class="number">0.9</span>.<span class="number">94</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../zookeeper-<span class="number">3.4</span>.<span class="number">6</span>.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../src/java/lib/*.jar:/home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../conf: -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.local.only=<span class="literal">false</span> org.apache.zookeeper.server.quorum.QuorumPeerMain /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../conf/zoo.cfg</span><br><span class="line">web       <span class="number">6057</span>  <span class="number">2023</span>  <span class="number">0</span> <span class="number">15</span>:<span class="number">47</span> pts/<span class="number">6</span>    <span class="number">00</span>:<span class="number">00</span>:<span class="number">00</span> grep zoo</span><br><span class="line"></span><br><span class="line">[web@web02 bin]$ sh /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/zkServer.sh status</span><br><span class="line">JMX enabled by default</span><br><span class="line">Using config: /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">1</span>/bin/../conf/zoo.cfg</span><br><span class="line">Mode: follower</span><br><span class="line"></span><br><span class="line">[web@web02 bin]$ sh /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/zkServer.sh status</span><br><span class="line">JMX enabled by default</span><br><span class="line">Using config: /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">2</span>/bin/../conf/zoo.cfg</span><br><span class="line">Mode: follower</span><br><span class="line"></span><br><span class="line">[web@web02 bin]$ sh /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/zkServer.sh status</span><br><span class="line">JMX enabled by default</span><br><span class="line">Using config: /home/web/xiaolong.yuanxl/zookeeper-<span class="number">3.4</span>.<span class="number">6</span>-server-<span class="number">3</span>/bin/../conf/zoo.cfg</span><br><span class="line">Mode: leader</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="dubbo_admin__u5B89_u88C5_uFF08web_u7BA1_u7406_u5DE5_u5177_uFF09"><a href="#dubbo_admin__u5B89_u88C5_uFF08web_u7BA1_u7406_u5DE5_u5177_uFF09" class="headerlink" title="dubbo admin 安装（web管理工具）"></a>dubbo admin 安装（web管理工具）</h2><p>由于dubbo官网已经打不开了，这里是我的云盘 <a href="http://pan.baidu.com/s/1dDlI7aL" target="_blank" rel="external"><font color="#5365c6">共享</font></a></p>
+<p>官网给出的 <a href="http://alibaba.github.io/dubbo-doc-static/Administrator+Guide-zh.htm#AdministratorGuide-zh-Zookeeper%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E5%AE%89%E8%A3%85" target="_blank" rel="external"><font color="#d08432">zk安装</font></a></p>
+<p>官网给出的 <a href="http://alibaba.github.io/dubbo-doc-static/Administrator+Guide-zh.htm#AdministratorGuide-zh-%E7%AE%A1%E7%90%86%E6%8E%A7%E5%88%B6%E5%8F%B0%E5%AE%89%E8%A3%85" target="_blank" rel="external"><font color="#d08432">dubbo-admin安装</font></a></p>
+<p>1.下载并将 tomcat 解压，删除默认的 <code>webapp/ROOT</code> （也可以通过设置 tomcat的 server.xml 里 Context 来指定路径）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wget http://www.apache.org/dist/tomcat/tomcat-<span class="number">6</span>/v6.<span class="number">0.41</span>/bin/apache-tomcat-<span class="number">6.0</span>.<span class="number">41</span>.tar.gz</span><br><span class="line">tar zxvf apache-tomcat-<span class="number">6.0</span>.<span class="number">41</span>.tar.gz</span><br><span class="line">rm -rf webapps/ROOT</span><br></pre></td></tr></table></figure>
+<p>2.下载并解压 dubbo-admin ，并修改配置 (我指定了其中的一个zk实例)，默认用户名和密码都是root</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">mkdir ./apache-tomcat-<span class="number">6.0</span>.<span class="number">41</span>/webapps/ROOT</span><br><span class="line">cp dubbo-admin-<span class="number">2.5</span>.<span class="number">4</span>.war ./apache-tomcat-<span class="number">6.0</span>.<span class="number">41</span>/webapps/ROOT</span><br><span class="line">jar -xvf dubbo-admin-<span class="number">2.5</span>.<span class="number">4</span>.war</span><br><span class="line">rm -rf dubbo-admin-<span class="number">2.5</span>.<span class="number">4</span>.war</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">vi webapps/ROOT/WEB-INF/dubbo.properties</span><br><span class="line"></span><br><span class="line">dubbo.registry.address=zookeeper://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">2182</span></span><br><span class="line">dubbo.admin.root.password=root</span><br><span class="line">dubbo.admin.guest.password=guest</span><br></pre></td></tr></table></figure>
+<p>3.浏览器访问，我这里修改了tomcat端口，默认http路由的是8080端口</p>
+<p><img src="/images/dubbo/20150109/1.png" alt=""></p>
+<hr>
+<h2 id="dubbo_Provider_Consumer__u793A_u4F8B"><a href="#dubbo_Provider_Consumer__u793A_u4F8B" class="headerlink" title="dubbo Provider Consumer 示例"></a>dubbo Provider Consumer 示例</h2><p>即官网 <a href="http://alibaba.github.io/dubbo-doc-static/Home-zh.htm" target="_blank" rel="external"><font color="#d08432">首页示例</font></a></p>
+<h3 id="Provider"><a href="#Provider" class="headerlink" title="Provider"></a>Provider</h3><figure class="highlight java"><figcaption><span>DemoService.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.provider;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">DemoService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	 <span class="function">String <span class="title">sayHello</span><span class="params">(String name)</span></span>;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight java"><figcaption><span>DemoServiceImpl.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.provider;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DemoServiceImpl</span> <span class="keyword">implements</span> <span class="title">DemoService</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> String <span class="title">sayHello</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">"Hello "</span> + name;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Provider 配置文件</p>
+<figure class="highlight xml"><figcaption><span>provider.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">beans</span> <span class="attribute">xmlns</span>=<span class="value">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">    <span class="attribute">xmlns:xsi</span>=<span class="value">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">    <span class="attribute">xmlns:dubbo</span>=<span class="value">"http://code.alibabatech.com/schema/dubbo"</span></span><br><span class="line">    <span class="attribute">xsi:schemaLocation</span>=<span class="value">"http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd        http://code.alibabatech.com/schema/dubbo        http://code.alibabatech.com/schema/dubbo/dubbo.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 提供方应用信息，用于计算依赖关系 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dubbo:application</span> <span class="attribute">name</span>=<span class="value">"hello-world-app"</span>  /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 使用zookeeper注册中心暴露服务地址 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dubbo:registry</span> <span class="attribute">address</span>=<span class="value">"zookeeper://116.211.20.207:2182?backup=116.211.20.207:2183,116.211.20.207:2184"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 用dubbo协议在20880端口暴露服务 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dubbo:protocol</span> <span class="attribute">name</span>=<span class="value">"dubbo"</span> <span class="attribute">port</span>=<span class="value">"20880"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 声明需要暴露的服务接口 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dubbo:service</span> <span class="attribute">interface</span>=<span class="value">"com.yxl.provider.DemoService"</span> <span class="attribute">ref</span>=<span class="value">"demoService"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 和本地bean一样实现服务 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">bean</span> <span class="attribute">id</span>=<span class="value">"demoService"</span> <span class="attribute">class</span>=<span class="value">"com.yxl.provider.DemoServiceImpl"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="title">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>启动 Provider</p>
+<figure class="highlight java"><figcaption><span>Provider.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.main;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Provider</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		ClassPathXmlApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(</span><br><span class="line">				<span class="keyword">new</span> String[] &#123; <span class="string">"provider.xml"</span> &#125;);</span><br><span class="line">		context.start();</span><br><span class="line"></span><br><span class="line">		System.in.read();</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h3><p>为了便于测试,建立线程,轮询调用Provider</p>
+<figure class="highlight java"><figcaption><span>LogicThread.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.consumer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.text.SimpleDateFormat;</span><br><span class="line"><span class="keyword">import</span> java.util.Date;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.atomic.AtomicInteger;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.yxl.provider.DemoService;</span><br><span class="line"><span class="keyword">import</span> com.yxl.util.SpringBeanHelper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LogicThread</span> <span class="keyword">implements</span> <span class="title">Runnable</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> AtomicInteger ai = <span class="keyword">new</span> AtomicInteger(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		SimpleDateFormat sdf = <span class="keyword">new</span> SimpleDateFormat(<span class="string">"yyyy-MM-dd HH:mm:ss"</span>);</span><br><span class="line">		DemoService demoService = (DemoService) SpringBeanHelper.getBean(<span class="string">"demoService"</span>);</span><br><span class="line">		String hello = demoService.sayHello(<span class="string">"world"</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">		System.out.println(sdf.format(<span class="keyword">new</span> Date()) + <span class="string">" = "</span> + ai.getAndIncrement() + <span class="string">" : "</span> + hello);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>建立个工具类，以便在线程里面获取bean</p>
+<figure class="highlight java"><figcaption><span>SpringBeanHelper.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.util;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.BeansException;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SpringBeanHelper</span></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span>  ApplicationContext context;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/**</span><br><span class="line">	 * 手工获取bean</span><br><span class="line">	 */</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Object <span class="title">getBean</span><span class="params">(String beanId)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">return</span> context.getBean(beanId);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setApplicationContext</span><span class="params">(ApplicationContext ctx)</span></span><br><span class="line">			<span class="keyword">throws</span> BeansException </span>&#123;</span><br><span class="line">		context = ctx;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Consumer配置文件</p>
+<figure class="highlight xml"><figcaption><span>consumer.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">beans</span> <span class="attribute">xmlns</span>=<span class="value">"http://www.springframework.org/schema/beans"</span></span><br><span class="line">    <span class="attribute">xmlns:xsi</span>=<span class="value">"http://www.w3.org/2001/XMLSchema-instance"</span></span><br><span class="line">    <span class="attribute">xmlns:dubbo</span>=<span class="value">"http://code.alibabatech.com/schema/dubbo"</span></span><br><span class="line">    <span class="attribute">xsi:schemaLocation</span>=<span class="value">"http://www.springframework.org/schema/beans        http://www.springframework.org/schema/beans/spring-beans.xsd        http://code.alibabatech.com/schema/dubbo        http://code.alibabatech.com/schema/dubbo/dubbo.xsd"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 消费方应用名，用于计算依赖关系，不是匹配条件，不要与提供方一样 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dubbo:application</span> <span class="attribute">name</span>=<span class="value">"consumer-of-helloworld-app"</span>  /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 使用zookeeper注册中心暴露发现服务地址 --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dubbo:registry</span> <span class="attribute">address</span>=<span class="value">"zookeeper://116.211.20.207:2182?backup=116.211.20.207:2183,116.211.20.207:2184"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">&lt;!-- 生成远程服务代理，可以和本地bean一样使用demoService --&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dubbo:reference</span> <span class="attribute">id</span>=<span class="value">"demoService"</span> <span class="attribute">interface</span>=<span class="value">"com.yxl.provider.DemoService"</span> /&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;/<span class="title">beans</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>启动Consumer</p>
+<figure class="highlight java"><figcaption><span>Consumer.java</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.main;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.Executors;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.ScheduledExecutorService;</span><br><span class="line"><span class="keyword">import</span> java.util.concurrent.TimeUnit;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.springframework.context.support.ClassPathXmlApplicationContext;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.yxl.consumer.LogicThread;</span><br><span class="line"><span class="keyword">import</span> com.yxl.util.SpringBeanHelper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Consumer</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始延迟1秒</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">long</span> INIT_DELAY = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 30秒周期</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">long</span> PERIOD = <span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// 初始化1个定时线程池</span></span><br><span class="line">	<span class="keyword">private</span> <span class="keyword">static</span> ScheduledExecutorService service = Executors</span><br><span class="line">			.newScheduledThreadPool(<span class="number">1</span>);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		ClassPathXmlApplicationContext context = <span class="keyword">new</span> ClassPathXmlApplicationContext(</span><br><span class="line">				<span class="keyword">new</span> String[] &#123; <span class="string">"consumer.xml"</span> &#125;);</span><br><span class="line"></span><br><span class="line">		SpringBeanHelper.setApplicationContext(context);</span><br><span class="line"></span><br><span class="line">		service.scheduleAtFixedRate(<span class="keyword">new</span> LogicThread(), INIT_DELAY,</span><br><span class="line">				PERIOD, TimeUnit.SECONDS);</span><br><span class="line"></span><br><span class="line">		context.start();</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u5148_u542F_u52A8Provider_uFF0C_u518D_u542F_u52A8Consumer"><a href="#u5148_u542F_u52A8Provider_uFF0C_u518D_u542F_u52A8Consumer" class="headerlink" title="先启动Provider，再启动Consumer"></a><font color="#d16a3e">先启动Provider，再启动Consumer</font></h3><p>此时能看到有生产者和消费者,以及输出. 代码在 <a href="https://github.com/yuanxiaolong/DubboTest" target="_blank" rel="external"><font color="#388014">Github</font></a> 你可以 <code>git clone</code> 然后 <code>mvn eclipse:eclipse</code>获取依赖,运行demo</p>
+<p><img src="/images/dubbo/20150109/2.png" alt=""></p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/dubbo/">dubbo</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/duboo/">duboo</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/01/13/zookeeper-distribute-read-write-lock/" class="alignleft prev" title="zookeeper distribute read write lock">zookeeper distribute read write lock</a>
+    
+    
+    <a href="/blog/2014/12/08/go-and-beego/" class="alignright next" title="go and beego">go and beego</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/01/11/zookeeper-and-dubbo/" data-title="zookeeper and dubbo" data-url="http://yoursite.com/blog/2015/01/11/zookeeper-and-dubbo/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

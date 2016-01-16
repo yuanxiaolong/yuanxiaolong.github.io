@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/27/tez-on-yarn/</loc>
+    <lastmod>2016-01-16T11:49:36.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/12/introduce-hadoop/</loc>
+    <lastmod>2016-01-16T08:10:31.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/12/install-hadoop-on-local/</loc>
+    <lastmod>2016-01-16T08:07:25.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/13/install-ssh-and-config/</loc>
+    <lastmod>2016-01-16T08:05:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/14/jvm-memory-leak-analysis/</loc>
+    <lastmod>2016-01-16T08:04:51.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/18/install-hadoop-on-distributed/</loc>
+    <lastmod>2016-01-16T08:04:29.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/20/install-hive-on-local-with-mysql/</loc>
+    <lastmod>2016-01-16T08:00:44.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/21/how-to-debug-hadoop-on-local/</loc>
+    <lastmod>2016-01-16T07:59:28.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/06/why-previous-checkpoint-folder-not-exist-on-hadoop-snn-node/</loc>
+    <lastmod>2016-01-16T07:57:58.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/11/unsupported-major-minor-version-51/</loc>
+    <lastmod>2016-01-16T07:56:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/17/install-hbase-on-local/</loc>
+    <lastmod>2016-01-16T07:55:14.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/17/install-sqoop-on-local/</loc>
+    <lastmod>2016-01-16T07:54:55.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/17/install-flume-on-local/</loc>
+    <lastmod>2016-01-16T07:50:20.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/21/operating-hbase-through-thrift-with-nodejs/</loc>
+    <lastmod>2016-01-16T07:49:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/31/sql-or-keyword-optimize/</loc>
+    <lastmod>2016-01-16T07:48:15.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/08/31/analysis-hadoop-load-configuration/</loc>
+    <lastmod>2016-01-16T07:47:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/09/07/install-dns-server-bind/</loc>
+    <lastmod>2016-01-16T07:46:18.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/09/07/install-nfs-and-share-file/</loc>
+    <lastmod>2016-01-16T07:46:08.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/09/23/design-transfer-data-structure-for-netty/</loc>
+    <lastmod>2016-01-16T07:45:35.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/18/jvm-maxheapsize-limit/</loc>
+    <lastmod>2016-01-16T07:39:25.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/18/pm2-krakenjs-mixed/</loc>
+    <lastmod>2016-01-16T07:36:08.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/20/try-docker/</loc>
+    <lastmod>2016-01-16T07:31:43.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/25/highcharts-demo-on-jsfiddle/</loc>
+    <lastmod>2016-01-16T07:28:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/29/docker-redis-master-slave/</loc>
+    <lastmod>2016-01-16T07:21:53.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/11/11/redis-proxy-for-ip-change/</loc>
+    <lastmod>2016-01-16T07:09:13.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/11/11/introduce-coreos/</loc>
+    <lastmod>2016-01-16T07:06:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/11/11/how-to-set-up-minimal-cluster-coreos-on-digtalocean/</loc>
+    <lastmod>2016-01-16T07:05:15.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/12/08/go-and-beego/</loc>
+    <lastmod>2016-01-16T06:28:36.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/01/11/zookeeper-and-dubbo/</loc>
+    <lastmod>2016-01-16T04:30:35.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/01/13/zookeeper-distribute-read-write-lock/</loc>
+    <lastmod>2016-01-16T04:27:26.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/04/28/deploy-shadowsocks-on-vps/</loc>
+    <lastmod>2016-01-16T04:24:31.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/04/29/oozie-jobtracker-not-in-whitelist/</loc>
+    <lastmod>2016-01-16T04:23:24.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/04/29/install-sparkr-on-cluster/</loc>
+    <lastmod>2016-01-16T04:21:09.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/04/29/try-python-fabric/</loc>
+    <lastmod>2016-01-16T04:18:51.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/06/28/hadoop-lzo-for-hive/</loc>
+    <lastmod>2016-01-16T04:16:47.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/07/03/install-hadoop-cluster-with-cloudera-manager/</loc>
+    <lastmod>2016-01-16T03:49:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/07/17/flume-process-partial-char/</loc>
+    <lastmod>2016-01-16T03:44:47.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/07/28/sparkr-read-from-hive/</loc>
+    <lastmod>2016-01-16T03:41:46.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/08/07/install-storm-on-yarn/</loc>
+    <lastmod>2016-01-16T03:41:01.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/08/07/install-postgresql-xl/</loc>
+    <lastmod>2016-01-16T03:34:45.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/09/09/spark-on-yarn/</loc>
+    <lastmod>2016-01-16T03:30:37.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/08/graphite-and-cabot/</loc>
+    <lastmod>2016-01-16T03:26:15.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/15/write-cabot-alert-plungin/</loc>
+    <lastmod>2016-01-16T03:20:30.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/15/write-cabot-alert-by-wechat-plugin/</loc>
+    <lastmod>2016-01-16T03:19:38.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/15/data-exchange/</loc>
+    <lastmod>2016-01-16T03:16:11.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/27/hive-hbase-handler/</loc>
+    <lastmod>2016-01-16T03:04:40.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2016/01/10/impala-on-yarn/</loc>
+    <lastmod>2016-01-16T01:41:47.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2016/01/10/hbase-data-transfer/</loc>
+    <lastmod>2016-01-16T01:41:20.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/30/neo4j-cluster-install/</loc>
+    <lastmod>2016-01-16T01:41:12.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/30/impala-udf/</loc>
+    <lastmod>2016-01-16T01:41:02.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2015/12/27/install-impala/</loc>
+    <lastmod>2016-01-16T01:40:50.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/23/how-to-enter-a-running-docker-container/</loc>
+    <lastmod>2016-01-16T01:36:57.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/24/nginx-with-docker-service-other-containers/</loc>
+    <lastmod>2016-01-16T01:36:55.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/22/docker-with-nodejs/</loc>
+    <lastmod>2016-01-16T01:36:48.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/10/18/js-and-coffee-mixed-code-on-nodejs/</loc>
+    <lastmod>2016-01-16T01:36:12.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/24/why-hadoop-web-not-control/</loc>
+    <lastmod>2016-01-16T01:34:25.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2014/07/20/install-apache-james/</loc>
+    <lastmod>2016-01-16T01:33:55.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com//about/index.html</loc>
+    <lastmod>2016-01-15T17:10:32.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/404.html</loc>
+    <lastmod>2014-07-12T04:33:43.000Z</lastmod>
+  </url>
+  
+</urlset>

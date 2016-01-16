@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>hive hbase handler | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="hive 和 Hbase 整合">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="hive hbase handler"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	hive hbase handler
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-12-27T09:43:20.000Z" itemprop="datePublished">2015-12-27</time>
+    更新日期:<time datetime="2016-01-16T03:04:40.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u4ECB_u7ECD"><span class="toc-number">1.</span> <span class="toc-text">介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hive__u4E2D__u521B_u5EFA_hbase__u8868"><span class="toc-number">2.</span> <span class="toc-text">hive 中 创建 hbase 表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#hive_u8BFB_u53D6_u5DF2_u5B58_u5728_u7684hbase_u8868"><span class="toc-number">3.</span> <span class="toc-text">hive读取已存在的hbase表</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7F16_u8BD1_hive-hbase-hander__u63D2_u4EF6"><span class="toc-number">4.</span> <span class="toc-text">编译 hive-hbase-hander 插件</span></a></li></ol>
+			</div>
+		
+        <p>介绍 hive 和 hbase 互通</p>
+<a id="more"></a>
+<p>利用hive 查询 hbase 已有数据，或向hbase导入数据</p>
+<hr>
+<h2 id="u4ECB_u7ECD"><a href="#u4ECB_u7ECD" class="headerlink" title="介绍"></a>介绍</h2><p>主要是利用 hive 的 「hive-hbase-hander」模块进行处理。我用的是 hive-1.1.0，已经可以直接使用这个模块了，<br>听说低版本的hive，还需要将这个模块，单独打成jar后，利用jar包来处理（最后我将简略写一下构建此jar的过程）。</p>
+<hr>
+<h2 id="hive__u4E2D__u521B_u5EFA_hbase__u8868"><a href="#hive__u4E2D__u521B_u5EFA_hbase__u8868" class="headerlink" title="hive 中 创建 hbase 表"></a>hive 中 创建 hbase 表</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> hbase_table_1(<span class="keyword">key</span> <span class="built_in">int</span>, <span class="keyword">value</span> <span class="keyword">string</span>) \</span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">BY</span> <span class="string">'org.apache.hadoop.hive.hbase.HBaseStorageHandler'</span> \</span><br><span class="line"><span class="keyword">WITH</span> SERDEPROPERTIES (<span class="string">"hbase.columns.mapping"</span> =<span class="string">":key,cf1:"</span>) \</span><br><span class="line">TBLPROPERTIES(<span class="string">"hbase.table.name"</span> = <span class="string">"aaa"</span>);</span></span><br></pre></td></tr></table></figure>
+<p>这句话的意思，新建一个 hive表 叫 <code>hbase_table_1</code> ，新建一个 hbase 表叫 <code>aaa</code> ，然后它们的映射关系是，<br>hive中key -&gt; base中 key ，hive中value -&gt; base中cf1</p>
+<p>然后我们可以从一个已存在的hive表中，给我们新建的 hbase_table_1 导入数据，这里虚构一个表叫 <code>pokes</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">insert</span> overwrite <span class="keyword">table</span> hbase_table_1 <span class="keyword">select</span> * <span class="keyword">from</span> pokes;</span></span><br></pre></td></tr></table></figure>
+<p>导入成功后，我们可以比较一下数据，例如</p>
+<p>进入hive</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">select</span> * <span class="keyword">from</span> hbase_table1;</span></span><br></pre></td></tr></table></figure>
+<p>进入hbase</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">scan "aaa"</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="hive_u8BFB_u53D6_u5DF2_u5B58_u5728_u7684hbase_u8868"><a href="#hive_u8BFB_u53D6_u5DF2_u5B58_u5728_u7684hbase_u8868" class="headerlink" title="hive读取已存在的hbase表"></a>hive读取已存在的hbase表</h2><p>这个场景特别常见，hive和hbase分开存储，但查询统一走hive</p>
+<p>1.先造一个hbase表并放入数据，创建一个scores表，有2个列族，grade列族只有1列，course列族有2列</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">create</span> <span class="string">'scores'</span>,<span class="string">'grade'</span>, <span class="string">'course'</span></span><br><span class="line"></span><br><span class="line">put <span class="string">'scores'</span>,<span class="string">'Tom'</span>,<span class="string">'grade:'</span>,<span class="string">'5'</span></span><br><span class="line">put <span class="string">'scores'</span>,<span class="string">'Tom'</span>,<span class="string">'course:math'</span>,<span class="string">'97'</span></span><br><span class="line">put <span class="string">'scores'</span>,<span class="string">'Tom'</span>,<span class="string">'course:art'</span>,<span class="string">'87'</span></span><br><span class="line">put <span class="string">'scores'</span>,<span class="string">'Jim'</span>,<span class="string">'grade'</span>,<span class="string">'4'</span></span><br><span class="line">put <span class="string">'scores'</span>,<span class="string">'Jim'</span>,<span class="string">'course:math'</span>,<span class="string">'89'</span></span><br><span class="line">put <span class="string">'scores'</span>,<span class="string">'Jim'</span>,<span class="string">'course:art'</span>,<span class="string">'80'</span></span></span><br></pre></td></tr></table></figure>
+<p>2.建立hive外部表，映射到hbase上</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="operator"><span class="keyword">CREATE</span> <span class="keyword">EXTERNAL</span> <span class="keyword">TABLE</span> \</span><br><span class="line">hive_scores (rowkey <span class="keyword">string</span>, grade <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;, course <span class="keyword">map</span>&lt;<span class="keyword">string</span>,<span class="keyword">string</span>&gt;) \</span><br><span class="line"><span class="keyword">STORED</span> <span class="keyword">BY</span> <span class="string">'org.apache.hadoop.hive.hbase.HBaseStorageHandler'</span> \</span><br><span class="line"><span class="keyword">WITH</span> SERDEPROPERTIES (<span class="string">"hbase.columns.mapping"</span> = <span class="string">":key,grade:,course:"</span>) \</span><br><span class="line">TBLPROPERTIES(<span class="string">"hbase.table.name"</span> = <span class="string">"scores"</span>);</span></span><br></pre></td></tr></table></figure>
+<p>此时便可以查询hbase表了</p>
+<hr>
+<h2 id="u7F16_u8BD1_hive-hbase-hander__u63D2_u4EF6"><a href="#u7F16_u8BD1_hive-hbase-hander__u63D2_u4EF6" class="headerlink" title="编译 hive-hbase-hander 插件"></a>编译 hive-hbase-hander 插件</h2><p>注：如果你能成功执行以上语句，就没必要编译这个插件了，编译好后，需要放到 <code>$HIVE_HOME/lib</code> 下</p>
+<p>1.首先导入hive此模块源码，到IDE里，去除原有的工程依赖 jar包，然后在 classpath 下添加如下jar包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/commons-io-<span class="number">2.4</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/commons-lang-<span class="number">2.6</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/commons-logging-<span class="number">1.1</span>.<span class="number">3</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/common/hadoop-common-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/hdfs/hadoop-hdfs-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/hdfs/hadoop-hdfs-nfs-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-app-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-common-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-core-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-hs-plugins-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/common/hadoop-nfs-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-api-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-applications-distributedshell-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-applications-unmanaged-am-launcher-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-client-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-common-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-registry-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-server-common-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-server-nodemanager-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-server-resourcemanager-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hadoop-<span class="number">2.6</span>.<span class="number">0</span>/share/hadoop/yarn/hadoop-yarn-server-web-proxy-<span class="number">2.6</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-annotations-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-client-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-common-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-hadoop2-compat-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-prefix-tree-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-protocol-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-rest-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-server-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hbase-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>/lib/hbase-thrift-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-accumulo-handler-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-ant-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-beeline-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-cli-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-common-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-contrib-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-exec-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-hwi-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-jdbc-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-metastore-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-serde-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-service-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-shims-<span class="number">0.20</span>S-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-shims-<span class="number">0.23</span>-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-shims-common-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-shims-scheduler-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/hive-<span class="number">1.1</span>.<span class="number">0</span>/lib/hive-testutils-<span class="number">1.1</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/jsr305-<span class="number">3.0</span>.<span class="number">0</span>.jar</span><br><span class="line">/YOUR_WORK_DIR/zookeeper-<span class="number">3.4</span>.<span class="number">7</span>/zookeeper-<span class="number">3.4</span>.<span class="number">7</span>.jar</span><br></pre></td></tr></table></figure>
+<p>2.然后再根据自己IDE的不同，百度搜一下如何打成jar</p>
+<p>后记：通过hive查询hbase，利用rowkey查询特别快，但通过其他条件查，不一定，甚至很慢，效果不是很理想。</p>
+<p>参考：</p>
+<p><a href="http://blog.csdn.net/wulantian/article/details/38111683" target="_blank" rel="external">http://blog.csdn.net/wulantian/article/details/38111683</a></p>
+<p><a href="http://www.aboutyun.com/thread-7817-1-1.html" target="_blank" rel="external">http://www.aboutyun.com/thread-7817-1-1.html</a></p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/hive/">hive</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/hive/">hive</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/12/27/tez-on-yarn/" class="alignleft prev" title="tez on yarn">tez on yarn</a>
+    
+    
+    <a href="/blog/2015/12/15/data-exchange/" class="alignright next" title="data exchange">data exchange</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/12/27/hive-hbase-handler/" data-title="hive hbase handler" data-url="http://yoursite.com/blog/2015/12/27/hive-hbase-handler/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

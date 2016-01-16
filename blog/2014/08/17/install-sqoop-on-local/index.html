@@ -1,0 +1,443 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>install sqoop on local | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="单机安装sqoop用于学习">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="install sqoop on local"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	install sqoop on local
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-08-17T09:15:58.000Z" itemprop="datePublished">2014-08-17</time>
+    更新日期:<time datetime="2016-01-16T07:54:55.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5_u8FC7_u7A0B"><span class="toc-number">2.</span> <span class="toc-text">安装过程</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C"><span class="toc-number">3.</span> <span class="toc-text">运行</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hdfs"><span class="toc-number">3.1.</span> <span class="toc-text"> mysql –> sqoop –> hdfs </span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hive"><span class="toc-number">3.2.</span> <span class="toc-text"> mysql –> sqoop –> hive </span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hbase"><span class="toc-number">3.3.</span> <span class="toc-text"> mysql –> sqoop –> hbase </span></a></li></ol></li></ol>
+			</div>
+		
+        <p>介绍一下单机安装sqoop的过程</p>
+<a id="more"></a>
+<p>sqoop（sql to hadoop），用于数据交换。即可以从关系型DB如mysql，导入到hdfs、hive、hbase。当然也有导出功能。（本文只示例导入hdfs、hbase，导出等只是参数不同而已）</p>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><ul>
+<li>hadoop（1.2.1）</li>
+<li>hive （0.13.1）</li>
+<li>hbase （0.98.4-hadoop1）</li>
+<li>mysql （5.6.16）</li>
+</ul>
+<font color="#7c837f">注：括号里的是我本机的实验环境，并非必要条件</font>
+
+<hr>
+<h2 id="u5B89_u88C5_u8FC7_u7A0B"><a href="#u5B89_u88C5_u8FC7_u7A0B" class="headerlink" title="安装过程"></a>安装过程</h2><p>1.下载sqoop，可以在<a href="http://sqoop.apache.org/" target="_blank" rel="external"><font color="#6868b4">这里下载</font></a></p>
+<p>2.解压sqoop，并修改配置。</p>
+<p>先执行如下命令，创建配置文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xiaolongyuan@xiaolongdeMacBook-Air conf$ pwd&#10;/Users/xiaolongyuan/Documents/sqoop-1.4.4/conf&#10;xiaolongyuan@xiaolongdeMacBook-Air conf$ cp sqoop-env-template.sh   sqoop-env.sh</span><br></pre></td></tr></table></figure>
+<p>再编辑配置文件<font color="#7c837f">(最下面zookeeper配置，我们选择hbase的默认自带管理)</font></p>
+<figure class="highlight bash"><figcaption><span>sqoop-env.sh</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#Set path to where bin/hadoop is available</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_COMMON_HOME=/Users/xiaolongyuan/Documents/hadoop-<span class="number">1.2</span>.<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Set path to where hadoop-*-core.jar is available</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_MAPRED_HOME=/Users/xiaolongyuan/Documents/hadoop-<span class="number">1.2</span>.<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#set the path to where bin/hbase is available</span></span><br><span class="line"><span class="built_in">export</span> HBASE_HOME=/Users/xiaolongyuan/Documents/hbase-<span class="number">0.98</span>.<span class="number">4</span>-hadoop1</span><br><span class="line"></span><br><span class="line"><span class="comment">#Set the path to where bin/hive is available</span></span><br><span class="line"><span class="built_in">export</span> HIVE_HOME=/Users/xiaolongyuan/Documents/hive-<span class="number">0.13</span>.<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#Set the path for where zookeper config dir is</span></span><br><span class="line"><span class="built_in">export</span> ZOOCFGDIR=/Users/xiaolongyuan/Documents/hbase-<span class="number">0.98</span>.<span class="number">4</span>-hadoop1/lib</span><br></pre></td></tr></table></figure>
+<p>修改配置 <font color="green"> bin/configure-sqoop </font>，注释掉有关 HCAT_HOME 的shell脚本，如果安装了HCatalog，则不需要注释</p>
+<p>如下：</p>
+<figure class="highlight bash"><figcaption><span>configure-sqoop</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#if [ -z "$&#123;HCAT_HOME&#125;" ]; then</span></span><br><span class="line"><span class="comment">#  HCAT_HOME=/usr/lib/hcatalog</span></span><br><span class="line"><span class="comment">#fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## Moved to be a runtime check in sqoop.</span></span><br><span class="line"><span class="comment">#if [ ! -d "$&#123;HCAT_HOME&#125;" ]; then</span></span><br><span class="line"><span class="comment">#  echo "Warning: $HCAT_HOME does not exist! HCatalog jobs will fail."</span></span><br><span class="line"><span class="comment">#  echo 'Please set $HCAT_HOME to the root of your HCatalog installation.'</span></span><br><span class="line"><span class="comment">#fi</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Add HCatalog to dependency list</span></span><br><span class="line"><span class="comment">#if [ -e "$&#123;HCAT_HOME&#125;/bin/hcat" ]; then</span></span><br><span class="line"><span class="comment">#  TMP_SQOOP_CLASSPATH=$&#123;SQOOP_CLASSPATH&#125;:`$&#123;HCAT_HOME&#125;/bin/hcat -classpath`</span></span><br><span class="line"><span class="comment">#  if [ -z "$&#123;HIVE_CONF_DIR&#125;" ]; then</span></span><br><span class="line"><span class="comment">#    TMP_SQOOP_CLASSPATH=$&#123;TMP_SQOOP_CLASSPATH&#125;:$&#123;HIVE_CONF_DIR&#125;</span></span><br><span class="line"><span class="comment">#  fi</span></span><br><span class="line"><span class="comment">#  SQOOP_CLASSPATH=$&#123;TMP_SQOOP_CLASSPATH&#125;</span></span><br><span class="line"><span class="comment">#fi</span></span><br></pre></td></tr></table></figure>
+<p>3.添加需要数据交换的数据源驱动，例如数据源是mysql的话，需要添加 <a href="http://yun.baidu.com/share/link?shareid=903445453&amp;uk=3826203270" target="_blank" rel="external"><font color="#6868b4">mysql-connector-java-5.1.25-bin.jar</font></a><br>到sqoop的lib下</p>
+<hr>
+<h2 id="u8FD0_u884C"><a href="#u8FD0_u884C" class="headerlink" title="运行"></a>运行</h2><p>1.先启动hadoop</p>
+<p>2.如果需要将mysql的数据导入到hive、hbase里的话，则需要启动hive hbase</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">xiaolongyuan@localhost$ sqoop</span><br><span class="line">Warning: <span class="variable">$HADOOP_HOME</span> is deprecated.</span><br><span class="line"></span><br><span class="line">Try <span class="string">'sqoop help'</span> <span class="keyword">for</span> usage.</span><br></pre></td></tr></table></figure>
+<p>3.在mysql里对需要使用的用户授权，使其可以从任意主机上访问mysql</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; grant all privileges on *.* to <span class="string">'hadoop'</span>@<span class="string">'%'</span> identified by <span class="string">'hadoop'</span> with grant option;</span><br><span class="line">Query OK, <span class="number">0</span> rows affected (<span class="number">0.00</span> sec)</span><br></pre></td></tr></table></figure>
+<p>4.mysql上此时有数据如下：<br><img src="/images/sqoop/20140817/mysql.png" alt=""></p>
+<hr>
+<h3 id="mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hdfs"><a href="#mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hdfs" class="headerlink" title="mysql –&gt; sqoop –&gt; hdfs"></a><font color="#8a345d" size="5"> mysql –&gt; sqoop –&gt; hdfs </font></h3><p>1.运行如下命令</p>
+<p>-m 1 表示 限制map的数量是1个，由于我们是单机且数量少，所以用此。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqoop import --connect jdbc:mysql://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">3306</span>/<span class="built_in">test</span> --username hadoop --password hadoop --table student -m <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>2.在hdfs里查看</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">xiaolongyuan@xiaolongdeMacBook-Air bin$ hadoop dfs -ls</span><br><span class="line">Warning: <span class="variable">$HADOOP_HOME</span> is deprecated.</span><br><span class="line">Found <span class="number">3</span> items</span><br><span class="line">drwxr-xr-x   - xiaolongyuan supergroup          <span class="number">0</span> <span class="number">2014</span>-<span class="number">06</span>-<span class="number">29</span> <span class="number">23</span>:<span class="number">02</span> /user/xiaolongyuan/<span class="keyword">in</span></span><br><span class="line">drwxr-xr-x   - xiaolongyuan supergroup          <span class="number">0</span> <span class="number">2014</span>-<span class="number">06</span>-<span class="number">08</span> <span class="number">14</span>:<span class="number">47</span> /user/xiaolongyuan/out</span><br><span class="line">drwxr-xr-x   - xiaolongyuan supergroup          <span class="number">0</span> <span class="number">2014</span>-<span class="number">08</span>-<span class="number">17</span> <span class="number">12</span>:<span class="number">19</span> /user/xiaolongyuan/student</span><br><span class="line"></span><br><span class="line">xiaolongyuan@xiaolongdeMacBook-Air bin$ hadoop dfs -ls student/</span><br><span class="line">Warning: <span class="variable">$HADOOP_HOME</span> is deprecated.</span><br><span class="line">Found <span class="number">3</span> items</span><br><span class="line">-rw-r--r--   <span class="number">1</span> xiaolongyuan supergroup          <span class="number">0</span> <span class="number">2014</span>-<span class="number">08</span>-<span class="number">17</span> <span class="number">12</span>:<span class="number">19</span> /user/xiaolongyuan/student/_SUCCESS</span><br><span class="line">drwxr-xr-x   - xiaolongyuan supergroup          <span class="number">0</span> <span class="number">2014</span>-<span class="number">08</span>-<span class="number">17</span> <span class="number">12</span>:<span class="number">19</span> /user/xiaolongyuan/student/_logs</span><br><span class="line">-rw-r--r--   <span class="number">1</span> xiaolongyuan supergroup         <span class="number">34</span> <span class="number">2014</span>-<span class="number">08</span>-<span class="number">17</span> <span class="number">12</span>:<span class="number">19</span> /user/xiaolongyuan/student/part-m-<span class="number">00000</span></span><br><span class="line"></span><br><span class="line">xiaolongyuan@xiaolongdeMacBook-Air bin$ hadoop dfs -cat student/part-m-<span class="number">00000</span></span><br><span class="line">Warning: <span class="variable">$HADOOP_HOME</span> is deprecated.</span><br><span class="line"><span class="number">1</span>,tom,<span class="number">12</span>,class1</span><br><span class="line"><span class="number">2</span>,kitty,<span class="number">16</span>,class2</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hive"><a href="#mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hive" class="headerlink" title="mysql –&gt; sqoop –&gt; hive"></a><font color="#8a345d" size="5"> mysql –&gt; sqoop –&gt; hive </font></h3><p>1.先创建hive数据库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">xiaolongyuan@xiaolongdeMacBook-Air flume-<span class="number">1.5</span>.<span class="number">0</span>$ hive</span><br><span class="line"></span><br><span class="line">Logging initialized using configuration <span class="keyword">in</span> jar:file:/Users/xiaolongyuan/Documents/hive-<span class="number">0.13</span>.<span class="number">1</span>/lib/hive-common-<span class="number">0.13</span>.<span class="number">1</span>.jar!/hive-log4j.properties</span><br><span class="line">hive (default)&gt; create database <span class="built_in">test</span>;</span><br><span class="line">OK</span><br><span class="line">Time taken: <span class="number">0.765</span> seconds</span><br></pre></td></tr></table></figure>
+<p>2.执行 <font color="#7e986c">（如果hdfs下有之前导入过的student目录，需要先删除，否则会报文件夹已存在的错误）</font></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqoop import --connect jdbc:mysql://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">3306</span>/<span class="built_in">test</span> --username hadoop --password hadoop --table student --hive-import --hive-database <span class="built_in">test</span> --hive-delims-replacement <span class="string">'\t'</span> -m <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>3.查看hive里的数据<font color="#7c837f"> (我配置了hive显示表头，database_name和tab_name都是表头，不是数据) </font></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">xiaolongyuan@xiaolongdeMacBook-Air hive-<span class="number">0.13</span>.<span class="number">1</span>$ hive</span><br><span class="line"></span><br><span class="line">Logging initialized using configuration <span class="keyword">in</span> jar:file:/Users/xiaolongyuan/Documents/hive-<span class="number">0.13</span>.<span class="number">1</span>/lib/hive-common-<span class="number">0.13</span>.<span class="number">1</span>.jar!/hive-log4j.properties</span><br><span class="line"></span><br><span class="line">hive (default)&gt; show databases;</span><br><span class="line">OK</span><br><span class="line">database_name</span><br><span class="line">default</span><br><span class="line"><span class="built_in">test</span></span><br><span class="line">Time taken: <span class="number">0.736</span> seconds, Fetched: <span class="number">2</span> row(s)</span><br><span class="line"></span><br><span class="line">hive (default)&gt; use <span class="built_in">test</span>;</span><br><span class="line">OK</span><br><span class="line">Time taken: <span class="number">0.037</span> seconds</span><br><span class="line"></span><br><span class="line">hive (<span class="built_in">test</span>)&gt; show tables;</span><br><span class="line">OK</span><br><span class="line">tab_name</span><br><span class="line">student</span><br><span class="line">Time taken: <span class="number">0.039</span> seconds, Fetched: <span class="number">1</span> row(s)</span><br><span class="line"></span><br><span class="line">hive (<span class="built_in">test</span>)&gt; select * from student;</span><br><span class="line">OK</span><br><span class="line">student.s_no	student.s_name	student.s_age	student.s_class</span><br><span class="line"><span class="number">1</span>	tom	<span class="number">12</span>	class1</span><br><span class="line"><span class="number">2</span>	kitty	<span class="number">16</span>	class2</span><br><span class="line">Time taken: <span class="number">0.508</span> seconds, Fetched: <span class="number">2</span> row(s)</span><br></pre></td></tr></table></figure>
+<hr>
+<h3 id="mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hbase"><a href="#mysql__u2013_26gt_3B_sqoop__u2013_26gt_3B_hbase" class="headerlink" title="mysql –&gt; sqoop –&gt; hbase"></a><font color="#8a345d" size="5"> mysql –&gt; sqoop –&gt; hbase </font></h3><p>1.执行命令，导入数据到hbase</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sqoop import --connect jdbc:mysql://<span class="number">127.0</span>.<span class="number">0.1</span>:<span class="number">3306</span>/<span class="built_in">test</span> --username hadoop --password hadoop --table student --hbase-create-table --hbase-table student --column-family s_info --hbase-row-key s_no -m <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>2.查看数据</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">xiaolongyuan@xiaolongdeMacBook-Air bin$ start-hbase.sh</span><br><span class="line">localhost: starting zookeeper, logging to /Users/xiaolongyuan/Documents/hbase-<span class="number">0.98</span>.<span class="number">4</span>-hadoop1/bin/../logs/hbase-xiaolongyuan-zookeeper-xiaolongdeMacBook-Air.local.out</span><br><span class="line">starting master, logging to /Users/xiaolongyuan/Documents/hbase-<span class="number">0.98</span>.<span class="number">4</span>-hadoop1//logs/hbase-xiaolongyuan-master-xiaolongdeMacBook-Air.local.out</span><br><span class="line">localhost: starting regionserver, logging to /Users/xiaolongyuan/Documents/hbase-<span class="number">0.98</span>.<span class="number">4</span>-hadoop1/bin/../logs/hbase-xiaolongyuan-regionserver-xiaolongdeMacBook-Air.local.out</span><br><span class="line"></span><br><span class="line">xiaolongyuan@xiaolongdeMacBook-Air bin$ jps</span><br><span class="line"><span class="number">81678</span> Jps</span><br><span class="line"><span class="number">79845</span> TaskTracker</span><br><span class="line"><span class="number">79673</span> SecondaryNameNode</span><br><span class="line"><span class="number">81534</span> HMaster</span><br><span class="line"><span class="number">79746</span> JobTracker</span><br><span class="line"><span class="number">79573</span> DataNode</span><br><span class="line"><span class="number">81488</span> HQuorumPeer</span><br><span class="line"><span class="number">79474</span> NameNode</span><br><span class="line"><span class="number">81645</span> HRegionServer</span><br><span class="line"></span><br><span class="line">xiaolongyuan@xiaolongdeMacBook-Air bin$ hbase shell</span><br><span class="line">HBase Shell; enter <span class="string">'help&lt;RETURN&gt;'</span> <span class="keyword">for</span> list of supported commands.</span><br><span class="line">Type <span class="string">"exit&lt;RETURN&gt;"</span> to leave the HBase Shell</span><br><span class="line">Version <span class="number">0.98</span>.<span class="number">4</span>-hadoop1, r890e852ce1c51b71ad180f626b71a2a1009246da, Mon Jul <span class="number">14</span> <span class="number">18</span>:<span class="number">54</span>:<span class="number">31</span> PDT <span class="number">2014</span></span><br><span class="line"></span><br><span class="line">hbase(main):<span class="number">001</span>:<span class="number">0</span>&gt; scan <span class="string">'student'</span></span><br><span class="line"><span class="number">2014</span>-<span class="number">08</span>-<span class="number">17</span> <span class="number">20</span>:<span class="number">21</span>:<span class="number">36.166</span> java[<span class="number">81679</span>:<span class="number">1903</span>] Unable to load realm info from SCDynamicStore</span><br><span class="line">SLF4J: Class path contains multiple SLF4J bindings.</span><br><span class="line">SLF4J: Found binding <span class="keyword">in</span> [jar:file:/Users/xiaolongyuan/Documents/hbase-<span class="number">0.98</span>.<span class="number">4</span>-hadoop1/lib/slf4j-log4j12-<span class="number">1.6</span>.<span class="number">4</span>.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span><br><span class="line">SLF4J: Found binding <span class="keyword">in</span> [jar:file:/Users/xiaolongyuan/Documents/hadoop-<span class="number">1.2</span>.<span class="number">1</span>/lib/slf4j-log4j12-<span class="number">1.4</span>.<span class="number">3</span>.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span><br><span class="line">SLF4J: See http://www.slf4j.org/codes.html<span class="comment">#multiple_bindings for an explanation.</span></span><br><span class="line">ROW                                                  COLUMN+CELL</span><br><span class="line"> <span class="number">1</span>                                                   column=s_info:s_age, timestamp=<span class="number">1408250793626</span>, value=<span class="number">12</span></span><br><span class="line"> <span class="number">1</span>                                                   column=s_info:s_class, timestamp=<span class="number">1408250793626</span>, value=class1</span><br><span class="line"> <span class="number">1</span>                                                   column=s_info:s_name, timestamp=<span class="number">1408250793626</span>, value=tom</span><br><span class="line"> <span class="number">2</span>                                                   column=s_info:s_age, timestamp=<span class="number">1408250793626</span>, value=<span class="number">16</span></span><br><span class="line"> <span class="number">2</span>                                                   column=s_info:s_class, timestamp=<span class="number">1408250793626</span>, value=class2</span><br><span class="line"> <span class="number">2</span>                                                   column=s_info:s_name, timestamp=<span class="number">1408250793626</span>, value=kitty</span><br><span class="line"><span class="number">2</span> row(s) <span class="keyword">in</span> <span class="number">0.3350</span> seconds</span><br><span class="line"></span><br><span class="line">hbase(main):<span class="number">002</span>:<span class="number">0</span>&gt;</span><br></pre></td></tr></table></figure>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/sqoop/">sqoop</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/sqoop/">sqoop</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2014/08/17/install-flume-on-local/" class="alignleft prev" title="install flume on local">install flume on local</a>
+    
+    
+    <a href="/blog/2014/08/17/install-hbase-on-local/" class="alignright next" title="install hbase on local">install hbase on local</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2014/08/17/install-sqoop-on-local/" data-title="install sqoop on local" data-url="http://yoursite.com/blog/2014/08/17/install-sqoop-on-local/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

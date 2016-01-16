@@ -1,0 +1,458 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>try docker | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="docker初体验">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="try docker"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	try docker
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-10-20T14:27:08.000Z" itemprop="datePublished">2014-10-20</time>
+    更新日期:<time datetime="2016-01-16T07:31:43.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u7B80_u4ECB"><span class="toc-number">1.</span> <span class="toc-text">简介</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u901A_u4FD7_u7406_u89E3"><span class="toc-number">2.</span> <span class="toc-text">通俗理解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4ECE_u65E0_u5230_u6709"><span class="toc-number">3.</span> <span class="toc-text">从无到有</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6784_u5EFA_u81EA_u5DF1_u7684_u73AF_u5883"><span class="toc-number">4.</span> <span class="toc-text">构建自己的环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#FAQ"><span class="toc-number">5.</span> <span class="toc-text">FAQ</span></a></li></ol>
+			</div>
+		
+        <p>docker 初体验</p>
+<a id="more"></a>
+<p>感受一下docker，介绍一下如何从无到有的利用docker来，建立自己的镜像大军</p>
+<hr>
+<h2 id="u7B80_u4ECB"><a href="#u7B80_u4ECB" class="headerlink" title="简介"></a>简介</h2><p>docker是2014年最值得关注的一个东西，跟当年的github一样，呵呵，废话少说。Go ~</p>
+<p>docker跟vmware类似，但docker更轻量，感性认识一下</p>
+<p><img src="/images/docker/20141020/1.png" alt=""></p>
+<p>引用CSDN中有人回答如下</p>
+<font size="2" color="#7f7079">“docker做到了PAAS即平台即服务，docker在64位linux上使用的是lxc内核虚拟化也就是轻量级的虚拟化，与VM相比不需要对硬件进行仿真就可以共享跟主机一样的操作系统，并且有AUFS和lXC来虚拟化，加入一个ubuntu的镜像是265MB，你要再VM主机新建1000个就需要265000MB内存，但是docker共享容量也就需需要256多一点，如果你在linux上跑VMware相信你会看主机内存的消耗是比较大的，一个亚马逊EC2 512MB内存单核的云主机开5个docker无压力，你要是跑5个vmware那可费劲了”</font>
+
+<hr>
+<h2 id="u901A_u4FD7_u7406_u89E3"><a href="#u901A_u4FD7_u7406_u89E3" class="headerlink" title="通俗理解"></a>通俗理解</h2><p>docker其实就是运行在 linux 下的一个进程，这个进程可以管理很多个“容器”。</p>
+<p>如果非要跟java类比一下，这样可能更容易理解</p>
+<ul>
+<li>docker相当于jvm</li>
+<li>docker“镜像”，相当于一组java文件</li>
+<li>而运行在docker上的“容器”，相当于在 jvm 下运行的 文件组</li>
+<li>托管镜像的地方，就是docker服务器仓库。类似github托管代码一样。</li>
+</ul>
+<p>现在有那么点儿意思了吧！来看个实例吧</p>
+<hr>
+<h2 id="u4ECE_u65E0_u5230_u6709"><a href="#u4ECE_u65E0_u5230_u6709" class="headerlink" title="从无到有"></a>从无到有</h2><p>1.先在 64 位linux系统下（以centos为例），安装docker前置依赖。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install epel-release</span><br></pre></td></tr></table></figure>
+<p>2.安装docker</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install docker-io</span><br></pre></td></tr></table></figure>
+<p>3.启动docker服务</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service docker start</span><br></pre></td></tr></table></figure>
+<p>4.查看状态或版本 docker version 或 docker info</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker version</span></span><br><span class="line"></span><br><span class="line">Client version: <span class="number">1.1</span>.<span class="number">2</span></span><br><span class="line">Client API version: <span class="number">1.13</span></span><br><span class="line">Go version (client): go1.<span class="number">2.2</span></span><br><span class="line">Git commit (client): d84a070/<span class="number">1.1</span>.<span class="number">2</span></span><br><span class="line">Server version: <span class="number">1.1</span>.<span class="number">2</span></span><br><span class="line">Server API version: <span class="number">1.13</span></span><br><span class="line">Go version (server): go1.<span class="number">2.2</span></span><br><span class="line">Git commit (server): d84a070/<span class="number">1.1</span>.<span class="number">2</span></span><br></pre></td></tr></table></figure>
+<p>5.获取centos 6的镜像 docker pull centos:centos6</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker pull centos:centos6</span></span><br><span class="line"></span><br><span class="line">Pulling repository centos</span><br><span class="line"><span class="number">68</span>edf809afe7: Download complete</span><br><span class="line"><span class="number">511136</span>ea3c5a: Download complete</span><br><span class="line"><span class="number">5</span>b12ef8fd570: Download complete</span><br></pre></td></tr></table></figure>
+<p>6.查看本地镜像 docker images，此时会有一个centos的镜像 tag是centos6</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@yuanxiaolong ~]<span class="comment"># docker images</span></span><br><span class="line">REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE</span><br><span class="line">centos              centos6             <span class="number">68</span>edf809afe7        <span class="number">2</span> weeks ago         <span class="number">212.7</span> MB</span><br></pre></td></tr></table></figure>
+<p>7.运行一下，看是否正常，docker run 68edf809afe7 /bin/echo hello world 或 docker run centos:centos6 /bin/echo hello world</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker run 68edf809afe7 /bin/echo hello world</span></span><br><span class="line">hello world</span><br><span class="line"></span><br><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker run centos:centos6 /bin/echo hello world</span></span><br><span class="line">hello world</span><br></pre></td></tr></table></figure>
+<p>8.再次确认，进入交互模式sudo docker run -i -t centos:centos6 /bin/bash</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker run -i -t centos:centos6 /bin/bash</span></span><br><span class="line">bash-<span class="number">4.1</span><span class="comment"># pwd</span></span><br><span class="line">/</span><br><span class="line">bash-<span class="number">4.1</span><span class="comment"># ls</span></span><br><span class="line">bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  sbin  selinux  srv  sys  tmp  usr  var</span><br><span class="line">bash-<span class="number">4.1</span><span class="comment"># echo yes it is</span></span><br><span class="line">yes it is</span><br><span class="line">bash-<span class="number">4.1</span><span class="comment"># exit</span></span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">[root@yuanxiaolong ~]<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+<p>9.（非必须）将想要保存的镜像，上传到 Docker Hub ，首先你需要有一个账户，在 <a href="https://hub.docker.com/account/login/" target="_blank" rel="external"><font color="#118d6c">这里申请</font></a></p>
+<p>上传前，我的账户</p>
+<p><img src="/images/docker/20141020/2.png" alt=""></p>
+<p>9.1先对要上传的images，打上个tag</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker images</span></span><br><span class="line">REPOSITORY          TAG                 IMAGE ID            CREATED             VIRTUAL SIZE</span><br><span class="line">centos              centos6             <span class="number">68</span>edf809afe7        <span class="number">2</span> weeks ago         <span class="number">212.7</span> MB</span><br><span class="line"></span><br><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker tag 68edf809afe7 yuanxiaolong/centos6</span></span><br><span class="line"></span><br><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker images</span></span><br><span class="line">REPOSITORY             TAG                 IMAGE ID            CREATED             VIRTUAL SIZE</span><br><span class="line">centos                 centos6             <span class="number">68</span>edf809afe7        <span class="number">2</span> weeks ago         <span class="number">212.7</span> MB</span><br><span class="line">yuanxiaolong/centos6   latest              <span class="number">68</span>edf809afe7        <span class="number">2</span> weeks ago         <span class="number">212.7</span> MB</span><br></pre></td></tr></table></figure>
+<p>9.2上传镜像,输入用户名、密码、邮箱，即到你的账户里</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker push yuanxiaolong/centos6</span></span><br><span class="line">The push refers to a repository [yuanxiaolong/centos6] (len: <span class="number">1</span>)</span><br><span class="line">Sending image list</span><br><span class="line"></span><br><span class="line">Please login prior to push:</span><br><span class="line">Username: yuanxiaolong</span><br><span class="line">Password:</span><br><span class="line">Email: <span class="number">232351936</span>@qq.com</span><br><span class="line">Login Succeeded</span><br><span class="line">The push refers to a repository [yuanxiaolong/centos6] (len: <span class="number">1</span>)</span><br><span class="line">Sending image list</span><br><span class="line">Pushing repository yuanxiaolong/centos6 (<span class="number">1</span> tags)</span><br><span class="line"><span class="number">511136</span>ea3c5a: Image already pushed, skipping</span><br><span class="line"><span class="number">5</span>b12ef8fd570: Image already pushed, skipping</span><br><span class="line"><span class="number">68</span>edf809afe7: Image already pushed, skipping</span><br><span class="line">Pushing tag <span class="keyword">for</span> rev [<span class="number">68</span>edf809afe7] on &#123;https://cdn-registry-<span class="number">1</span>.docker.io/v1/repositories/yuanxiaolong/centos6/tags/latest&#125;</span><br></pre></td></tr></table></figure>
+<p>上传后<br><img src="/images/docker/20141020/3.png" alt=""></p>
+<hr>
+<h2 id="u6784_u5EFA_u81EA_u5DF1_u7684_u73AF_u5883"><a href="#u6784_u5EFA_u81EA_u5DF1_u7684_u73AF_u5883" class="headerlink" title="构建自己的环境"></a>构建自己的环境</h2><p>重复pull自己想要的镜像，可以在  <a href="https://registry.hub.docker.com/" target="_blank" rel="external"><font color="#118d6c">这里搜索</font></a></p>
+<p>然后 <font color="#1e5d75">docker pull 名称:版本tag </font>，获取到本地，下面就是我个人在VPS上安装的镜像</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker images</span></span><br><span class="line">REPOSITORY             TAG                 IMAGE ID            CREATED             VIRTUAL SIZE</span><br><span class="line">mongo                  <span class="number">2.6</span>                 <span class="number">97</span>d8b6dd3b57        <span class="number">4</span> days ago          <span class="number">391.4</span> MB</span><br><span class="line">node                   latest              eb23c5dc3891        <span class="number">9</span> days ago          <span class="number">728.9</span> MB</span><br><span class="line">redis                  latest              <span class="built_in">cd</span>8d56009b1f        <span class="number">10</span> days ago         <span class="number">110.8</span> MB</span><br><span class="line">centos                 centos6             <span class="number">68</span>edf809afe7        <span class="number">2</span> weeks ago         <span class="number">212.7</span> MB</span><br><span class="line">yuanxiaolong/centos6   latest              <span class="number">68</span>edf809afe7        <span class="number">2</span> weeks ago         <span class="number">212.7</span> MB</span><br><span class="line">nginx                  <span class="number">1.7</span>.<span class="number">5</span>               d2d79aebd368        <span class="number">3</span> weeks ago         <span class="number">100.2</span> MB</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="FAQ"><a href="#FAQ" class="headerlink" title="FAQ"></a>FAQ</h2><p>Q: <font color="#c46a1d">如果pull错了版本的镜像怎么办？</font></p>
+<p>A: 不用担心，可以用删除镜像 命令</p>
+<p>docker rmi centos:centos6 (如果镜像正在运行，则需要-f 来强制删除)</p>
+<p>Q: <font color="#c46a1d">每个在docker上运行的容器，都有自己独立的IP么？</font></p>
+<p>A: 看起来是的，我进入2个不同的镜像，看到ip是不一样的，一个是172.17.0.9，一个是172.17.0.10</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker run -i -t centos:centos6 /bin/bash</span></span><br><span class="line">bash-<span class="number">4.1</span><span class="comment"># ip -4 -o addr show eth0</span></span><br><span class="line"><span class="number">26</span>: eth0    inet <span class="number">172.17</span>.<span class="number">0.9</span>/<span class="number">16</span> scope global eth0</span><br><span class="line">bash-<span class="number">4.1</span><span class="comment"># exit</span></span><br><span class="line"><span class="built_in">exit</span></span><br><span class="line">[root@yuanxiaolong ~]<span class="comment"># docker run -i -t nginx:1.7.5 /bin/bash</span></span><br><span class="line">root@de1467756eaf:/<span class="comment"># ip -4 -o addr show eth0</span></span><br><span class="line"><span class="number">29</span>: eth0    inet <span class="number">172.17</span>.<span class="number">0.10</span>/<span class="number">16</span> scope global eth0</span><br><span class="line">root@de1467756eaf:/<span class="comment"># exit</span></span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><font color="#c46a1d"> 更多内容</font>
+
+</li>
+</ul>
+<p><a href="http://special.csdncms.csdn.net/BeDocker/" target="_blank" rel="external"><font color="#340ba7">csdn docker资料大全</font></a><br><a href="http://docker.u.qiniudn.com/15_Docker_Tips_in_5_Minutes.pdf" target="_blank" rel="external"><font color="#340ba7">docker 的10个小点</font></a></p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/docker/">docker</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/docker/">docker</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2014/10/22/docker-with-nodejs/" class="alignleft prev" title="docker with Nodejs">docker with Nodejs</a>
+    
+    
+    <a href="/blog/2014/10/18/pm2-krakenjs-mixed/" class="alignright next" title="pm2 krakenjs mixed">pm2 krakenjs mixed</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2014/10/20/try-docker/" data-title="try docker" data-url="http://yoursite.com/blog/2014/10/20/try-docker/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

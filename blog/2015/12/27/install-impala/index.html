@@ -1,0 +1,461 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>install impala | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="impala安装配置">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="install impala"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	install impala
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-12-27T10:13:36.000Z" itemprop="datePublished">2015-12-27</time>
+    更新日期:<time datetime="2016-01-16T01:40:50.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u914D_u7F6E"><span class="toc-number">2.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u542F_u52A8"><span class="toc-number">3.</span> <span class="toc-text">启动</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6267_u884C"><span class="toc-number">4.</span> <span class="toc-text">执行</span></a></li></ol>
+			</div>
+		
+        <p>介绍impala的 rpm包安装形式，利用impala 2.2.0</p>
+<a id="more"></a>
+<p>impala 是一个数据查询引擎，类似hive，但跟hive解决的问题也有不太一样的地方，优点速度快，缺点吃内存，不适合大数据批处理</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><p>注：本文的 hadoop hive hbase 都是通过tar 包独立安装的，并未通过rpm来安装，所以删除后面的软连接</p>
+<p>1.下载rpm包 <a href="http://archive.cloudera.com/cdh5/redhat/6/x86_64/cdh/5.4.0/RPMS/x86_64/" target="_blank" rel="external"><font color="#2798a2">http://archive.cloudera.com/cdh5/redhat/6/x86_64/cdh/5.4.0/RPMS/x86_64/</font></a></p>
+<p>共享我的<a href="http://pan.baidu.com/s/1i4nBSzF" target="_blank" rel="external"><font color="#2798a2">百度云</font></a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">bigtop-utils-<span class="number">0.7</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">47</span>.el6.noarch.rpm</span><br><span class="line">impala-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm</span><br><span class="line">impala-state-store-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm</span><br><span class="line">impala-shell-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm</span><br><span class="line">impala-catalog-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm</span><br><span class="line">impala-server-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm</span><br><span class="line">impala-udf-devel-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm</span><br><span class="line">impala-debuginfo-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm (可不装)</span><br></pre></td></tr></table></figure>
+<p>2.安装，建议上面的顺序</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo rpm -ivh impala-<span class="number">2.2</span>.<span class="number">0</span>+cdh5.<span class="number">4.0</span>+<span class="number">0</span>-<span class="number">1</span>.cdh5.<span class="number">4.0</span>.p0.<span class="number">75</span>.el6.x86_64.rpm  --nodeps --force</span><br></pre></td></tr></table></figure>
+<p>由于我的hadoop是通过tar包安装的，所以需要强制安装此rpm，其余正常安装</p>
+<p>3.查看一下哪些有impala目录</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[xiaolong@node007011 impala-rpm]$ sudo find / -name impala</span><br><span class="line">/var/<span class="built_in">log</span>/impala</span><br><span class="line">/var/run/impala</span><br><span class="line">/var/lib/impala</span><br><span class="line">/var/lib/alternatives/impala</span><br><span class="line">/usr/lib/impala</span><br><span class="line">/etc/default/impala</span><br><span class="line">/etc/impala</span><br><span class="line">/etc/alternatives/impala</span><br></pre></td></tr></table></figure>
+<p>impala默认的安装目录为 <code>/usr/lib/impala</code>，jar包地址为<code>/usr/lib/impala/lib/</code></p>
+<p>4.删除默认的不存在软连接，并添加新连接。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sudo rm -rf /usr/lib/impala/lib/avro*.jar</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/hadoop-*.jar</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/hive-*.jar</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/hbase-*.jar</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/parquet-hadoop-bundle.jar</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/sentry-*.jar</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/zookeeper.jar</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/libhadoop.so</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/libhadoop.so.<span class="number">1.0</span>.<span class="number">0</span></span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/libhdfs.so</span><br><span class="line">sudo rm -rf /usr/lib/impala/lib/libhdfs.so.<span class="number">0.0</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>5.建立新连接，建议利用脚本运行，自己设一下各个home即可，软连后的名字不能改。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HBASE_HOME</span>/lib/avro-<span class="number">1.7</span>.<span class="number">6</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/avro.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/lib/hadoop-annotations-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-annotations.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/lib/hadoop-auth-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-auth.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/tools/lib/hadoop-aws-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-aws.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/common/hadoop-common-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/hdfs/hadoop-hdfs-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-hdfs.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-common-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-mapreduce-client-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-core-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-mapreduce-client-core.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-jobclient-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-mapreduce-client-jobclient.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-client-shuffle-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-mapreduce-client-shuffle.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-api-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-api.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-client-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-client.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-common-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-server-applicationhistoryservice-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-server-applicationhistoryservice.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-server-common-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-server-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-server-nodemanager-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-server-nodemanager.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-server-resourcemanager-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-server-resourcemanager.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/share/hadoop/yarn/hadoop-yarn-server-web-proxy-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hadoop-yarn-server-web-proxy.jar</span><br><span class="line"></span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HBASE_HOME</span>/lib/hbase-annotations-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hbase-annotations.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HBASE_HOME</span>/lib/hbase-client-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hbase-client.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HBASE_HOME</span>/lib/hbase-common-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hbase-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HBASE_HOME</span>/lib/hbase-protocol-<span class="number">1.0</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hbase-protocol.jar</span><br><span class="line"></span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-ant-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-ant.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-beeline-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-beeline.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-common-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-exec-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-exec.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-hbase-handler-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-hbase-handler.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-metastore-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-metastore.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-serde-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-serde.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-service-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-service.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-shims-common-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-shims-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-shims-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-shims.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/hive-shims-scheduler-<span class="number">1.1</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/hive-shims-scheduler.jar</span><br><span class="line"></span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/lib/native/libhadoop.so /usr/lib/impala/lib/libhadoop.so</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/lib/native/libhadoop.so.<span class="number">1.0</span>.<span class="number">0</span> /usr/lib/impala/lib/libhadoop.so.<span class="number">1.0</span>.<span class="number">0</span></span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/lib/native/libhdfs.so /usr/lib/impala/lib/libhdfs.so</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HADOOP_HOME</span>/lib/native/libhdfs.so.<span class="number">0.0</span>.<span class="number">0</span> /usr/lib/impala/lib/libhdfs.so.<span class="number">0.0</span>.<span class="number">0</span></span><br><span class="line"></span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$HIVE_HOME</span>/lib/parquet-hadoop-bundle-<span class="number">1.5</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/parquet-hadoop-bundle.jar</span><br><span class="line"></span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-binding-hive-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-binding-hive.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-core-common-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-core-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-core-model-db-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-core-model-db.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-policy-common-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-policy-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-policy-db-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-policy-db.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-provider-cache-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-provider-cache.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-provider-common-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-provider-common.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-provider-db-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-provider-db.jar</span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$SENTRY_HOME</span>/lib/sentry-provider-file-<span class="number">1.4</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar /usr/lib/impala/lib/sentry-provider-file.jar</span><br><span class="line"></span><br><span class="line">sudo ln <span class="operator">-s</span> <span class="variable">$ZOOKEEPER_HOME</span>/zookeeper-<span class="number">3.4</span>.<span class="number">5</span>-cdh5.<span class="number">3.3</span>.jar /usr/lib/impala/lib/zookeeper.jar</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u914D_u7F6E"><a href="#u914D_u7F6E" class="headerlink" title="配置"></a>配置</h2><p>1.修改<code>/etc/default/bigtop-utils</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/<span class="built_in">local</span>/datacenter/jdk1.<span class="number">7.0</span>_79</span><br></pre></td></tr></table></figure>
+<p>2.修改 <code>/etc/default/impala</code> 默认文件，除了修改环境，还需要修改启动参数，显示传递给 statestored 和 catalogd 它们各自需要的ip和port ，不然都默认 localhost ，分开部署会有问题的。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">IMPALA_CATALOG_SERVICE_HOST=<span class="number">192.168</span>.<span class="number">7.11</span></span><br><span class="line">IMPALA_STATE_STORE_HOST=<span class="number">192.168</span>.<span class="number">7.11</span></span><br><span class="line"></span><br><span class="line">IMPALA_CATALOG_ARGS=<span class="string">" -log_dir=<span class="variable">$&#123;IMPALA_LOG_DIR&#125;</span> -catalog_service_host=<span class="variable">$&#123;IMPALA_CATALOG_SERVICE_HOST&#125;</span> -state_store_host=<span class="variable">$&#123;IMPALA_STATE_STORE_HOST&#125;</span>"</span></span><br><span class="line">IMPALA_STATE_STORE_ARGS=<span class="string">" -log_dir=<span class="variable">$&#123;IMPALA_LOG_DIR&#125;</span> -state_store_host=<span class="variable">$&#123;IMPALA_STATE_STORE_HOST&#125;</span> -state_store_port=<span class="variable">$&#123;IMPALA_STATE_STORE_PORT&#125;</span>  -catalog_service_host=<span class="variable">$&#123;IMPALA_CATALOG_SERVICE_HOST&#125;</span> -catalog_service_port=<span class="variable">$&#123;CATALOG_SERVICE_PORT&#125;</span> "</span></span><br><span class="line"></span><br><span class="line">MYSQL_CONNECTOR_JAR=/usr/<span class="built_in">local</span>/datacenter/hive/lib/mysql-connector-java-<span class="number">5.1</span>.<span class="number">34</span>.jar</span><br></pre></td></tr></table></figure>
+<p>3.根据实际环境修改impala相关脚本文件 <code>/etc/init.d/impala-state-store</code>、<code>/etc/init.d/impala-server</code>、<code>/etc/init.d/impala-catalog</code>，修改其中两处跟用户相关的地方</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">###编者注：这里默认是impala</span></span><br><span class="line">SVC_USER=<span class="string">"hadoop"</span></span><br><span class="line"><span class="comment">###编者注：这里默认是impala</span></span><br><span class="line">install <span class="operator">-d</span> -m <span class="number">0755</span> -o hadoop -g hadoop /var/run/impala <span class="number">1</span>&gt;/dev/null <span class="number">2</span>&gt;&amp;<span class="number">1</span> || :</span><br></pre></td></tr></table></figure>
+<p>为保险起见 手工建立日志目录并修改权限 <code>mkdir /var/log/impala &amp;&amp; chmod -R 777 /var/log/impala</code></p>
+<p>4.修改 hdfs-site.xml 这一处就够了</p>
+<figure class="highlight xml"><figcaption><span>hdfs-site.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>dfs.client.read.shortcircuit<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>dfs.domain.socket.path<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>/var/run/hadoop-hdfs/dn<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>dfs.datanode.hdfs-blocks-metadata.enabled<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">name</span>&gt;</span>dfs.client.use.legacy.blockreader.local<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">value</span>&gt;</span>false<span class="tag">&lt;/<span class="title">value</span>&gt;</span> ###编者注：这里需要为false ，官网文档错了</span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">name</span>&gt;</span>dfs.datanode.data.dir.perm<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">value</span>&gt;</span>750<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">name</span>&gt;</span>dfs.block.local-path-access.user<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">value</span>&gt;</span>hadoop<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">name</span>&gt;</span>dfs.client.file-block-storage-locations.timeout<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">value</span>&gt;</span>3000<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>官网的文档有一处错误，<code>dfs.client.use.legacy.blockreader.local</code> 属性应该为 false，文档中是 true</p>
+<p><a href="http://www.cloudera.com/content/www/en-us/documentation/archive/impala/2-x/2-1-x/topics/impala_config_performance.html?scroll=config_performance" target="_blank" rel="external">http://www.cloudera.com/content/www/en-us/documentation/archive/impala/2-x/2-1-x/topics/impala_config_performance.html?scroll=config_performance </a></p>
+<p>注意每个节点创建 <code>hdfs-site.xml</code> 里指定的 <code>/var/run/hdfs-sockets/dn</code> 权限</p>
+<p>5.impalad的配置文件路径由环境变量IMPALA_CONF_DIR指定，默认为 <code>/etc/impala/conf</code>，拷贝配置或建立软连接 的<code>hive-site.xml</code>、<code>core-site.xml</code>、<code>hdfs-site.xml</code>、<code>hbase-site.xml</code>文件至<code>/etc/impala/conf</code>目录下。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/datacenter/hadoop/etc/hadoop/core-site.xml /etc/impala/conf/</span><br><span class="line">sudo ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/datacenter/hadoop/etc/hadoop/hdfs-site.xml /etc/impala/conf/</span><br><span class="line">sudo ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/datacenter/hive/conf/hive-site.xml /etc/impala/conf/</span><br><span class="line">sudo ln <span class="operator">-s</span> /usr/<span class="built_in">local</span>/datacenter/hbase/conf/hbase-site.xml /etc/impala/conf/</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u542F_u52A8"><a href="#u542F_u52A8" class="headerlink" title="启动"></a>启动</h2><p>启动是最诡异的地方，由于官网建议statestored和catalogd在同一台机器上，所以ip一样，但端口不一样，然后利用service启动就只能启动一个，可以通过 pid file 看到是同一个进程.</p>
+<p>1.在 <code>statestored</code> 和 <code>catalogd</code> 机器上启动「impala主节点」， 建议启动时，一个利用service 启动一个利用手工启动</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/lib/impala</span><br><span class="line">nohup /usr/lib/impala/sbin/statestored -log_dir=/var/<span class="built_in">log</span>/impala -state_store_host=<span class="number">192.168</span>.<span class="number">7.11</span> -state_store_port=<span class="number">24000</span> -catalog_service_host=<span class="number">192.168</span>.<span class="number">7.11</span>:<span class="number">26000</span> -catalog_service_port=<span class="number">26000</span> &amp;</span><br><span class="line"></span><br><span class="line">sudo service impala-catalog start</span><br></pre></td></tr></table></figure>
+<p>碰见问题 ,缺少jdk so文件，缺少classpath impala ，所以修改环境变量</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$LD_LIBRARY_PATH</span>:/usr/<span class="built_in">local</span>/lib:/usr/<span class="built_in">local</span>/datacenter/jdk1.<span class="number">7.0</span>_79/jre/lib/amd64:/usr/<span class="built_in">local</span>/datacenter/jdk1.<span class="number">7.0</span>_79/jre/lib/amd64/server:/usr/lib/impala/lib/</span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> CLASSPATH=<span class="variable">$CLASSPATH</span>:<span class="variable">$JAVA_HOME</span>/lib:<span class="variable">$JAVA_HOME</span>/jre/lib:/usr/lib/impala/lib</span><br></pre></td></tr></table></figure>
+<p>2.在「impala从节点」上，启动 <code>serverd</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service  impala-server start</span><br></pre></td></tr></table></figure>
+<p>3.访问主节点 25010 端口，得到statestore web ui ，其中比较有参考意义的，logs 和 varz 里面有环境变量的信息<br><img src="/images/impala/20151227/1.png" alt=""></p>
+<p>4.访问从节点的 25000 ，得到 serverd 的 web ui<br><img src="/images/impala/20151227/2.png" alt=""></p>
+<hr>
+<h2 id="u6267_u884C"><a href="#u6267_u884C" class="headerlink" title="执行"></a>执行</h2><p>1.进入<code>impala-shell</code>，即连接的本机的 impala-server</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@node007012 ~]<span class="comment"># impala-shell</span></span><br><span class="line">Starting Impala Shell without Kerberos authentication</span><br><span class="line">Connected to node007012:<span class="number">21000</span></span><br><span class="line">Server version: impalad version <span class="number">2.2</span>.<span class="number">0</span>-cdh5 RELEASE (build <span class="number">2</span>ffd73a4255cefd521362ffe1cfb37463f67f75c)</span><br></pre></td></tr></table></figure>
+<p>2.同步hive元信息，以便感知已存在的hive库表</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; invalidate metadata;</span><br><span class="line">Query: invalidate metadata</span><br><span class="line"></span><br><span class="line">Fetched <span class="number">0</span> row(s) <span class="keyword">in</span> <span class="number">3.98</span>s</span><br></pre></td></tr></table></figure>
+<p>3.执行一下ddl语句，看是否正常</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; SHOW DATABASES;</span><br><span class="line">Query: show DATABASES</span><br><span class="line">+------------------+</span><br><span class="line">| name             |</span><br><span class="line">+------------------+</span><br><span class="line">| _impala_builtins |</span><br><span class="line">| default          |</span><br><span class="line">| <span class="built_in">test</span>             |</span><br><span class="line">+------------------+</span><br><span class="line">Fetched <span class="number">3</span> row(s) <span class="keyword">in</span> <span class="number">0.01</span>s</span><br><span class="line">[node007012:<span class="number">21000</span>] &gt; USE <span class="built_in">test</span>;</span><br><span class="line">Query: use <span class="built_in">test</span></span><br><span class="line">[node007012:<span class="number">21000</span>] &gt; show tables;</span><br><span class="line">Query: show tables</span><br><span class="line">+--------------+</span><br><span class="line">| name         |</span><br><span class="line">+--------------+</span><br><span class="line">| g_info       |</span><br><span class="line">| g_info_pa    |</span><br><span class="line">| g_info_sqoop |</span><br><span class="line">| pokes        |</span><br><span class="line">| pokes_pa     |</span><br><span class="line">| sales_order  |</span><br><span class="line">| t1           |</span><br><span class="line">| t2           |</span><br><span class="line">| user_sqoop   |</span><br><span class="line">+--------------+</span><br><span class="line">Fetched <span class="number">9</span> row(s) <span class="keyword">in</span> <span class="number">0.01</span>s</span><br></pre></td></tr></table></figure>
+<p>4.验证查询语句，其中g_info表是textfile，g_info_pa 是parquetfile 的，可见效率差异性</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; select count(*) from g_info;</span><br><span class="line">Query: select count(*) from g_info</span><br><span class="line">+----------+</span><br><span class="line">| count(*) |</span><br><span class="line">+----------+</span><br><span class="line">| <span class="number">1222023</span>  |</span><br><span class="line">+----------+</span><br><span class="line">WARNINGS: Unknown disk id.  This will negatively affect performance. Check your hdfs settings to <span class="built_in">enable</span> block location metadata. (<span class="number">1</span> of <span class="number">8</span> similar)</span><br><span class="line"></span><br><span class="line">Fetched <span class="number">1</span> row(s) <span class="keyword">in</span> <span class="number">44.13</span>s</span><br><span class="line">[node007012:<span class="number">21000</span>] &gt; select count(*) from g_info_pa;</span><br><span class="line">Query: select count(*) from g_info_pa</span><br><span class="line">+----------+</span><br><span class="line">| count(*) |</span><br><span class="line">+----------+</span><br><span class="line">| <span class="number">1192760</span>  |</span><br><span class="line">+----------+</span><br><span class="line">WARNINGS: Unknown disk id.  This will negatively affect performance. Check your hdfs settings to <span class="built_in">enable</span> block location metadata. (<span class="number">1</span> of <span class="number">4</span> similar)</span><br><span class="line"></span><br><span class="line">Fetched <span class="number">1</span> row(s) <span class="keyword">in</span> <span class="number">4.73</span>s</span><br></pre></td></tr></table></figure>
+<p>这个警告日志里报错的是，待查</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">W1226 <span class="number">19</span>:<span class="number">14</span>:<span class="number">35.052875</span> <span class="number">30015</span> DomainSocketFactory.java:<span class="number">167</span>] error creating DomainSocket</span><br><span class="line">Java exception follows:</span><br><span class="line">java.net.ConnectException: connect(<span class="number">2</span>) error: Connection refused when trying to connect to <span class="string">'/var/run/hdfs-sockets/dn'</span></span><br></pre></td></tr></table></figure>
+<p>参考：</p>
+<ul>
+<li><p><a href="http://blog.csdn.net/zhong_han_jun/article/details/45563505" target="_blank" rel="external">http://blog.csdn.net/zhong_han_jun/article/details/45563505</a></p>
+</li>
+<li><p><a href="http://www.cnblogs.com/chenz/articles/3629698.html" target="_blank" rel="external">http://www.cnblogs.com/chenz/articles/3629698.html</a></p>
+</li>
+<li><p><a href="http://www.cloudera.com/content/cloudera/zh-CN/documentation/core/v5-3-x/topics/impala_config_options.html" target="_blank" rel="external">http://www.cloudera.com/content/cloudera/zh-CN/documentation/core/v5-3-x/topics/impala_config_options.html</a></p>
+</li>
+<li><p><a href="http://stackoverflow.com/questions/23469758/aws-emr-impala-daemon-issue" target="_blank" rel="external">http://stackoverflow.com/questions/23469758/aws-emr-impala-daemon-issue</a></p>
+</li>
+</ul>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/impala/">impala</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/impala/">impala</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/12/30/impala-udf/" class="alignleft prev" title="impala udf">impala udf</a>
+    
+    
+    <a href="/blog/2015/12/27/tez-on-yarn/" class="alignright next" title="tez on yarn">tez on yarn</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/12/27/install-impala/" data-title="install impala" data-url="http://yoursite.com/blog/2015/12/27/install-impala/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,433 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>jvm memory leak analysis | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="排查jvm内存泄露">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="jvm memory leak analysis"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	jvm memory leak analysis
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-07-14T13:57:59.000Z" itemprop="datePublished">2014-07-14</time>
+    更新日期:<time datetime="2016-01-16T08:04:51.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u80CC_u666F"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907_28_u53EF_u9009_29"><span class="toc-number">2.</span> <span class="toc-text">环境准备(可选)</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5F00_u59CB_u5206_u6790"><span class="toc-number">3.</span> <span class="toc-text">开始分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u4E3A_u4EC0_u4E48_u4F1A_u51FA_u73B0_u8FD9_u6837_u7684_u73B0_u8C61_uFF1F"><span class="toc-number">4.</span> <span class="toc-text">为什么会出现这样的现象？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u672C_u5730_u5F00_u53D1_u3001_u7EBF_u4E0Alinux_u673A_u6392_u67E5"><span class="toc-number">5.</span> <span class="toc-text">本地开发、线上linux机排查</span></a></li></ol>
+			</div>
+		
+        <p>一次jvm查错经历，分享给大家<br><a id="more"></a></p>
+<hr>
+<h2 id="u80CC_u666F"><a href="#u80CC_u666F" class="headerlink" title="背景"></a>背景</h2><p>C/S模型，Client和Server之间进行通信。Client定时发送心跳消息给Server，利用netty框架</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907_28_u53EF_u9009_29"><a href="#u73AF_u5883_u51C6_u5907_28_u53EF_u9009_29" class="headerlink" title="环境准备(可选)"></a>环境准备(可选)</h2><p>原始代码很多，不过我为了说明问题，用netty写了一个demo，旨在分析的过程。</p>
+<font color="#888689"> 可以通过git把源码下载下来，导入eclipse，设置一下build path，添加里面的netty jar包路径。</font>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> git@github.com:yuanxiaolong/netty.git  yourLocalDirectory</span><br></pre></td></tr></table></figure>
+<p>当然我是已经知道这个问题，现在是分析这个BUG的过程。</p>
+<hr>
+<h2 id="u5F00_u59CB_u5206_u6790"><a href="#u5F00_u59CB_u5206_u6790" class="headerlink" title="开始分析"></a>开始分析</h2><p>客户端 核心代码如下，将 <em><font color="green">行A(line29)</font></em> 注释掉， <em><font color="green">行B(line30)</font></em> 打开，模拟问题</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//创建Client端线程池工厂</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> NioClientSocketChannelFactory FACTORY = <span class="keyword">new</span> NioClientSocketChannelFactory(</span><br><span class="line">		Executors.newCachedThreadPool(), Executors.newCachedThreadPool());</span><br><span class="line"></span><br><span class="line"><span class="comment">//客户端启动器</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> ClientBootstrap bootstrap = <span class="keyword">new</span> ClientBootstrap(FACTORY);</span><br><span class="line"></span><br><span class="line"><span class="comment">//服务器地址</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> InetSocketAddress remoteServerAddress = <span class="keyword">new</span> InetSocketAddress(<span class="string">"127.0.0.1"</span>, <span class="number">8080</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> HashedWheelTimer timer = <span class="keyword">new</span> HashedWheelTimer();</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> ReadTimeoutHandler timeoutHandler = <span class="keyword">new</span> ReadTimeoutHandler(timer,<span class="number">3</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">//客户端执行服务器返回response的处理链pipeline</span></span><br><span class="line"><span class="comment">//这里是连接失败时导致大量TCP连接出现的原因,http://javatar.iteye.com/blog/1138527</span></span><br><span class="line"><span class="comment">//由于外层调用采用单线程池,这里又将pipeline静态化,实验查看后并未出现TCP大量存在的情况</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> ChannelPipelineFactory CHANNEL_PIPELINE_FACTORY = <span class="keyword">new</span> ChannelPipelineFactory() &#123;</span><br><span class="line"></span><br><span class="line">	<span class="annotation">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> ChannelPipeline <span class="title">getPipeline</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">		<span class="comment">//pipeline 顺序调用,类似web的请求filter</span></span><br><span class="line">		ChannelPipeline pipleline = pipeline();</span><br><span class="line">		pipleline.addLast(<span class="string">"encode"</span>, <span class="keyword">new</span> StringEncoder());</span><br><span class="line">		pipleline.addLast(<span class="string">"decode"</span>, <span class="keyword">new</span> StringDecoder());</span><br><span class="line">		<span class="comment">/**</span><br><span class="line">		 * 这里2选1,分别是行A和行B</span><br><span class="line">		 */</span></span><br><span class="line">		pipleline.addLast(<span class="string">"timeout"</span>, timeoutHandler);<span class="comment">//行A</span></span><br><span class="line">		pipleline.addLast(<span class="string">"timeout"</span>, <span class="keyword">new</span> ReadTimeoutHandler(<span class="keyword">new</span> HashedWheelTimer(),<span class="number">3</span>));<span class="comment">//行B</span></span><br><span class="line"></span><br><span class="line">		pipleline.addLast(<span class="string">"handler"</span>, <span class="keyword">new</span> ClientHanlder());<span class="comment">//客户端handler</span></span><br><span class="line">		<span class="keyword">return</span> pipleline;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span>&#123;</span><br><span class="line">	bootstrap.setPipelineFactory(CHANNEL_PIPELINE_FACTORY);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>1.在eclipse中分别启动Server和Client<br>2.启动完后，运行jps查看Client进程号PID，并在任务管理器里观察内存情况（发现内存不断上涨）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">D:\&gt;jps</span><br><span class="line"><span class="number">6212</span> ServerMain</span><br><span class="line"><span class="number">5960</span> org.eclipse.equinox.launcher_1.<span class="number">3.0</span>.v20130327-<span class="number">1440</span>.jar</span><br><span class="line"><span class="number">8908</span> Jps</span><br><span class="line"><span class="number">8656</span> FirstClientMain</span><br></pre></td></tr></table></figure>
+<p>3.这时候其实内存泄露已经发生了（我们发现内存不断上涨，GC回收不掉），因此需要dump内存</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jmap -dump:format=b,file=test.bin <span class="number">8656</span></span><br></pre></td></tr></table></figure>
+<p>将此时的内存信息dump到 <strong>test.bin</strong> 文件里（一般来说需要dump多次，而且间隔开）。<br>由于我们的demo就是模拟内存泄露场景的，因此只需要dump一次即可</p>
+<p>4.在test.bin同级目录下，放置 <a href="http://pan.baidu.com/s/1ntzBeAH" target="_blank" rel="external"><font color="#4274c3">ibm analyzer</font></a><br>启动它</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -Xmx1000m -jar ha442.jar test.bin</span><br></pre></td></tr></table></figure>
+<p>5.这时，我们就可以通过图形界面GUI来直观的看内存情况了。<br><img src="/images/jvm/ibm_ha.png" alt=""></p>
+<p>我们发现60%~70%的内存都是 <font color="#6111a3">org.jboss.netty.util.HashedWheelTimer</font>，定位出了。</p>
+<p>6.至于怎么解决，就是另外一回事了。（ <em><font color="green">行B</font></em> 注释掉，打开 <em><font color="green">行A</font></em> 即可解决）</p>
+<hr>
+<h2 id="u4E3A_u4EC0_u4E48_u4F1A_u51FA_u73B0_u8FD9_u6837_u7684_u73B0_u8C61_uFF1F"><a href="#u4E3A_u4EC0_u4E48_u4F1A_u51FA_u73B0_u8FD9_u6837_u7684_u73B0_u8C61_uFF1F" class="headerlink" title="为什么会出现这样的现象？"></a>为什么会出现这样的现象？</h2><p>用的不熟悉呗，我们看一下HashedWheelTimer的类说明就能明白了。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;h3&gt;Do not create many instances.&lt;/h3&gt;</span><br><span class="line"> *</span><br><span class="line"> * &#123;@link HashedWheelTimer&#125; creates a new thread whenever it is instantiated and</span><br><span class="line"> * started.  Therefore, you should make sure to create only one instance and</span><br><span class="line"> * share it across your application.  One of the common mistakes, that makes</span><br><span class="line"> * your application unresponsive, is to create a new instance in</span><br><span class="line"> * &#123;@link ChannelPipelineFactory&#125;, which results in the creation of a new thread</span><br><span class="line"> * for every connection.</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u672C_u5730_u5F00_u53D1_u3001_u7EBF_u4E0Alinux_u673A_u6392_u67E5"><a href="#u672C_u5730_u5F00_u53D1_u3001_u7EBF_u4E0Alinux_u673A_u6392_u67E5" class="headerlink" title="本地开发、线上linux机排查"></a>本地开发、线上linux机排查</h2><ul>
+<li>本地开发<ul>
+<li>可以利用 <strong>jconsole</strong> 观察，一目了然。</li>
+</ul>
+</li>
+<li>线上linux<ul>
+<li>可以先dump到线上机，然后scp到本地机器</li>
+</ul>
+</li>
+</ul>
+<p>PS：附上内存泄露的dump文件 <a href="http://pan.baidu.com/s/1c0vjJNU" target="_blank" rel="external"><font color="#4274c3">test.bin</font></a></p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/jvm/">jvm</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/jvm/">jvm</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2014/07/18/install-hadoop-on-distributed/" class="alignleft prev" title="install hadoop on distributed">install hadoop on distributed</a>
+    
+    
+    <a href="/blog/2014/07/13/install-ssh-and-config/" class="alignright next" title="install ssh and config">install ssh and config</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2014/07/14/jvm-memory-leak-analysis/" data-title="jvm memory leak analysis" data-url="http://yoursite.com/blog/2014/07/14/jvm-memory-leak-analysis/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

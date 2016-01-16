@@ -1,0 +1,431 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>highcharts demo on jsfiddle | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="highcharts的一个demo">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="highcharts demo on jsfiddle"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	highcharts demo on jsfiddle
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-10-25T15:13:14.000Z" itemprop="datePublished">2014-10-25</time>
+    更新日期:<time datetime="2016-01-16T07:28:45.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#Jsfiddle"><span class="toc-number">1.</span> <span class="toc-text">Jsfiddle</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Highcharts"><span class="toc-number">2.</span> <span class="toc-text">Highcharts</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#API_1-_u7528_u4E8EMock_u6570_u636E_u5E93_u4E2D_uFF0C_u5B58_u5728_u7684_u7EBF_u6761_u540D_u79F0_u5217_u8868"><span class="toc-number">2.1.</span> <span class="toc-text"> API 1.用于Mock数据库中，存在的线条名称列表 </span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#API_2-_u7528_u4E8EMock_u6570_u636E_u5E93_u4E2D_uFF0C_u9700_u8981_u8FD4_u56DE_u7684_u7EBF_u6761_u6570_u636E"><span class="toc-number">2.2.</span> <span class="toc-text"> API 2.用于Mock数据库中，需要返回的线条数据 </span></a></li></ol></li></ol>
+			</div>
+		
+        <p>一个highcharts的demo，运行在jsfiddle上</p>
+<a id="more"></a>
+<p>最近要搞个数据展现，好像专业些用R语言来绘图。但我暂时不会R，而且就是普通的线状图，考虑了一下用highcharts这个js插件吧。</p>
+<hr>
+<h2 id="Jsfiddle"><a href="#Jsfiddle" class="headerlink" title="Jsfiddle"></a>Jsfiddle</h2><p>由于之前也没接触过<a href="http://www.highcharts.com/" target="_blank" rel="external"><font color="#2d58bd">Highcharts</font></a>官网可能打不开，用 <a href="http://www.hcharts.cn/" target="_blank" rel="external">Highcharts中文网</a>一样的)，因此遇到了很多问题。在<a href="http://stackoverflow.com/" target="_blank" rel="external"><font color="#2d58bd">StackOverFlow</font></a><br>上 也翻阅了很多资料。发现大家更喜欢用另外一种方式来表达，就是<a href="http://jsfiddle.net/" target="_blank" rel="external"><font color="#2d58bd">Jsfiddle</font></a></p>
+<p>废话不多说，直接上 <a href="http://jsfiddle.net/yuanxiaolong/fjL9kLzr/13/" target="_blank" rel="external"><font color="#2d58bd">demo</font></a> (由于国内墙的原因，可能打开网页有些慢，请耐心等待)。</p>
+<iframe width="100%" height="550" src="http://jsfiddle.net/yuanxiaolong/fjL9kLzr/13/embedded/result/"></iframe>
+
+
+<p>Highcharts 资料很全面，所以上手比较容易。作为一个纯javascript的图形插件，是你不二的选择，因此本文也就对使用方法不做赘述。</p>
+<p>要说的是，Jsfiddle 由于安全性考虑，你是不能在 Jsfiddle 的 js 代码里，发送 ajax 请求，并处理响应结果的。</p>
+<p>不过，它提供了一个 API ，可以 Mock echo 你想要的 html 、json、xml 等。<a href="http://doc.jsfiddle.net/use/echo.html" target="_blank" rel="external"><font color="#2d58bd">说明文档</font></a></p>
+<p>国内也有一个叫RunJs的网站，跟这个差不多，速度很快。不过只限于国内交流，如果放到StackOverFlow上，国外友人就不知道该怎么使用了……</p>
+<p>demo里的一个选择框 是用的<a href="http://silviomoreto.github.io/bootstrap-select/" target="_blank" rel="external"><font color="#7b5139">bootstrap-select.js </font></a></p>
+<hr>
+<h2 id="Highcharts"><a href="#Highcharts" class="headerlink" title="Highcharts"></a>Highcharts</h2><p>一般都是动态图，即不知道有多少条线，服务器从DB捞出数据后，用json返回数据。然后客户端js接收，并解析数据，展现图表。</p>
+<p>我提供了一个 http 服务，可以帮助使用 Highcharts 的人，关注Js解析数据就好了。</p>
+<h3 id="API_1-_u7528_u4E8EMock_u6570_u636E_u5E93_u4E2D_uFF0C_u5B58_u5728_u7684_u7EBF_u6761_u540D_u79F0_u5217_u8868"><a href="#API_1-_u7528_u4E8EMock_u6570_u636E_u5E93_u4E2D_uFF0C_u5B58_u5728_u7684_u7EBF_u6761_u540D_u79F0_u5217_u8868" class="headerlink" title="API 1.用于Mock数据库中，存在的线条名称列表"></a><font color="#4c548c"> API 1.用于Mock数据库中，存在的线条名称列表 </font></h3><ul>
+<li>url地址 ： <a href="http://www.yuanxiaolong.cn:49160/highchartLinename" target="_blank" rel="external"> <font color="#af7d27">http://www.yuanxiaolong.cn:49160/highchartLinename </font></a></li>
+<li>参数 ： 无</li>
+<li>返回 ： List<string></string></li>
+<li>格式 ：json</li>
+<li>返回值示例</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;"<span class="attribute">lineNames</span>":<span class="value">[<span class="string">"a"</span>,<span class="string">"b"</span>,<span class="string">"c"</span>]</span>&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="API_2-_u7528_u4E8EMock_u6570_u636E_u5E93_u4E2D_uFF0C_u9700_u8981_u8FD4_u56DE_u7684_u7EBF_u6761_u6570_u636E"><a href="#API_2-_u7528_u4E8EMock_u6570_u636E_u5E93_u4E2D_uFF0C_u9700_u8981_u8FD4_u56DE_u7684_u7EBF_u6761_u6570_u636E" class="headerlink" title="API 2.用于Mock数据库中，需要返回的线条数据"></a><font color="#4c548c"> API 2.用于Mock数据库中，需要返回的线条数据 </font></h3><ul>
+<li>url地址 ： <a href="http://www.yuanxiaolong.cn:49160/highchartData" target="_blank" rel="external"> <font color="#af7d27">http://www.yuanxiaolong.cn:49160/highchartData </font></a></li>
+<li>参数 ： 无 或 lineName ，当无参传入时，返回所有线条数据</li>
+<li>请求示例 ： <a href="http://www.yuanxiaolong.cn:49160/highchartData?lineName=a" target="_blank" rel="external">http://www.yuanxiaolong.cn:49160/highchartData?lineName=a</a></li>
+<li>返回 ： Map<string, list<string="">&gt;</string,></li>
+<li>返回说明 ：Map-Key是线条的名称，Map-Value是线条，其中列表中的每一个值，代表一个点。用<font color="green"> “#”号</font>分隔，Array[0]代表时间（X轴），Array[1]代表数值（Y轴）</li>
+<li>格式 ：json</li>
+<li>返回值示例</li>
+</ul>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    "<span class="attribute">b</span>": <span class="value">[</span><br><span class="line">        <span class="string">"2014-10-23 03:00:32#223"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 06:00:32#623"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 09:00:32#323"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 12:00:32#643"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 15:00:32#1500"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 18:00:32#932"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 21:00:32#535"</span></span><br><span class="line">    ]</span>,</span><br><span class="line">    "<span class="attribute">c</span>": <span class="value">[</span><br><span class="line">        <span class="string">"2014-10-23 03:00:32#73"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 06:00:32#473"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 09:00:32#173"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 12:00:32#493"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 15:00:32#1350"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 18:00:32#782"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 21:00:32#385"</span></span><br><span class="line">    ]</span>,</span><br><span class="line">    "<span class="attribute">a</span>": <span class="value">[</span><br><span class="line">        <span class="string">"2014-10-23 03:00:32#133"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 06:00:32#533"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 09:00:32#233"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 12:00:32#553"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 15:00:32#1410"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 18:00:32#842"</span>,</span><br><span class="line">        <span class="string">"2014-10-23 21:00:32#445"</span></span><br><span class="line">    ]</span><br><span class="line"></span>&#125;</span><br></pre></td></tr></table></figure>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/highcharts/">highcharts</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/highcharts/">highcharts</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2014/10/29/docker-redis-master-slave/" class="alignleft prev" title="docker redis master slave">docker redis master slave</a>
+    
+    
+    <a href="/blog/2014/10/24/nginx-with-docker-service-other-containers/" class="alignright next" title="nginx with docker service other containers">nginx with docker service other containers</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2014/10/25/highcharts-demo-on-jsfiddle/" data-title="highcharts demo on jsfiddle" data-url="http://yoursite.com/blog/2014/10/25/highcharts-demo-on-jsfiddle/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

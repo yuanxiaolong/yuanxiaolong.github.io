@@ -1,0 +1,425 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>install postgresql xl | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="pgxl 的部署">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="install postgresql xl"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	install postgresql xl
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-08-07T08:01:10.000Z" itemprop="datePublished">2015-08-07</time>
+    更新日期:<time datetime="2016-01-16T03:34:45.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5B89_u88C5_u6B65_u9AA4"><span class="toc-number">2.</span> <span class="toc-text">安装步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u4E0B_u8F7Dpgxl_uFF0C_u5E76_u7F16_u8BD1_u5B89_u88C5"><span class="toc-number">2.1.</span> <span class="toc-text">下载pgxl，并编译安装</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6DFB_u52A0_u73AF_u5883_uFF0C_u7528_u6237"><span class="toc-number">2.2.</span> <span class="toc-text">添加环境，用户</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u89D2_u8272_u4ECB_u7ECD_coordinator__u548C_datanode"><span class="toc-number">2.3.</span> <span class="toc-text">角色介绍 coordinator 和 datanode</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#u914D_u7F6Ecoordinator"><span class="toc-number">2.3.1.</span> <span class="toc-text">配置coordinator</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#u914D_u7F6Edatanode"><span class="toc-number">2.3.2.</span> <span class="toc-text">配置datanode</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u542F_u52A8datanode"><span class="toc-number">2.4.</span> <span class="toc-text">启动datanode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u914D_u7F6EGTM"><span class="toc-number">2.5.</span> <span class="toc-text">配置GTM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u542F_u52A8GTM"><span class="toc-number">2.6.</span> <span class="toc-text">启动GTM</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8FDE_u63A5datanode"><span class="toc-number">2.7.</span> <span class="toc-text">连接datanode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6DFB_u52A0_u8282_u70B9"><span class="toc-number">2.8.</span> <span class="toc-text">添加节点</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u540E_u8BB0_3A"><span class="toc-number">3.</span> <span class="toc-text">后记:</span></a></li></ol>
+			</div>
+		
+        <p>pgxl 是一个基于 pg 可扩展的 架构，安装部署在几台机器上</p>
+<a id="more"></a>
+<p>postgresql 有兴趣的可以了解一下，也是一种关系型数据库。postgresql 配合 pg-xl 组件，可以达到类似 hadoop 一样的分布式效果。而且还有分布式事务的特性哦</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><p>PS：本文的研究者为同事 立超 同学，本人仅在测试环境下，根据指导实践了一遍</p>
+<p>centos6 机器多台，可选下面的依赖库</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum -y install lrzsz sysstat e4fsprogs ntp readline-devel zlib zlib-devel openssl openssl-devel pam-devel libxml2-devel libxslt-devel python-devel tcl-devel gcc make smartmontools flex bison perl perl-devel perl-ExtUtils* OpenIPMI-tools openldap openldap-devel</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u5B89_u88C5_u6B65_u9AA4"><a href="#u5B89_u88C5_u6B65_u9AA4" class="headerlink" title="安装步骤"></a>安装步骤</h2><h3 id="u4E0B_u8F7Dpgxl_uFF0C_u5E76_u7F16_u8BD1_u5B89_u88C5"><a href="#u4E0B_u8F7Dpgxl_uFF0C_u5E76_u7F16_u8BD1_u5B89_u88C5" class="headerlink" title="下载pgxl，并编译安装"></a>下载pgxl，并编译安装</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">wget http://jaist.dl.sourceforge.net/project/postgres-xl/Releases/Version_9.<span class="number">2</span>rc/postgres-xl-v9.<span class="number">2</span>-src.tar.gz</span><br><span class="line">tar -zxvf postgres-xl-v9.<span class="number">2</span>-src.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="comment">#解决html.index Error 1的问题</span></span><br><span class="line"><span class="built_in">cd</span> postgres-xl/doc-xc/src/sgml/</span><br><span class="line">rm -rf bookindex.sgmlin &amp;&amp; <span class="built_in">cd</span> ../../..</span><br><span class="line"></span><br><span class="line"><span class="comment">#编译安装</span></span><br><span class="line">./configure --prefix=/home/pgxl/pgxl9.<span class="number">2</span> --with-pgport=<span class="number">11921</span> --with-perl --with-tcl --with-python --with-openssl --with-pam --with-ldap --with-libxml --with-libxslt --enable-thread-safety --with-blocksize=<span class="number">32</span></span><br><span class="line"></span><br><span class="line">make &amp;&amp; make install</span><br></pre></td></tr></table></figure>
+<h3 id="u6DFB_u52A0_u73AF_u5883_uFF0C_u7528_u6237"><a href="#u6DFB_u52A0_u73AF_u5883_uFF0C_u7528_u6237" class="headerlink" title="添加环境，用户"></a>添加环境，用户</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">useradd pgxl</span><br><span class="line">su - pgxl</span><br><span class="line">vi .bashrc</span><br><span class="line"><span class="built_in">export</span> PGHOME=/home/pgxl/pgxl9.<span class="number">2</span></span><br><span class="line"><span class="built_in">export</span> LD_LIBRARY_PATH=<span class="variable">$PGHOME</span>/lib:/lib64:/usr/lib64:/usr/<span class="built_in">local</span>/lib64:/lib:/usr/lib:/usr/<span class="built_in">local</span>/lib:<span class="variable">$LD_LIBRARY_PATH</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PGHOME</span>/bin:<span class="variable">$PATH</span>:.</span><br></pre></td></tr></table></figure>
+<h3 id="u89D2_u8272_u4ECB_u7ECD_coordinator__u548C_datanode"><a href="#u89D2_u8272_u4ECB_u7ECD_coordinator__u548C_datanode" class="headerlink" title="角色介绍 coordinator 和 datanode"></a>角色介绍 coordinator 和 datanode</h3><ul>
+<li>coordinator 作为协调者 ，类似 hdfs Namenode</li>
+<li>datanode 作为存储者，类似 hdfs datanode</li>
+<li>GTM（global Transcation Manager)</li>
+</ul>
+<p>在配置时 需要让 端口访问 不仅 datanode 需要互通 ，还要都能访问到 coordinator 互通</p>
+<h4 id="u914D_u7F6Ecoordinator"><a href="#u914D_u7F6Ecoordinator" class="headerlink" title="配置coordinator"></a>配置coordinator</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line">initdb -D /data/pgxl/c11921/pg_root --nodename=c11921 -E UTF8 --locale=C -U postgres -W</span><br><span class="line"><span class="built_in">cd</span> /data/pgxl/c11921/pg_root</span><br><span class="line"></span><br><span class="line">vi pg_hba.conf</span><br><span class="line">host all all <span class="number">0.0</span>.<span class="number">0.0</span>/<span class="number">0</span> md5</span><br><span class="line"></span><br><span class="line">vi postgresql.conf</span><br><span class="line">listen_addresses = <span class="string">'*'</span>          <span class="comment"># what IP address(es) to listen on;</span></span><br><span class="line">port = <span class="number">11921</span>                            <span class="comment"># (change requires restart)</span></span><br><span class="line">max_connections = <span class="number">500</span>                   <span class="comment"># (change requires restart)</span></span><br><span class="line">superuser_reserved_connections = <span class="number">13</span>     <span class="comment"># (change requires restart)</span></span><br><span class="line">unix_socket_directory = <span class="string">'.'</span>             <span class="comment"># (change requires restart)</span></span><br><span class="line">unix_socket_permissions = <span class="number">0700</span>          <span class="comment"># begin with 0 to use octal notation</span></span><br><span class="line">tcp_keepalives_idle = <span class="number">60</span>                <span class="comment"># TCP_KEEPIDLE, in seconds;</span></span><br><span class="line">tcp_keepalives_interval = <span class="number">10</span>            <span class="comment"># TCP_KEEPINTVL, in seconds;</span></span><br><span class="line">tcp_keepalives_count = <span class="number">10</span>               <span class="comment"># TCP_KEEPCNT;</span></span><br><span class="line">shared_buffers = <span class="number">2048</span>MB                 <span class="comment"># min 128kB</span></span><br><span class="line">max_prepared_transactions = <span class="number">500</span>         <span class="comment"># zero disables the feature</span></span><br><span class="line">vacuum_cost_delay = <span class="number">10</span>ms                <span class="comment"># 0-100 milliseconds</span></span><br><span class="line">vacuum_cost_<span class="built_in">limit</span> = <span class="number">10000</span>               <span class="comment"># 1-10000 credits</span></span><br><span class="line">bgwriter_delay = <span class="number">10</span>ms                   <span class="comment"># 10-10000ms between rounds</span></span><br><span class="line">shared_queues = <span class="number">64</span>                      <span class="comment"># min 16</span></span><br><span class="line">shared_queue_size = <span class="number">262144</span>               <span class="comment"># min 16KB</span></span><br><span class="line">wal_level = hot_standby                 <span class="comment"># minimal, archive, or hot_standby</span></span><br><span class="line">synchronous_commit = off                <span class="comment"># synchronization level;</span></span><br><span class="line">wal_sync_method = fdatasync             <span class="comment"># the default is the first option</span></span><br><span class="line">wal_buffers = <span class="number">16384</span>kB                   <span class="comment"># min 32kB, -1 sets based on shared_buffers</span></span><br><span class="line">wal_writer_delay = <span class="number">10</span>ms         <span class="comment"># 1-10000 milliseconds</span></span><br><span class="line">checkpoint_segments = <span class="number">128</span>               <span class="comment"># in logfile segments, min 1, 16MB each</span></span><br><span class="line">archive_mode = on               <span class="comment"># allows archiving to be done</span></span><br><span class="line">archive_<span class="built_in">command</span> = <span class="string">'/bin/date'</span>           <span class="comment"># command to use to archive a logfile segment</span></span><br><span class="line">max_wal_senders = <span class="number">32</span>            <span class="comment"># max number of walsender processes</span></span><br><span class="line">hot_standby = on                        <span class="comment"># "on" allows queries during recovery</span></span><br><span class="line">max_standby_archive_delay = <span class="number">300</span>s        <span class="comment"># max delay before canceling queries</span></span><br><span class="line">max_standby_streaming_delay = <span class="number">300</span>s      <span class="comment"># max delay before canceling queries</span></span><br><span class="line">wal_receiver_status_interval = <span class="number">1</span>s       <span class="comment"># send replies at least this often</span></span><br><span class="line">hot_standby_feedback = on               <span class="comment"># send info from standby to prevent</span></span><br><span class="line">remote_query_cost = <span class="number">100.0</span>               <span class="comment"># same scale as above</span></span><br><span class="line">effective_cache_size = <span class="number">96000</span>MB</span><br><span class="line"><span class="built_in">log</span>_destination = <span class="string">'csvlog'</span>              <span class="comment"># Valid values are combinations of</span></span><br><span class="line">logging_collector = on          <span class="comment"># Enable capturing of stderr and csvlog</span></span><br><span class="line"><span class="built_in">log</span>_directory = <span class="string">'pg_log'</span>                <span class="comment"># directory where log files are written,</span></span><br><span class="line"><span class="built_in">log</span>_filename = <span class="string">'postgresql-%Y-%m-%d_%H%M%S.log'</span> <span class="comment"># log file name pattern,</span></span><br><span class="line"><span class="built_in">log</span>_file_mode = <span class="number">0600</span>                    <span class="comment"># creation mode for log files,</span></span><br><span class="line"><span class="built_in">log</span>_truncate_on_rotation = on           <span class="comment"># If on, an existing log file with the</span></span><br><span class="line"><span class="built_in">log</span>_min_duration_statement = <span class="number">1</span>s <span class="comment"># -1 is disabled, 0 logs all statements</span></span><br><span class="line"><span class="built_in">log</span>_checkpoints = on</span><br><span class="line"><span class="built_in">log</span>_connections = on</span><br><span class="line"><span class="built_in">log</span>_disconnections = on</span><br><span class="line"><span class="built_in">log</span>_error_verbosity = verbose           <span class="comment"># terse, default, or verbose messages</span></span><br><span class="line"><span class="built_in">log</span>_lock_waits = on                     <span class="comment"># log lock waits &gt;= deadlock_timeout</span></span><br><span class="line"><span class="built_in">log</span>_statement = <span class="string">'ddl'</span>                   <span class="comment"># none, ddl, mod, all</span></span><br><span class="line"><span class="built_in">log</span>_timezone = <span class="string">'PRC'</span></span><br><span class="line">autovacuum = on                 <span class="comment"># Enable autovacuum subprocess?  'on'</span></span><br><span class="line"><span class="built_in">log</span>_autovacuum_min_duration = <span class="number">0</span> <span class="comment"># -1 disables, 0 logs all actions and</span></span><br><span class="line">autovacuum_vacuum_cost_delay = <span class="number">10</span>ms     <span class="comment"># default vacuum cost delay for</span></span><br><span class="line">datestyle = <span class="string">'iso, mdy'</span></span><br><span class="line">timezone = <span class="string">'PRC'</span></span><br><span class="line">lc_messages = <span class="string">'C'</span>                       <span class="comment"># locale for system error message</span></span><br><span class="line">lc_monetary = <span class="string">'C'</span>                       <span class="comment"># locale for monetary formatting</span></span><br><span class="line">lc_numeric = <span class="string">'C'</span>                        <span class="comment"># locale for number formatting</span></span><br><span class="line">lc_time = <span class="string">'C'</span>                           <span class="comment"># locale for time formatting</span></span><br><span class="line">default_text_search_config = <span class="string">'pg_catalog.english'</span></span><br><span class="line">pooler_port = <span class="number">21921</span>                     <span class="comment"># Pool Manager TCP port</span></span><br><span class="line">max_pool_size = <span class="number">100</span>                     <span class="comment"># Maximum pool size</span></span><br><span class="line">pool_conn_keepalive = <span class="number">60</span>                <span class="comment"># Close connections if they are idle</span></span><br><span class="line">pool_maintenance_timeout = <span class="number">30</span>           <span class="comment"># Launch maintenance routine if pooler</span></span><br><span class="line">max_coordinators = <span class="number">16</span>                   <span class="comment"># Maximum number of Coordinators</span></span><br><span class="line">max_datanodes = <span class="number">16</span>                      <span class="comment"># Maximum number of Datanodes</span></span><br><span class="line">gtm_host = <span class="string">'127.0.0.1'</span>                  <span class="comment"># Host name or address of GTM</span></span><br><span class="line">gtm_port = <span class="number">11926</span>                        <span class="comment"># Port of GTM</span></span><br><span class="line">pgxc_node_name = <span class="string">'c11921'</span>                       <span class="comment"># Coordinator or Datanode name</span></span><br><span class="line">sequence_range = <span class="number">10000</span></span><br></pre></td></tr></table></figure>
+<h4 id="u914D_u7F6Edatanode"><a href="#u914D_u7F6Edatanode" class="headerlink" title="配置datanode"></a>配置datanode</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><span class="line">initdb -D /data/pgxl/d11922/pg_root --nodename=d11922 -E UTF8 --locale=C -U postgres -W</span><br><span class="line"><span class="built_in">cd</span> /data/pgxl/d11922/pg_root</span><br><span class="line"></span><br><span class="line">vi pg_hba.conf</span><br><span class="line"><span class="built_in">local</span>   all             all                                     trust</span><br><span class="line">host    all             all             <span class="number">127.0</span>.<span class="number">0.1</span>/<span class="number">32</span>            trust</span><br><span class="line">host    all             all             ::<span class="number">1</span>/<span class="number">128</span>                 trust</span><br><span class="line"></span><br><span class="line">vi postgresql.conf</span><br><span class="line">listen_addresses = <span class="string">'*'</span>          <span class="comment"># what IP address(es) to listen on;</span></span><br><span class="line">port = <span class="number">11922</span>                            <span class="comment"># (change requires restart)</span></span><br><span class="line">max_connections = <span class="number">500</span>                   <span class="comment"># (change requires restart)</span></span><br><span class="line">superuser_reserved_connections = <span class="number">13</span>     <span class="comment"># (change requires restart)</span></span><br><span class="line">unix_socket_directory = <span class="string">'.'</span>             <span class="comment"># (change requires restart)</span></span><br><span class="line">unix_socket_permissions = <span class="number">0700</span>          <span class="comment"># begin with 0 to use octal notation</span></span><br><span class="line">tcp_keepalives_idle = <span class="number">60</span>                <span class="comment"># TCP_KEEPIDLE, in seconds;</span></span><br><span class="line">tcp_keepalives_interval = <span class="number">10</span>            <span class="comment"># TCP_KEEPINTVL, in seconds;</span></span><br><span class="line">tcp_keepalives_count = <span class="number">10</span>               <span class="comment"># TCP_KEEPCNT;</span></span><br><span class="line">shared_buffers = <span class="number">2048</span>MB                 <span class="comment"># min 128kB</span></span><br><span class="line">max_prepared_transactions = <span class="number">500</span>         <span class="comment"># zero disables the feature</span></span><br><span class="line">vacuum_cost_delay = <span class="number">10</span>ms                <span class="comment"># 0-100 milliseconds</span></span><br><span class="line">vacuum_cost_<span class="built_in">limit</span> = <span class="number">10000</span>               <span class="comment"># 1-10000 credits</span></span><br><span class="line">bgwriter_delay = <span class="number">10</span>ms                   <span class="comment"># 10-10000ms between rounds</span></span><br><span class="line">shared_queues = <span class="number">64</span>                      <span class="comment"># min 16</span></span><br><span class="line">shared_queue_size = <span class="number">262144</span>               <span class="comment"># min 16KB</span></span><br><span class="line">wal_level = hot_standby                 <span class="comment"># minimal, archive, or hot_standby</span></span><br><span class="line">synchronous_commit = off                <span class="comment"># synchronization level;</span></span><br><span class="line">wal_sync_method = fdatasync             <span class="comment"># the default is the first option</span></span><br><span class="line">wal_buffers = <span class="number">16384</span>kB                   <span class="comment"># min 32kB, -1 sets based on shared_buffers</span></span><br><span class="line">wal_writer_delay = <span class="number">10</span>ms         <span class="comment"># 1-10000 milliseconds</span></span><br><span class="line">checkpoint_segments = <span class="number">128</span>               <span class="comment"># in logfile segments, min 1, 16MB each</span></span><br><span class="line">archive_mode = on               <span class="comment"># allows archiving to be done</span></span><br><span class="line">archive_<span class="built_in">command</span> = <span class="string">'cp %p /home/postgres/archive/%f'</span>           <span class="comment"># command to use to archive a logfile segment</span></span><br><span class="line">max_wal_senders = <span class="number">32</span>            <span class="comment"># max number of walsender processes</span></span><br><span class="line">hot_standby = on                        <span class="comment"># "on" allows queries during recovery</span></span><br><span class="line">max_standby_archive_delay = <span class="number">300</span>s        <span class="comment"># max delay before canceling queries</span></span><br><span class="line">max_standby_streaming_delay = <span class="number">300</span>s      <span class="comment"># max delay before canceling queries</span></span><br><span class="line">wal_receiver_status_interval = <span class="number">1</span>s       <span class="comment"># send replies at least this often</span></span><br><span class="line">hot_standby_feedback = on               <span class="comment"># send info from standby to prevent</span></span><br><span class="line">remote_query_cost = <span class="number">100.0</span>               <span class="comment"># same scale as above</span></span><br><span class="line">effective_cache_size = <span class="number">96000</span>MB</span><br><span class="line"><span class="built_in">log</span>_destination = <span class="string">'csvlog'</span>              <span class="comment"># Valid values are combinations of</span></span><br><span class="line">logging_collector = on          <span class="comment"># Enable capturing of stderr and csvlog</span></span><br><span class="line"><span class="built_in">log</span>_directory = <span class="string">'pg_log'</span>                <span class="comment"># directory where log files are written,</span></span><br><span class="line"><span class="built_in">log</span>_filename = <span class="string">'postgresql-%Y-%m-%d_%H%M%S.log'</span> <span class="comment"># log file name pattern,</span></span><br><span class="line"><span class="built_in">log</span>_file_mode = <span class="number">0600</span>                    <span class="comment"># creation mode for log files,</span></span><br><span class="line"><span class="built_in">log</span>_truncate_on_rotation = on           <span class="comment"># If on, an existing log file with the</span></span><br><span class="line"><span class="built_in">log</span>_min_duration_statement = <span class="number">1</span>s <span class="comment"># -1 is disabled, 0 logs all statements</span></span><br><span class="line"><span class="built_in">log</span>_checkpoints = on</span><br><span class="line"><span class="built_in">log</span>_connections = on</span><br><span class="line"><span class="built_in">log</span>_disconnections = on</span><br><span class="line"><span class="built_in">log</span>_error_verbosity = verbose           <span class="comment"># terse, default, or verbose messages</span></span><br><span class="line"><span class="built_in">log</span>_lock_waits = on                     <span class="comment"># log lock waits &gt;= deadlock_timeout</span></span><br><span class="line"><span class="built_in">log</span>_statement = <span class="string">'ddl'</span>                   <span class="comment"># none, ddl, mod, all</span></span><br><span class="line"><span class="built_in">log</span>_timezone = <span class="string">'PRC'</span></span><br><span class="line">autovacuum = on                 <span class="comment"># Enable autovacuum subprocess?  'on'</span></span><br><span class="line"><span class="built_in">log</span>_autovacuum_min_duration = <span class="number">0</span> <span class="comment"># -1 disables, 0 logs all actions and</span></span><br><span class="line">autovacuum_vacuum_cost_delay = <span class="number">10</span>ms     <span class="comment"># default vacuum cost delay for</span></span><br><span class="line">datestyle = <span class="string">'iso, mdy'</span></span><br><span class="line">timezone = <span class="string">'PRC'</span></span><br><span class="line">lc_messages = <span class="string">'C'</span>                       <span class="comment"># locale for system error message</span></span><br><span class="line">lc_monetary = <span class="string">'C'</span>                       <span class="comment"># locale for monetary formatting</span></span><br><span class="line">lc_numeric = <span class="string">'C'</span>                        <span class="comment"># locale for number formatting</span></span><br><span class="line">lc_time = <span class="string">'C'</span>                           <span class="comment"># locale for time formatting</span></span><br><span class="line">default_text_search_config = <span class="string">'pg_catalog.english'</span></span><br><span class="line">pooler_port = <span class="number">21925</span>                     <span class="comment"># Pool Manager TCP port</span></span><br><span class="line">max_pool_size = <span class="number">100</span>                     <span class="comment"># Maximum pool size</span></span><br><span class="line">pool_conn_keepalive = <span class="number">60</span>                <span class="comment"># Close connections if they are idle</span></span><br><span class="line">pool_maintenance_timeout = <span class="number">30</span>           <span class="comment"># Launch maintenance routine if pooler</span></span><br><span class="line">max_coordinators = <span class="number">16</span>                   <span class="comment"># Maximum number of Coordinators</span></span><br><span class="line">max_datanodes = <span class="number">16</span>                      <span class="comment"># Maximum number of Datanodes</span></span><br><span class="line">gtm_host = <span class="string">'10.100.5.3'</span>                  <span class="comment"># Host name or address of GTM</span></span><br><span class="line">gtm_port = <span class="number">11926</span>                        <span class="comment"># Port of GTM</span></span><br><span class="line">pgxc_node_name = <span class="string">'d_41_11922'</span>                       <span class="comment"># Coordinator or Datanode name</span></span><br></pre></td></tr></table></figure>
+<h3 id="u542F_u52A8datanode"><a href="#u542F_u52A8datanode" class="headerlink" title="启动datanode"></a>启动datanode</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pg_ctl start -Z datanode -D /data/pgxl/d11922/pg_root</span><br></pre></td></tr></table></figure>
+<h3 id="u914D_u7F6EGTM"><a href="#u914D_u7F6EGTM" class="headerlink" title="配置GTM"></a>配置GTM</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">vi /data/pgxl/g11920/gtm.conf</span><br><span class="line">listen_addresses = <span class="string">'0.0.0.0'</span></span><br><span class="line"><span class="built_in">log</span>_file = <span class="string">'gtm.log'</span></span><br><span class="line"><span class="built_in">log</span>_min_messages = WARNING</span><br><span class="line">nodename = <span class="string">'g11920'</span></span><br><span class="line">port = <span class="number">11920</span></span><br><span class="line">startup = act</span><br></pre></td></tr></table></figure>
+<h3 id="u542F_u52A8GTM"><a href="#u542F_u52A8GTM" class="headerlink" title="启动GTM"></a>启动GTM</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">gtm_ctl -Z gtm start -D /data/pgxl/g11920/</span><br></pre></td></tr></table></figure>
+<h3 id="u8FDE_u63A5datanode"><a href="#u8FDE_u63A5datanode" class="headerlink" title="连接datanode"></a>连接datanode</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">psql -h <span class="number">127.0</span>.<span class="number">0.1</span> -p <span class="number">11922</span> postgres postgres</span><br></pre></td></tr></table></figure>
+<h3 id="u6DFB_u52A0_u8282_u70B9"><a href="#u6DFB_u52A0_u8282_u70B9" class="headerlink" title="添加节点"></a>添加节点</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">create node d_41_11922 with (<span class="built_in">type</span>=datanode, host=<span class="string">'10.100.5.41'</span>, port=<span class="number">11922</span>);</span><br><span class="line">select pgxc_pool_reload();</span><br></pre></td></tr></table></figure>
+<p>测试环境类似</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create node c11921 with (<span class="built_in">type</span>=coordinator, host=<span class="string">'10.200.8.47'</span>, port=<span class="number">11921</span>);</span><br><span class="line">create node d_47_11922 with (<span class="built_in">type</span>=datanode, host=<span class="string">'10.200.8.47'</span>, port=<span class="number">11922</span>);</span><br><span class="line">create node d_48_11922 with (<span class="built_in">type</span>=datanode, host=<span class="string">'10.200.8.48'</span>, port=<span class="number">11922</span>);</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">postgres=# select * from pgxc_node;&#10; node_name  | node_type | node_port |  node_host  | nodeis_primary | nodeis_preferred |  node_id&#10;------------+-----------+-----------+-------------+----------------+------------------+------------&#10; c11921     | C         |      5432 | localhost   | f              | f                | 1123528383&#10; c_47_11921 | C         |     11921 | 10.200.8.47 | f              | f                | -389791404&#10; d_47_11922 | D         |     11922 | 10.200.8.47 | f              | f                |  851696902&#10; d_48_11922 | D         |     11922 | 10.200.8.48 | f              | f                |  715971365&#10;&#10;drop node c11921;</span><br></pre></td></tr></table></figure>
+<p>同理连接 coord<br>psql -h 127.0.0.1 -p 11921 postgres postgres<br>有时删不掉 默认的localhost coord，需要删除自己的，然后alter local 成自己的</p>
+<p>pg_hba.conf中，要保证coordinator到各datanode、各datanode之间可以无密码登陆</p>
+<h2 id="u540E_u8BB0_3A"><a href="#u540E_u8BB0_3A" class="headerlink" title="后记:"></a>后记:</h2><p>如果机器物理内存小于16G，则启动报错，可以增加swap空间<a href="http://blog.slogra.com/post-246.html" target="_blank" rel="external">http://blog.slogra.com/post-246.html</a></p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/pgxl/">pgxl</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/pgxl/">pgxl</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/09/09/spark-on-yarn/" class="alignleft prev" title="spark on yarn">spark on yarn</a>
+    
+    
+    <a href="/blog/2015/08/07/install-storm-on-yarn/" class="alignright next" title="install storm on yarn">install storm on yarn</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/08/07/install-postgresql-xl/" data-title="install postgresql xl" data-url="http://yoursite.com/blog/2015/08/07/install-postgresql-xl/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

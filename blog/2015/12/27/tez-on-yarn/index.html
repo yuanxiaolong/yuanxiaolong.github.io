@@ -1,0 +1,475 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>tez on yarn | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="tez on yarn">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="tez on yarn"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	tez on yarn
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-12-27T09:47:23.000Z" itemprop="datePublished">2015-12-27</time>
+    更新日期:<time datetime="2016-01-16T11:49:36.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7F16_u8BD1"><span class="toc-number">2.</span> <span class="toc-text">编译</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u914D_u7F6E"><span class="toc-number">3.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u8FD0_u884C"><span class="toc-number">4.</span> <span class="toc-text">运行</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#tez_on_hive"><span class="toc-number">5.</span> <span class="toc-text">tez on hive</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5DF2_u78B0_u89C1_u95EE_u9898"><span class="toc-number">6.</span> <span class="toc-text">已碰见问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u540E_u8BB0_MRVersion_u7684_u95EE_u9898_u89E3_u51B3_u6389_u4E86"><span class="toc-number">6.1.</span> <span class="toc-text">后记 MRVersion的问题解决掉了</span></a></li></ol></li></ol>
+			</div>
+		
+        <p>介绍 tez 框架运行在 yarn上</p>
+<a id="more"></a>
+<p>tez是一个底层框架，跟mr不同之处，是在于 tez 将mr处理进行了优化，然后再跑优化后的 mr DAG，因此效率会快一些</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><p>1.下载源码，建议0.6.0 以上，因为Tez以0.6.0版本为分隔点，很多功能例如web ui 都仅支持 0.6.0 以上的版本</p>
+<p><a href="http://tez.apache.org/releases/" target="_blank" rel="external"><font color="#2798a2">官网网址 </font></a>   （tez 没有打包好的二进制可运行包，需要自己通过源码编译）</p>
+<p><a href="http://pan.baidu.com/s/1nukfT49" target="_blank" rel="external"><font color="#2798a2">我共享的百度云地址 </font></a></p>
+<p>2.jdk1.7 和 maven3 , 也共享一下jdk1.7 的<a href="http://pan.baidu.com/s/1jGPTsu6" target="_blank" rel="external"><font color="#2798a2">地址</font></a></p>
+<p>3.protobuf 2.5.0 编译安装（如果已有则跳过）, protobuf 的代码在 googlecode 上我共享一下 <a href="http://pan.baidu.com/s/1eRisu9G" target="_blank" rel="external"><font color="#2798a2">我的百度云地址</font></a></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./configure &amp;&amp; sudo make &amp;&amp; sudo make install</span><br></pre></td></tr></table></figure>
+<p>4.安装 <code>npm  install phantomjs -g</code> 以便构建 tez-ui.war (npm是 nodejs的包管理器，如果没有npm命令，安装一个较新版本的nodejs就可以了)</p>
+<hr>
+<h2 id="u7F16_u8BD1"><a href="#u7F16_u8BD1" class="headerlink" title="编译"></a>编译</h2><p>1.编译源码，进入 tez-src 目录，根据自己的hadoop版本，修改顶层pom.xml 里 <code>hadoop.version</code> 然后打包</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn clean package -DskipTests=<span class="literal">true</span> -Dmaven.javadoc.skip=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>2.打包好后，把tez-dist/target 下的 tez-0.7.0.tar.gz 上传到 hdfs 上的一个自定义目录里</p>
+<p>3.下载tomcat 7.0.67 或以上，并解压，把 <code>tez-dist/target/tez-0.7.0/tez-ui-0.7.0.war</code> 解压到 <code>$TOMCAT_HOME/webapp</code> 下，形成 <code>$TOMCAT_HOME/webapp/tez-ui</code> 这样的结构（可以删除tomcat自带的webapp下的项目，也可以通过 <code>$TOMCAT_HOME/conf/server.xml</code> 指定CONTEXT 配到指定 tez-ui-0.7.0.war解压后的目录）</p>
+<p>4.编辑<code>$TOMCAT_HOME/conf/web.xml</code>，并添加以下内容，不然访问context会报404</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">filter</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">filter-name</span>&gt;</span>CorsFilter<span class="tag">&lt;/<span class="title">filter-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">filter-class</span>&gt;</span>org.apache.catalina.filters.CorsFilter<span class="tag">&lt;/<span class="title">filter-class</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">filter</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">filter-mapping</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">filter-name</span>&gt;</span>CorsFilter<span class="tag">&lt;/<span class="title">filter-name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">url-pattern</span>&gt;</span>/*<span class="tag">&lt;/<span class="title">url-pattern</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">filter-mapping</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>5.把编译好的 tez-0.7.0.tar.gz 分发到所有节点上，并解压到路径一致的目录里，以便设置 TEZ_HOME 环境变量</p>
+<hr>
+<h2 id="u914D_u7F6E"><a href="#u914D_u7F6E" class="headerlink" title="配置"></a>配置</h2><p>1.在 <code>$HADOOP_HOME/etc/hadoop/</code> 目录下创建 <code>tez-site.xml</code> 文件并编辑 <code>tez-site.xml</code> 文件内容如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="pi">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="pi">&lt;?xml-stylesheet type="text/xsl" href="configuration.xsl"?&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">name</span>&gt;</span>tez.lib.uris<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">value</span>&gt;</span>$&#123;fs.defaultFS&#125;/share/tez-0.7.0.tar.gz<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">name</span>&gt;</span>tez.history.logging.service.class<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">value</span>&gt;</span>org.apache.tez.dag.history.logging.ats.ATSHistoryLoggingService<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="title">description</span>&gt;</span>URL for where the Tez UI is hosted<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="title">name</span>&gt;</span>tez.tez-ui.history-url.base<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="title">value</span>&gt;</span>http://127.0.0.1:8080/tez-ui/<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注：这里的127.0.0.1 是tomcat的ip地址，同时8080是tomcat的端口（也可以通过tomcat指定为其他端口），tez-ui是tomcat的 context 。而 <code>tez.lib.uris</code> 是刚才上传到hdfs的文件</p>
+<p>2.编辑 hadoop-env.sh</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> TEZ_HOME=/usr/<span class="built_in">local</span>/datacenter/tez-<span class="number">0.7</span>.<span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> jar <span class="keyword">in</span> `ls <span class="variable">$TEZ_HOME</span> |grep jar`; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">export</span> HADOOP_CLASSPATH=<span class="variable">$HADOOP_CLASSPATH</span>:<span class="variable">$TEZ_HOME</span>/<span class="variable">$jar</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"><span class="keyword">for</span> jar <span class="keyword">in</span> `ls <span class="variable">$TEZ_HOME</span>/lib`; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">export</span> HADOOP_CLASSPATH=<span class="variable">$HADOOP_CLASSPATH</span>:<span class="variable">$TEZ_HOME</span>/lib/<span class="variable">$jar</span></span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<p>3.编辑 <code>mapred-site.xml</code> ，修改为 tez 类型</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>yarn-tez<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>4.修改 <code>yarn-site.xml</code> 添加如下</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">description</span>&gt;</span>Indicate to clients whether Timeline service is enabled or not. If enabled, the TimelineClient library used by end-users will post entities and events to the Timeline server.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.enabled<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">description</span>&gt;</span>The hostname of the Timeline service web application.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.hostname<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">value</span>&gt;</span>127.0.0.1<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">description</span>&gt;</span>Enables cross-origin support (CORS) for web services where cross-origin web response headers are needed. For example, javascript making a web services request to the timeline server.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.http-cross-origin.enabled<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">description</span>&gt;</span>Publish YARN information to Timeline Server<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.resourcemanager.system-metrics-publisher.enabled<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line">  <span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>Address for the Timeline server to start the RPC server.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.address<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>$&#123;yarn.timeline-service.hostname&#125;:10200<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>The http address of the Timeline service web application.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.webapp.address<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>$&#123;yarn.timeline-service.hostname&#125;:8188<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>The https address of the Timeline service web application.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.webapp.https.address<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>$&#123;yarn.timeline-service.hostname&#125;:8190<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>Handler thread count to serve the client RPC requests.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.handler-thread-count<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>10<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>Enables cross-origin support (CORS) for web services where</span><br><span class="line">    cross-origin web response headers are needed. For example, javascript making</span><br><span class="line">    a web services request to the timeline server.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.http-cross-origin.enabled<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>Comma separated list of origins that are allowed for web</span><br><span class="line">    services needing cross-origin (CORS) support. Wildcards (*) and patterns</span><br><span class="line">    allowed<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.http-cross-origin.allowed-origins<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>*<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>Comma separated list of methods that are allowed for web</span><br><span class="line">    services needing cross-origin (CORS) support.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.http-cross-origin.allowed-methods<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>GET,POST,HEAD,OPTIONS<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>Comma separated list of headers that are allowed for web</span><br><span class="line">    services needing cross-origin (CORS) support.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.http-cross-origin.allowed-headers<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>X-Requested-With,Content-Type,Accept,Origin,Access-Control-Allow-Origin<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span>The number of seconds a pre-flighted request can be cached</span><br><span class="line">    for web services needing cross-origin (CORS) support.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.http-cross-origin.max-age<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>1800<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注：跟官网给出的文档有3处不同</p>
+<p>yarn.timeline-service.http-cross-origin.enabled 默认为false，我修改为true让其支持跨域访问</p>
+<p>yarn.timeline-service.http-cross-origin.allowed-headers 里新增了Access-Control-Allow-Origin 这种 header</p>
+<p>yarn.timeline-service.http-cross-origin.allowed-methods 里新增了 OPTIONS 方法</p>
+</blockquote>
+<p>以下内容我没有添加，没有试验，不过在 yarn-default.xml 里可以看到，即使没有显示写 ttl 配置，也有默认值</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">description</span>&gt;</span>Indicate to ResourceManager as well as clients whether</span><br><span class="line">  history-service is enabled or not. If enabled, ResourceManager starts</span><br><span class="line">  recording historical data that Timelien service can consume. Similarly,</span><br><span class="line">  clients can redirect to the history service when applications</span><br><span class="line">  finish if this is enabled.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.generic-application-history.enabled<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">description</span>&gt;</span>Store class name for history store, defaulting to file system</span><br><span class="line">  store<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.generic-application-history.store-class<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>org.apache.hadoop.yarn.server.applicationhistoryservice.FileSystemApplicationHistoryStore<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">description</span>&gt;</span>Store class name for timeline store.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.store-class<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>org.apache.hadoop.yarn.server.timeline.LeveldbTimelineStore<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">description</span>&gt;</span>Enable age off of timeline store data.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.ttl-enable<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>true<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">description</span>&gt;</span>Time to live for timeline store data in milliseconds.<span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>yarn.timeline-service.ttl-ms<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>6048000000<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="/images/tez/20151227/1.png" alt=""></p>
+<hr>
+<h2 id="u8FD0_u884C"><a href="#u8FD0_u884C" class="headerlink" title="运行"></a>运行</h2><p>1.重启 yarn 及 jobhistory</p>
+<ul>
+<li><p>stop-yarn.sh 和 start-yarn.sh</p>
+</li>
+<li><p>yarn-daemon.sh start timelineserver 和 yarn-daemon.sh stop timelineserver</p>
+</li>
+</ul>
+<p>2.验证 tez 计算框架</p>
+<p>先上传一个文本文件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hadoop dfs -mkdir -p /<span class="built_in">test</span>/out</span><br><span class="line">hadoop dfs -put LICENSE.txt /<span class="built_in">test</span>/LICENSE.txt</span><br></pre></td></tr></table></figure>
+<p>进入  <code>tez-dist/target/tez-0.7.0/</code> ，执行 <code>hadoop jar ./tez-examples-0.7.0.jar orderedwordcount /test/LICENSE.txt /test/out</code></p>
+<p><img src="/images/tez/20151227/2.png" alt=""></p>
+<p>我碰见第一次未执行成功，是因为TEZ去找 <code>/bin/java</code> 了，可以把当前jdk做个软连接直接连接到 <code>/bin/java</code> 就可以了</p>
+<p>启动tomcat 访问 <a href="http://127.0.0.1:8080/tez-ui" target="_blank" rel="external">http://127.0.0.1:8080/tez-ui</a></p>
+<p><img src="/images/tez/20151227/3.png" alt=""><br><img src="/images/tez/20151227/4.png" alt=""><br><img src="/images/tez/20151227/5.png" alt=""><br><img src="/images/tez/20151227/6.png" alt=""></p>
+<hr>
+<h2 id="tez_on_hive"><a href="#tez_on_hive" class="headerlink" title="tez on hive"></a>tez on hive</h2><p>在hive里使用tez十分方便，有2种方式</p>
+<p>1.进入hive，然后执行 <code>set hive.execution.engine=tez;</code> ，然后就可以正常使用</p>
+<p>2.编写hive-site.xml，修改下面属性，这样就全局影响了</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">name</span>&gt;</span>hive.execution.engine<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">value</span>&gt;</span>tez<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">description</span>&gt;</span></span><br><span class="line">      Expects one of [mr, tez, spark].</span><br><span class="line">      Chooses execution engine. Options are: mr (Map reduce, default), tez (hadoop 2 only), spark</span><br><span class="line">    <span class="tag">&lt;/<span class="title">description</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u5DF2_u78B0_u89C1_u95EE_u9898"><a href="#u5DF2_u78B0_u89C1_u95EE_u9898" class="headerlink" title="已碰见问题"></a>已碰见问题</h2><p>1.Failed to execute goal com.github.eirslett:frontend-maven-plugin ~ A required class was missing</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">[ERROR] Failed to execute goal com.github.eirslett:frontend-maven-plugin:<span class="number">0.0</span>.<span class="number">16</span>:install-node-and-npm</span><br><span class="line">(install node and npm) on project tez-ui: Execution install node and npm of goal</span><br><span class="line">com.github.eirslett:frontend-maven-plugin:<span class="number">0.0</span>.<span class="number">16</span>:install-node-and-npm failed:</span><br><span class="line">A required class was missing <span class="keyword">while</span> executing</span><br><span class="line">com.github.eirslett:frontend-maven-plugin:<span class="number">0.0</span>.<span class="number">16</span>:install-node-and-npm:org/slf4j/helpers/MarkerIgnoringBase</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Reason: Eirslett frontend-maven-plugin version(0.0.22 in above case) is not compatible with current maven version<br>Solution: Force the expected plugging version while building tez-ui: mvn clean package -Dfrontend-maven-plugin.version=0.0.XX<br>                       For maven version &lt; 3.1 the frontend-maven-plugin version has to be &lt;= 0.0.22<br>                       For maven version &gt;=3.1 the frontend-maven-plugin version has to be &gt;= 0.0.23</p>
+</blockquote>
+<p>maven 版本 和 插件不兼容, 修改 顶层 pom.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">plugin</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>com.github.eirslett<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>frontend-maven-plugin<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="title">version</span>&gt;</span>0.0.23<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="title">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><a href="https://cwiki.apache.org/confluence/display/TEZ/Build+errors+and+solutions" target="_blank" rel="external">https://cwiki.apache.org/confluence/display/TEZ/Build+errors+and+solutions</a></p>
+<p>2.网络不好，下载不下来包，重新编译几次就可以了</p>
+<p>3.Classnotfound MRVersion 的问题，解决不掉，重新换一个hive就行了，估计是环境问题</p>
+<h3 id="u540E_u8BB0_MRVersion_u7684_u95EE_u9898_u89E3_u51B3_u6389_u4E86"><a href="#u540E_u8BB0_MRVersion_u7684_u95EE_u9898_u89E3_u51B3_u6389_u4E86" class="headerlink" title="后记 MRVersion的问题解决掉了"></a>后记 MRVersion的问题解决掉了</h3><ul>
+<li><a href="https://issues.apache.org/jira/browse/TEZ-3030" target="_blank" rel="external">https://issues.apache.org/jira/browse/TEZ-3030</a></li>
+<li><a href="https://issues.apache.org/jira/browse/TEZ-3031" target="_blank" rel="external">https://issues.apache.org/jira/browse/TEZ-3031</a></li>
+</ul>
+<p>在 <code>hive-env.sh</code> 里添加</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> HIVE_AUX_JARS_PATH=hadoop-core-<span class="number">2.6</span>.<span class="number">0</span>-mr1-cdh5.<span class="number">4.0</span>.jar</span><br><span class="line"><span class="built_in">export</span> HIVE_AUX_JARS_PATH=/usr/<span class="built_in">local</span>/datacenter/phoenix/lib/hadoop-core-<span class="number">2.6</span>.<span class="number">0</span>-mr1-cdh5.<span class="number">4.0</span>.jar:/usr/<span class="built_in">local</span>/datacenter/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-client-core-<span class="number">2.6</span>.<span class="number">0</span>-cdh5.<span class="number">4.0</span>.jar</span><br></pre></td></tr></table></figure>
+<p>如果通过 hue -&gt; beeswax 查询，需要把这2个jar 放到 <code>HIVE_CLASSPATH</code> 环境变量里，并重启hiveserver2，即可</p>
+<p>tez指定队列，需要在<code>tez-site.xml</code>里</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">name</span>&gt;</span>tez.queue.name<span class="tag">&lt;/<span class="title">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">value</span>&gt;</span>tez<span class="tag">&lt;/<span class="title">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/tez/">tez</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/tez/">tez</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/12/27/install-impala/" class="alignleft prev" title="install impala">install impala</a>
+    
+    
+    <a href="/blog/2015/12/27/hive-hbase-handler/" class="alignright next" title="hive hbase handler">hive hbase handler</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/12/27/tez-on-yarn/" data-title="tez on yarn" data-url="http://yoursite.com/blog/2015/12/27/tez-on-yarn/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

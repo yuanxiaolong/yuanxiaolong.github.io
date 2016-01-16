@@ -1,0 +1,421 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>how to set up minimal cluster coreos on digtalocean | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="如何在digtalOcean 搭建CoreOS 最小集群">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="how to set up minimal cluster coreos on digtalocean"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	how to set up minimal cluster coreos on digtalocean
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-11-11T14:58:38.000Z" itemprop="datePublished">2014-11-11</time>
+    更新日期:<time datetime="2016-01-16T07:05:15.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u914D_u7F6E_u8FC7_u7A0B"><span class="toc-number">1.</span> <span class="toc-text">配置过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u7533_u8BF7token"><span class="toc-number">1.1.</span> <span class="toc-text">申请token</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u4FDD_u5B58_u6A21_u677F"><span class="toc-number">1.2.</span> <span class="toc-text">保存模板</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9009_u62E9_u7CFB_u7EDF"><span class="toc-number">1.3.</span> <span class="toc-text">选择系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u8BBE_u7F6Essh"><span class="toc-number">1.4.</span> <span class="toc-text">设置ssh</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u90E8_u7F72"><span class="toc-number">1.5.</span> <span class="toc-text">部署</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u767B_u5F55"><span class="toc-number">1.6.</span> <span class="toc-text">登录</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5C0F_u6280_u5DE7"><span class="toc-number">2.</span> <span class="toc-text">小技巧</span></a></li></ol>
+			</div>
+		
+        <p>如何在 digtalocean 搭建一个最小的，coreos 集群（3台主机）。</p>
+<a id="more"></a>
+<p>digtalocean 是一个云主机提供商，我用了1年多了，感觉还是不错的。</p>
+<p>打个广告，弹性配置，最低端配置，只要30元1个月，平均1天1元。现在 <a href="https://www.digitalocean.com/?refcode=78e09919d062" target="_blank" rel="external"><font color="#22832f"> 点击这里 </font></a> 还可以获取60元，即免费使用2个月。</p>
+<hr>
+<h2 id="u914D_u7F6E_u8FC7_u7A0B"><a href="#u914D_u7F6E_u8FC7_u7A0B" class="headerlink" title="配置过程"></a>配置过程</h2><p>官网教程 : <a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-a-coreos-cluster-on-digitalocean" target="_blank" rel="external"><font color="#a95bae"> 点击这里 </font></a></p>
+<h3 id="u7533_u8BF7token"><a href="#u7533_u8BF7token" class="headerlink" title="申请token"></a>申请token</h3><p>Step 1.首先打开浏览器，输入 <code><a href="https://discovery.etcd.io/new" target="_blank" rel="external">https://discovery.etcd.io/new</a> </code>，后你会获得一串英文。</p>
+<p>这串英文叫 token，一定！一定！要保存好，它是一个世界全局唯一的一个 集群id ，要搭建集群就靠它了。</p>
+<p><img src="/images/coreos/20141110/5.png" alt=""></p>
+<h3 id="u4FDD_u5B58_u6A21_u677F"><a href="#u4FDD_u5B58_u6A21_u677F" class="headerlink" title="保存模板"></a>保存模板</h3><p>Step 2. 保存一个模板文件，这个模板文件，用来初始化CoreOS的安装。注意，这个文件一定要高度一致，即3个主机所用的文件是一模一样的，我就是由于文件不一致，导致1台主机没加入到集群中，又重新删掉掉队的主机，又重新生成了一次……</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#cloud-config</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">coreos:</span><br><span class="line">  etcd:</span><br><span class="line">    <span class="comment"># generate a new token for each unique cluster from https://discovery.etcd.io/new</span></span><br><span class="line">    discovery: https://discovery.etcd.io/你的集群id串</span><br><span class="line">    <span class="comment"># multi-region deployments, multi-cloud deployments, and droplets without</span></span><br><span class="line">    <span class="comment"># private networking need to use $public_ipv4</span></span><br><span class="line">    addr: <span class="variable">$private_ipv4</span>:<span class="number">4001</span></span><br><span class="line">    peer-addr: <span class="variable">$private_ipv4</span>:<span class="number">7001</span></span><br><span class="line">  fleet:</span><br><span class="line">    public-ip: <span class="variable">$private_ipv4</span>   <span class="comment"># used for fleetctl ssh command</span></span><br><span class="line">  units:</span><br><span class="line">    - name: etcd.service</span><br><span class="line">      <span class="built_in">command</span>: start</span><br><span class="line">    - name: fleet.service</span><br><span class="line">      <span class="built_in">command</span>: start</span><br></pre></td></tr></table></figure>
+<h3 id="u9009_u62E9_u7CFB_u7EDF"><a href="#u9009_u62E9_u7CFB_u7EDF" class="headerlink" title="选择系统"></a>选择系统</h3><p>Step 3. 操作系统选择“CoreOS”，并把上面文件的内容，在 <font color="#1e68ad">“Settings”</font>的<font color="#1e68ad">“Enable User Data”</font>选项卡中黏贴。</p>
+<h3 id="u8BBE_u7F6Essh"><a href="#u8BBE_u7F6Essh" class="headerlink" title="设置ssh"></a>设置ssh</h3><p>Step 4. 由于CoreOS是需要初始化用 ssh key来登录的，因此，你需要先在digtalocean里，添加自己的ssh-key。然后此处勾选上<br>你希望使用的ssh-key。当CoreOS安装完成后，它会把你这里勾选的ssh-key，放到 <code>~/.ssh/authorized_keys</code><br>里。</p>
+<h3 id="u90E8_u7F72"><a href="#u90E8_u7F72" class="headerlink" title="部署"></a>部署</h3><p>Step 5.点击完成，等30秒，CoreOS就安装完毕了，反复把3台主机都建好。<br><img src="/images/coreos/20141110/6.png" alt=""></p>
+<h3 id="u767B_u5F55"><a href="#u767B_u5F55" class="headerlink" title="登录"></a>登录</h3><p>Step 6.利用SercurtCRT，登录刚才初始化好的CoreOS。SercurtCRT的使用就不说了，说一下跟平时登录其他linux不同的地方。<br>CoreOS是不支持用户名密码登录的（起码我没有发现…），是需要用ssh-key登录，因此需要在 SercurtCRT 的 “session options” 配置里，</p>
+<p>将”publicKey”放到首位，而不是 “Password”。<br><img src="/images/coreos/20141110/7.png" alt=""></p>
+<p>同时，要 Edit，选择自己的 public key<br><img src="/images/coreos/20141110/8.png" alt=""></p>
+<p>PS：怎么验证集群已经搭建好了呢？下一篇blog会讲，CoreOS的2大组件，etcd和fleet，到时候就知道了。</p>
+<hr>
+<h2 id="u5C0F_u6280_u5DE7"><a href="#u5C0F_u6280_u5DE7" class="headerlink" title="小技巧"></a>小技巧</h2><p>1.由于CoreOS是只读的ROOT，默认的 .bash_profile 和 .bashrc 都是 ln 到 root上的，因此需要在~下执行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp $(readlink .bashrc) .bashrc.new &#38;&#38; mv .bashrc.new .bashrc</span><br></pre></td></tr></table></figure>
+<p>然后编辑 .bashrc</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alias ll=&#39;ls -alF&#39;</span><br></pre></td></tr></table></figure>
+<p>2.CoreOS的 nsenter 跟CentOS 的脚本不一样，所以要进入docker 容器，需要用下面的脚本。在Docker 1.3中有 exec功能，可以直接进入容器，简单方便。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/sh</span><br><span class="line"></span></span><br><span class="line"><span class="keyword">if</span> [ <span class="operator">-e</span> $(dirname <span class="string">"<span class="variable">$0</span>"</span>)/nsenter ]; <span class="keyword">then</span></span><br><span class="line">    <span class="comment"># with boot2docker, nsenter is not in the PATH but it is in the same folder</span></span><br><span class="line">    NSENTER=$(dirname <span class="string">"<span class="variable">$0</span>"</span>)/nsenter</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    NSENTER=nsenter</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="string">"<span class="variable">$1</span>"</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"Usage: docker-enter CONTAINER [COMMAND [ARG]...]"</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">""</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"Enters the Docker CONTAINER and executes the specified COMMAND."</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"If COMMAND is not specified, runs an interactive shell in CONTAINER."</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    PID=$(docker inspect --format <span class="string">"&#123;&#123;.State.Pid&#125;&#125;"</span> <span class="string">"<span class="variable">$1</span>"</span>)</span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">"<span class="variable">$PID</span>"</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">exit</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="built_in">shift</span></span><br><span class="line"></span><br><span class="line">    OPTS=<span class="string">"--target <span class="variable">$PID</span> --mount --uts --ipc --net --pid --"</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> [ -z <span class="string">"<span class="variable">$1</span>"</span> ]; <span class="keyword">then</span></span><br><span class="line">        <span class="comment"># No command given.</span></span><br><span class="line">        <span class="comment"># Use su to clear all host environment variables except for TERM,</span></span><br><span class="line">        <span class="comment"># initialize the environment variables HOME, SHELL, USER, LOGNAME, PATH,</span></span><br><span class="line">        <span class="comment"># and start a login shell.</span></span><br><span class="line">        sudo <span class="string">"<span class="variable">$NSENTER</span>"</span> <span class="variable">$OPTS</span> su - root</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="comment"># Use env to clear all host environment variables.</span></span><br><span class="line">        sudo <span class="string">"<span class="variable">$NSENTER</span>"</span> <span class="variable">$OPTS</span> env --ignore-environment -- <span class="string">"<span class="variable">$@</span>"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/coreos/">coreos</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/CoreOS/">CoreOS</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2014/12/08/go-and-beego/" class="alignleft prev" title="go and beego">go and beego</a>
+    
+    
+    <a href="/blog/2014/11/11/introduce-coreos/" class="alignright next" title="introduce CoreOS">introduce CoreOS</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2014/11/11/how-to-set-up-minimal-cluster-coreos-on-digtalocean/" data-title="how to set up minimal cluster coreos on digtalocean" data-url="http://yoursite.com/blog/2014/11/11/how-to-set-up-minimal-cluster-coreos-on-digtalocean/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

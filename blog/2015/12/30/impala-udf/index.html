@@ -1,0 +1,465 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>impala udf | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="impala udf">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="impala udf"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	impala udf
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-12-30T13:25:20.000Z" itemprop="datePublished">2015-12-30</time>
+    更新日期:<time datetime="2016-01-16T01:41:02.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#hive_udf"><span class="toc-number">1.</span> <span class="toc-text">hive udf</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#C++_udf"><span class="toc-number">2.</span> <span class="toc-text">C++ udf</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">3.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u91CD_u65B0_u6CE8_u518C_u51FD_u6570"><span class="toc-number">4.</span> <span class="toc-text">重新注册函数</span></a></li></ol>
+			</div>
+		
+        <p>Impala 从1.2开始就支持 udf 了，本文介绍 在 impala 里如何使用udf</p>
+<a id="more"></a>
+<p>impala 使用已有的 hive java udf 及 编写 impala c++ udf</p>
+<hr>
+<h2 id="hive_udf"><a href="#hive_udf" class="headerlink" title="hive udf"></a>hive udf</h2><p>我们先编写一个 hive 的 java udf ，然后让impala调用，来模拟这是一个 已有的 hive udf 是否能被 impala调用</p>
+<p>1.新建maven工程，添加pom依赖</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">dependencies</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-mapreduce-client-core<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.6.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-common<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.6.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-mapreduce-client-common<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.6.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-mapreduce-client-jobclient<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>2.6.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hive<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hive-exec<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>1.1.0<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">dependencies</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>2.编写udf代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.commons.lang.StringUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.hive.ql.exec.UDF;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> <span class="keyword">extends</span> <span class="title">UDF</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String PRE = <span class="string">"hello_"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Text <span class="title">evaluate</span><span class="params">(String str)</span></span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isBlank(str))&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">new</span> Text(<span class="string">"unknow"</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Text(PRE + str);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.导出jar包，可以用 IDE 导出不含依赖的 jar 。或者用 <code>mvn clean install</code> 直接安装到本地仓库，拿本地仓库的jar即可。</p>
+<p>4.把此jar包放到 hdfs 上</p>
+<p>5.进入impala-shell ，并进入对应的数据库上，执行类似如下命令（根据自己情况修改hdfs路径）</p>
+<p>注：由于 Impala 和 hive 共享元数据，所以我们需要把新创建的 function 取跟hive function 里不一样的名字，尽管它们是同一个jar</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">create <span class="keyword">function</span> my_foo(string) returns string location <span class="string">'/share/Udf4Hive.jar'</span> symbol=<span class="string">'com.yxl.Main'</span></span><br></pre></td></tr></table></figure>
+<p>6.使用 hive udf</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; desc pokes;</span><br><span class="line">Query: describe pokes</span><br><span class="line">+------+--------+---------+</span><br><span class="line">| name | <span class="built_in">type</span>   | comment |</span><br><span class="line">+------+--------+---------+</span><br><span class="line">| foo  | int    |         |</span><br><span class="line">| bar  | string |         |</span><br><span class="line">+------+--------+---------+</span><br><span class="line"></span><br><span class="line">[node007012:<span class="number">21000</span>] &gt; select foo,test.my_foo(bar) from pokes;</span><br><span class="line">Query: select foo,test.my_foo(bar) from pokes</span><br><span class="line">+-----+------------------+</span><br><span class="line">| foo | test.my_foo(bar) |</span><br><span class="line">+-----+------------------+</span><br><span class="line">| <span class="number">1</span>   | hello_hello      |</span><br><span class="line">| <span class="number">2</span>   | hello_pear       |</span><br><span class="line">| <span class="number">3</span>   | hello_world      |</span><br><span class="line">+-----+------------------+</span><br><span class="line">Fetched <span class="number">3</span> row(s) <span class="keyword">in</span> <span class="number">0.12</span>s</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="C++_udf"><a href="#C++_udf" class="headerlink" title="C++ udf"></a>C++ udf</h2><p><a href="http://www.cloudera.com/content/cloudera/zh-CN/documentation/core/v5-3-x/topics/impala_udf.html" target="_blank" rel="external">cloudrea文档</a></p>
+<p>概念</p>
+<ul>
+<li>UDF 一次处理一行的函数，0到多个入参，1个返回值</li>
+<li>UDAF 一次处理多行的函数，类似聚集函数 sum 这样的，一个返回值 （未试验）</li>
+</ul>
+<p>官网示例  <a href="https://github.com/cloudera/impala-udf-samples" target="_blank" rel="external"><font color="#296ead">Github</font></a></p>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><p>1.安装impala udf 安装包及编译器，可参见上文 Impala rpm 安装。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Use the appropriate package installation command for your Linux distribution.</span></span><br><span class="line">sudo yum install gcc-c++ cmake boost-devel</span><br><span class="line">sudo yum install impala-udf-devel</span><br></pre></td></tr></table></figure>
+<p>2.编写 c++ 文件 ，包含头文件、逻辑文件、测试文件、和CMAKE文件</p>
+<p>头文件 <code>udf-helloworld.h</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">ifndef</span> HELLOWORLD_UDF_H</span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">define</span> HELLOWORLD_UDF_H</span></span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;impala_udf/udf.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> impala_udf;</span><br><span class="line"></span><br><span class="line"><span class="function">StringVal <span class="title">Hello</span><span class="params">(FunctionContext* context, <span class="keyword">const</span> StringVal&amp; arg1)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>逻辑文件 <code>udf-helloworld.cc</code> ，实现添加一个固定前缀</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">#include "udf-helloworld.h"</span><br><span class="line"></span><br><span class="line">#include &lt;cctype&gt;</span><br><span class="line">#include &lt;cmath&gt;</span><br><span class="line">#include &lt;string&gt;</span><br><span class="line">#include &lt;sstream&gt;</span><br><span class="line"></span><br><span class="line">StringVal Hello(FunctionContext* context, const StringVal&amp; arg1)&#123;</span><br><span class="line">    if (arg1.is_null) return StringVal::null();</span><br><span class="line"></span><br><span class="line">    int index;</span><br><span class="line">    std::string original((const char *)arg1.ptr,arg1.len);</span><br><span class="line">    std::string shorter("hello_");</span><br><span class="line"></span><br><span class="line">    int length;</span><br><span class="line">    length = original.length();</span><br><span class="line">    for (index = 0; index &lt; length; index++)&#123;</span><br><span class="line">        uint8_t c = original[index];</span><br><span class="line"></span><br><span class="line">        shorter.append(1, (char)c);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    StringVal result(context, shorter.size());</span><br><span class="line">    memcpy(result.ptr, shorter.c_str(), shorter.size());</span><br><span class="line"></span><br><span class="line">    return result;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试文件 <code>udf-helloworld-test.cc</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">#include &#60;iostream&#62;&#10;&#10;#include &#60;impala_udf/udf-test-harness.h&#62;&#10;#include &#34;udf-helloworld.h&#34;&#10;&#10;using namespace impala;&#10;using namespace impala_udf;&#10;using namespace std;&#10;&#10;int main(int argc, char** argv) &#123;&#10;    bool passed = true;&#10;&#10;    passed &#38;= UdfTestHarness::ValidateUdf&#60;StringVal, StringVal&#62;(&#10;          Hello, StringVal(&#34;Tom&#34;), StringVal(&#34;hello_Tom&#34;));&#10;    passed &#38;= UdfTestHarness::ValidateUdf&#60;StringVal, StringVal&#62;(&#10;          Hello, StringVal::null(), StringVal::null());&#10;&#10;    cout &#60;&#60; &#34;Tests &#34; &#60;&#60; (passed ? &#34;Passed.&#34; : &#34;Failed.&#34;) &#60;&#60; endl;&#10;    return !passed;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>CMAKE文件 固定名字 <code>CMakeLists.txt</code></p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Copyright 2012 Cloudera Inc.</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Licensed under the Apache License, Version 2.0 (the "License");</span></span><br><span class="line"><span class="comment"># you may not use this file except in compliance with the License.</span></span><br><span class="line"><span class="comment"># You may obtain a copy of the License at</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># http://www.apache.org/licenses/LICENSE-2.0</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># Unless required by applicable law or agreed to in writing, software</span></span><br><span class="line"><span class="comment"># distributed under the License is distributed on an "AS IS" BASIS,</span></span><br><span class="line"><span class="comment"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span></span><br><span class="line"><span class="comment"># See the License for the specific language governing permissions and</span></span><br><span class="line"><span class="comment"># limitations under the License.</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">cmake_minimum_required</span>(VERSION <span class="number">2.6</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># where to put generated libraries</span></span><br><span class="line"><span class="keyword">set</span>(LIBRARY_OUTPUT_PATH <span class="string">"build"</span>)</span><br><span class="line"><span class="comment"># where to put generated binaries</span></span><br><span class="line"><span class="keyword">set</span>(EXECUTABLE_OUTPUT_PATH <span class="string">"build"</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">find_program</span>(CLANG_EXECUTABLE clang++)</span><br><span class="line"></span><br><span class="line"><span class="keyword">SET</span>(CMAKE_CXX_FLAGS <span class="string">"$&#123;CMAKE_CXX_FLAGS&#125; -g -ggdb"</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># Function to generate rule to cross compile a source file to an IR module.</span></span><br><span class="line"><span class="comment"># This should be called with the .cc src file and it will generate a</span></span><br><span class="line"><span class="comment"># src-file-ir target that can be built.</span></span><br><span class="line"><span class="comment"># e.g. COMPILE_TO_IR(test.cc) generates the "test-ir" make target.</span></span><br><span class="line"><span class="comment"># Disable compiler optimizations because generated IR is optimized at runtime</span></span><br><span class="line"><span class="keyword">set</span>(IR_COMPILE_FLAGS <span class="string">"-emit-llvm"</span> <span class="string">"-c"</span>)</span><br><span class="line"><span class="keyword">function</span>(COMPILE_TO_IR SRC_FILE)</span><br><span class="line">  <span class="keyword">get_filename_component</span>(BASE_NAME <span class="envvar">$&#123;SRC_FILE&#125;</span> NAME_WE)</span><br><span class="line">  <span class="keyword">set</span>(OUTPUT_FILE <span class="string">"build/$&#123;BASE_NAME&#125;.ll"</span>)</span><br><span class="line">  <span class="keyword">add_custom_command</span>(</span><br><span class="line">    OUTPUT <span class="envvar">$&#123;OUTPUT_FILE&#125;</span></span><br><span class="line">    COMMAND <span class="envvar">$&#123;CLANG_EXECUTABLE&#125;</span> <span class="envvar">$&#123;IR_COMPILE_FLAGS&#125;</span> <span class="envvar">$&#123;SRC_FILE&#125;</span> -o <span class="envvar">$&#123;OUTPUT_FILE&#125;</span></span><br><span class="line">    DEPENDS <span class="envvar">$&#123;SRC_FILE&#125;</span>)</span><br><span class="line">  <span class="keyword">add_custom_target</span>(<span class="envvar">$&#123;BASE_NAME&#125;</span>-ir ALL DEPENDS <span class="envvar">$&#123;OUTPUT_FILE&#125;</span>)</span><br><span class="line"><span class="keyword">endfunction</span>(COMPILE_TO_IR)</span><br><span class="line"></span><br><span class="line"><span class="keyword">add_library</span>(udfhello SHARED udf-helloworld.cc)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (CLANG_EXECUTABLE)</span><br><span class="line">  COMPILE_TO_IR(udf-helloworld.cc )</span><br><span class="line"><span class="keyword">endif</span>(CLANG_EXECUTABLE)</span><br><span class="line"></span><br><span class="line"><span class="keyword">target_link_libraries</span>(udfhello ImpalaUdf)</span><br><span class="line"><span class="keyword">add_executable</span>(udf-helloworld-test udf-helloworld-test.cc)</span><br><span class="line"><span class="keyword">target_link_libraries</span>(udf-helloworld-test udfhello)</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>C++ 定义的数据类型（位于 /usr/include/impala_udf/udf.h）是：</p>
+<p>IntVal 代表 INT 列。</p>
+<p>BigIntVal 代表 BIGINT 列。即使你不需要 BIGINT 值的全部范围，将函数参数设置为 BigIntVal 也会非常有用，以方便调用以不同种类的整数列和表达式作为参数的函数。Impala 会在适当时将较小的整数类型自动转换为较大的整数类型，但不会隐式将较大的整型转换为教小的。</p>
+<p>SmallIntVal 代表SMALLINT 列。</p>
+<p>TinyIntVal 代表 TINYINT 列。</p>
+<p>StringVal 代表 STRING 列。其中 len 字段表示字符串长度，而 ptr 字段指向该字符串数据。基于 null 结尾的 C 风格字符串，或者一个指针加上长度，构造函数可以创建一个新的 StringVal 结构；这些新结构仍然参照原来的字符串数据，而不是为数据分配一个新的缓冲区。同时还包括一个构造函数，带有指向FunctionContext 结构和长度的指针，并且会为新复制的字符串数据分配空间，UDF 将使用该空间返回字符串值。</p>
+<p>BooleanVal 代表 BOOLEAN 列。</p>
+<p>FloatVal 代表 FLOAT 列。</p>
+<p>DoubleVal 代表 DOUBLE 列。</p>
+<p>TimestampVal 代表TIMESTAMP 列。具有一个 32 位整数的 date 字段，用以表示公历日期，历元后的天数。还具有一个 64 位整数的 time_of_day 字段，以纳秒表示当前时间。</p>
+</blockquote>
+<p>3.进入文件夹，执行 <code>cmake . &amp;&amp; make</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">[root@node007012 udf]<span class="comment"># make</span></span><br><span class="line">[ <span class="number">50</span>%] Built target udfhello</span><br><span class="line">Scanning dependencies of target udf-helloworld-test</span><br><span class="line">[<span class="number">100</span>%] Building CXX object CMakeFiles/udf-helloworld-test.dir/udf-helloworld-test.cc.o</span><br><span class="line">Linking CXX executable build/udf-helloworld-test</span><br><span class="line">[<span class="number">100</span>%] Built target udf-helloworld-test</span><br></pre></td></tr></table></figure>
+<p>4.进入build子文件夹，将里面的动态库文件，上传到hdfs上</p>
+<p>5.进入impala-shell，到对应的数据库，并创建 function</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt;  create <span class="keyword">function</span> hello (string) returns string location <span class="string">'/share/libudfhello.so'</span> symbol=<span class="string">'Hello'</span>;</span><br><span class="line">Query: create <span class="keyword">function</span> hello (string) returns string location <span class="string">'/share/libudfhello.so'</span> symbol=<span class="string">'Hello'</span></span><br><span class="line"></span><br><span class="line">Fetched <span class="number">0</span> row(s) <span class="keyword">in</span> <span class="number">0.15</span>s</span><br></pre></td></tr></table></figure>
+<p>6.使用impala c++ function 查询，可见比java确实快很多，虽然只有3条数据，但能看见差异，反复测试现象一样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; select foo,hello(bar) from pokes;</span><br><span class="line">Query: select foo,hello(bar) from pokes</span><br><span class="line">+-----+-----------------+</span><br><span class="line">| foo | test.hello(bar) |</span><br><span class="line">+-----+-----------------+</span><br><span class="line">| <span class="number">1</span>   | hello_hello     |</span><br><span class="line">| <span class="number">2</span>   | hello_pear      |</span><br><span class="line">| <span class="number">3</span>   | hello_world     |</span><br><span class="line">+-----+-----------------+</span><br><span class="line">Fetched <span class="number">3</span> row(s) <span class="keyword">in</span> <span class="number">0.01</span>s</span><br></pre></td></tr></table></figure>
+<p>需要注意的是：</p>
+<blockquote>
+<p>目前，Metastore 数据库中不保留以 C++ 语言写入的 Impala UDF 和 UDA。这些函数的相关信息保留在 catalogd 守护程序的内存中。<br>每次重新启动 catalogd 守护程序时，必须再次运行 CREATE FUNCTION 语句才能加载它们。该限制不适用于以 Java 语言写入的 Impala UDF 和 UDA。</p>
+</blockquote>
+<hr>
+<h2 id="u91CD_u65B0_u6CE8_u518C_u51FD_u6570"><a href="#u91CD_u65B0_u6CE8_u518C_u51FD_u6570" class="headerlink" title="重新注册函数"></a>重新注册函数</h2><p>1.拿刚才的为例，前缀改成 hello123_</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::string shorter(&#34;hello123_&#34;);</span><br></pre></td></tr></table></figure>
+<p>2.重新cmake 当前目录，并且make</p>
+<p>3.删除已有的 hdfs so 文件</p>
+<p>4.进入impala-shell，查看已有函数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; show <span class="built_in">functions</span>;</span><br><span class="line">Query: show <span class="built_in">functions</span></span><br><span class="line">+-------------+----------------+</span><br><span class="line">| <span class="built_in">return</span> <span class="built_in">type</span> | signature      |</span><br><span class="line">+-------------+----------------+</span><br><span class="line">| STRING      | hello(STRING)  |</span><br><span class="line">| STRING      | my_foo(STRING) |</span><br><span class="line">+-------------+----------------+</span><br><span class="line">Fetched <span class="number">2</span> row(s) <span class="keyword">in</span> <span class="number">0.02</span>s</span><br></pre></td></tr></table></figure>
+<p>5.由于函数可能会重载，所以删除函数的时候，需要指定参数，才能对应上要删除的函数</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; drop <span class="keyword">function</span> hello(string);</span><br><span class="line">Query: drop <span class="keyword">function</span> hello(string)</span><br></pre></td></tr></table></figure>
+<p>6.重新创建并查询</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">[node007012:<span class="number">21000</span>] &gt; create <span class="keyword">function</span> hello (string) returns string location <span class="string">'/share/libudfhello.so'</span> symbol=<span class="string">'Hello'</span>;</span><br><span class="line">Query: create <span class="keyword">function</span> hello (string) returns string location <span class="string">'/share/libudfhello.so'</span> symbol=<span class="string">'Hello'</span></span><br><span class="line"></span><br><span class="line">Fetched <span class="number">0</span> row(s) <span class="keyword">in</span> <span class="number">0.04</span>s</span><br><span class="line"></span><br><span class="line">[node007012:<span class="number">21000</span>] &gt; select foo,hello(bar) from pokes;</span><br><span class="line">Query: select foo,hello(bar) from pokes</span><br><span class="line">+-----+-----------------+</span><br><span class="line">| foo | test.hello(bar) |</span><br><span class="line">+-----+-----------------+</span><br><span class="line">| <span class="number">1</span>   | hello123_hello  |</span><br><span class="line">| <span class="number">2</span>   | hello123_pear   |</span><br><span class="line">| <span class="number">3</span>   | hello123_world  |</span><br><span class="line">+-----+-----------------+</span><br><span class="line">Fetched <span class="number">3</span> row(s) <span class="keyword">in</span> <span class="number">0.02</span>s</span><br></pre></td></tr></table></figure>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/impala/">impala</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/impala/">impala</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/12/30/neo4j-cluster-install/" class="alignleft prev" title="neo4j cluster install">neo4j cluster install</a>
+    
+    
+    <a href="/blog/2015/12/27/install-impala/" class="alignright next" title="install impala">install impala</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/12/30/impala-udf/" data-title="impala udf" data-url="http://yoursite.com/blog/2015/12/30/impala-udf/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

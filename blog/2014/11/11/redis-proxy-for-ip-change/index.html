@@ -1,0 +1,414 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>redis proxy for ip change | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="利用代理模式，缓解master重启后slave主从不同步的问题">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="redis proxy for ip change"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	redis proxy for ip change
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2014-11-11T14:12:42.000Z" itemprop="datePublished">2014-11-11</time>
+    更新日期:<time datetime="2016-01-16T07:09:13.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u6B65_u9AA4"><span class="toc-number">1.</span> <span class="toc-text">步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u542F_u52A8master"><span class="toc-number">1.1.</span> <span class="toc-text">启动master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u542F_u52A8_u4EE3_u7406"><span class="toc-number">1.2.</span> <span class="toc-text">启动代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u6784_u5EFAslave"><span class="toc-number">1.3.</span> <span class="toc-text">构建slave</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u9A8C_u8BC1"><span class="toc-number">1.4.</span> <span class="toc-text">验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u91CD_u542Fmaster"><span class="toc-number">1.5.</span> <span class="toc-text">重启master</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#u67E5_u770Bslave"><span class="toc-number">1.6.</span> <span class="toc-text">查看slave</span></a></li></ol></li></ol>
+			</div>
+		
+        <p>redis 当master重启后，则docker ip 变化，slave就无法主从同步。利用代理模式可以缓解这个。</p>
+<a id="more"></a>
+<p>由于每次run、restart 容器后，容器的ip就会变化。因此 redis的 slaveOf=&lt; old master ip&gt; 就会引起主从不同步的问题。</p>
+<p>所以，这里引入代理模式。可以缓解这个问题，思路是这样的，在不稳定的机器上部署代理。本质是这样的：master-&gt;proxy&lt;-slave<br>因此，slave永远获取的是proxy的ip，而master ip change会被proxy监听到，对slave 透明。</p>
+<hr>
+<h2 id="u6B65_u9AA4"><a href="#u6B65_u9AA4" class="headerlink" title="步骤"></a>步骤</h2><h3 id="u542F_u52A8master"><a href="#u542F_u52A8master" class="headerlink" title="启动master"></a>启动master</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --name redis-master -v /root/app/workspace/redis/data:/data -d --expose 6379 redis redis-server --appendonly yes</span><br></pre></td></tr></table></figure>
+<h3 id="u542F_u52A8_u4EE3_u7406"><a href="#u542F_u52A8_u4EE3_u7406" class="headerlink" title="启动代理"></a>启动代理</h3><p>利用 <font color="#9f4074"> cpuguy83/docker-grand-ambassador </font></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d -v /var/run/docker.sock:/var/run/docker.sock  --name redis_ambassador  cpuguy83/docker-grand-ambassador -name redis-master</span><br></pre></td></tr></table></figure>
+<h3 id="u6784_u5EFAslave"><a href="#u6784_u5EFAslave" class="headerlink" title="构建slave"></a>构建slave</h3><p>还是利用上一篇Blog的Dockerfile，但这次slave启动的时候link的是proxy</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;[root@yuanxiaolong redis]# docker build -t yuanxiaolong/redis-slave .&#10;&#10;[root@yuanxiaolong redis]# docker run -d -P --name=redis_slave --link=redis_ambassador:redis_ambassador yuanxiaolong/redis-slave&#10;cbaeabd5d49f87660d4b53ae812f2ea04ba21cfe54b304e37d478137f6f5cb88&#10;[root@yuanxiaolong redis]# docker logs cb&#10;redis_ambassador&#39;s ip -&#62;  172.17.0.76&#10;[1] 05 Nov 09:58:31.666 # You requested maxclients of 10000 requiring at least 10032 max file descriptors.&#10;[1] 05 Nov 09:58:31.666 # Redis can&#39;t set maximum open files to 10032 because of OS error: Operation not permitted.&#10;[1] 05 Nov 09:58:31.667 # Current maximum open files is 1024. maxclients has been reduced to 4064 to compensate for low ulimit. If you need higher maxclients increase &#39;ulimit -n&#39;.&#10;                _._&#10;           _.-``__ &#39;&#39;-._&#10;      _.-``    `.  `_.  &#39;&#39;-._           Redis 2.8.17 (00000000/0) 64 bit&#10;  .-`` .-```.  ```\/    _.,_ &#39;&#39;-._&#10;(    &#39;      ,       .-`  | `,    )     Running in stand alone mode&#10;|`-._`-...-` __...-.``-._|&#39;` _.-&#39;|     Port: 6379&#10;|    `-._   `._    /     _.-&#39;    |     PID: 1&#10;  `-._    `-._  `-./  _.-&#39;    _.-&#39;&#10;|`-._`-._    `-.__.-&#39;    _.-&#39;_.-&#39;|&#10;|    `-._`-._        _.-&#39;_.-&#39;    |           http://redis.io&#10;  `-._    `-._`-.__.-&#39;_.-&#39;    _.-&#39;&#10;|`-._`-._    `-.__.-&#39;    _.-&#39;_.-&#39;|&#10;|    `-._`-._        _.-&#39;_.-&#39;    |&#10;  `-._    `-._`-.__.-&#39;_.-&#39;    _.-&#39;&#10;      `-._    `-.__.-&#39;    _.-&#39;&#10;          `-._        _.-&#39;&#10;              `-.__.-&#39;&#10;&#10;[1] 05 Nov 09:58:31.668 # Server started, Redis version 2.8.17&#10;[1] 05 Nov 09:58:31.668 # WARNING overcommit_memory is set to 0! Background save may fail under low memory condition. To fix this issue add &#39;vm.overcommit_memory = 1&#39; to /etc/sysctl.conf and then reboot or run the command &#39;sysctl vm.overcommit_memory=1&#39; for this to take effect.&#10;[1] 05 Nov 09:58:31.668 * The server is now ready to accept connections on port 6379&#10;[1] 05 Nov 09:58:31.668 * Connecting to MASTER 172.17.0.76:6379&#10;[1] 05 Nov 09:58:31.668 * MASTER &#60;-&#62; SLAVE sync started&#10;[1] 05 Nov 09:58:31.670 * Non blocking connect for SYNC fired the event.&#10;[1] 05 Nov 09:58:31.671 * Master replied to PING, replication can continue...&#10;[1] 05 Nov 09:58:31.671 * Partial resynchronization not possible (no cached master)&#10;[1] 05 Nov 09:58:31.673 * Full resync from master: 0694696a66ef4e6dce92dbbf66c03cb46cc44922:1&#10;[1] 05 Nov 09:58:31.689 * MASTER &#60;-&#62; SLAVE sync: receiving 48 bytes from master&#10;[1] 05 Nov 09:58:31.689 * MASTER &#60;-&#62; SLAVE sync: Flushing old data&#10;[1] 05 Nov 09:58:31.689 * MASTER &#60;-&#62; SLAVE sync: Loading DB in memory&#10;[1] 05 Nov 09:58:31.689 * MASTER &#60;-&#62; SLAVE sync: Finished with success</span><br></pre></td></tr></table></figure>
+<h3 id="u9A8C_u8BC1"><a href="#u9A8C_u8BC1" class="headerlink" title="验证"></a>验证</h3><p>验证一下现在的数据，现在的ip，重启，重启后的ip</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;[root@yuanxiaolong redis]# sh ~/docker-enter.sh cb&#10;root@cbaeabd5d49f:~# redis-cli&#10;127.0.0.1:6379&#62; keys *&#10;1) &#34;hello&#34;&#10;2) &#34;yuan&#34;&#10;&#10;[root@yuanxiaolong redis]# docker-ip 26&#10;172.17.0.97&#10;[root@yuanxiaolong redis]# docker restart 26&#10;26&#10;[root@yuanxiaolong redis]# docker-ip 26&#10;172.17.0.106</span><br></pre></td></tr></table></figure>
+<h3 id="u91CD_u542Fmaster"><a href="#u91CD_u542Fmaster" class="headerlink" title="重启master"></a>重启master</h3><p>重启master后，给master放置数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;[root@yuanxiaolong redis]# sh ~/docker-enter.sh 26&#10;root@26d8e94cc2b1:~# redis-cli keys *&#10;1) &#34;yuan&#34;&#10;2) &#34;hello&#34;&#10;root@26d8e94cc2b1:~# redis-cli&#10;127.0.0.1:6379&#62; set good job&#10;OK&#10;127.0.0.1:6379&#62; keys *&#10;1) &#34;good&#34;&#10;2) &#34;yuan&#34;&#10;3) &#34;hello&#34;</span><br></pre></td></tr></table></figure>
+<h3 id="u67E5_u770Bslave"><a href="#u67E5_u770Bslave" class="headerlink" title="查看slave"></a>查看slave</h3><p>进入slave，发现主从已同步。（之前不引用代理，重启master，slave里是没有新数据的，而且slave的log是找不到old master ip的）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#10;[root@yuanxiaolong redis]# sh ~/docker-enter.sh cb&#10;root@cbaeabd5d49f:~# redis-cli&#10;127.0.0.1:6379&#62; keys *&#10;1) &#34;hello&#34;&#10;2) &#34;good&#34;&#10;3) &#34;yuan&#34;&#10;127.0.0.1:6379&#62; get good&#10;&#34;job&#34;</span><br></pre></td></tr></table></figure>
+<p>我们看一下 proxy 的日志，就能发现 master重启后，proxy监听并代理的新的ip。（我之前重启了master 2次，所以ip从 75 -&gt; 97，再 97 -&gt; 106 ）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@yuanxiaolong redis]# docker ps&#10;CONTAINER ID        IMAGE                                     COMMAND                CREATED             STATUS              PORTS                     NAMES&#10;cbaeabd5d49f        yuanxiaolong/redis-slave:latest           /entrypoint.sh ./sta   12 minutes ago      Up 12 minutes       0.0.0.0:49168-&#62;6379/tcp   redis_slave&#10;fb86c9b5d007        cpuguy83/docker-grand-ambassador:latest   /usr/bin/grand-ambas   About an hour ago   Up About an hour                              redis_ambassador,redis_slave/redis_ambassador  &#10;26d8e94cc2b1        redis:latest                              /entrypoint.sh redis   About an hour ago   Up 10 minutes       6379/tcp                  redis-master  &#10;&#10;&#10;[root@yuanxiaolong redis]# docker logs fb&#10;time=&#34;2014-11-05T08:17:39Z&#34; level=&#34;info&#34; msg=&#34;Initializing proxy&#34;&#10;time=&#34;2014-11-05T08:17:39Z&#34; level=&#34;info&#34; msg=&#34;Proxying 172.17.0.75:6379/tcp&#34;&#10;time=&#34;2014-11-05T08:17:39Z&#34; level=&#34;info&#34; msg=&#34;Handling Events for: 26d8e94cc2b1c39ac4df7a0e7c8bc45abc4af01da6a684093b9070c2e7ecc6db: /redis-master&#34;&#10;time=&#34;2014-11-05T09:03:10Z&#34; level=&#34;info&#34; msg=&#34;Received event: &#38;&#123;26d8e94cc2b1c39ac4df7a0e7c8bc45abc4af01da6a684093b9070c2e7ecc6db stop&#125;&#34;&#10;time=&#34;2014-11-05T09:03:10Z&#34; level=&#34;info&#34; msg=&#34;Stopping proxy on tcp/[::]:6379 for tcp/172.17.0.75:6379 (accept tcp [::]:6379: use of closed network connection)&#34;&#10;time=&#34;2014-11-05T09:03:10Z&#34; level=&#34;info&#34; msg=&#34;Received event: &#38;&#123;26d8e94cc2b1c39ac4df7a0e7c8bc45abc4af01da6a684093b9070c2e7ecc6db die&#125;&#34;&#10;time=&#34;2014-11-05T09:03:44Z&#34; level=&#34;info&#34; msg=&#34;Received event: &#38;&#123;26d8e94cc2b1c39ac4df7a0e7c8bc45abc4af01da6a684093b9070c2e7ecc6db start&#125;&#34;&#10;time=&#34;2014-11-05T09:03:44Z&#34; level=&#34;info&#34; msg=&#34;Closing old servers&#34;&#10;time=&#34;2014-11-05T09:03:44Z&#34; level=&#34;info&#34; msg=&#34;Servers closed&#34;&#10;time=&#34;2014-11-05T09:03:44Z&#34; level=&#34;info&#34; msg=&#34;Proxying 172.17.0.97:6379/tcp&#34;&#10;time=&#34;2014-11-05T10:00:13Z&#34; level=&#34;info&#34; msg=&#34;Received event: &#38;&#123;26d8e94cc2b1c39ac4df7a0e7c8bc45abc4af01da6a684093b9070c2e7ecc6db die&#125;&#34;&#10;time=&#34;2014-11-05T10:00:13Z&#34; level=&#34;info&#34; msg=&#34;Received event: &#38;&#123;26d8e94cc2b1c39ac4df7a0e7c8bc45abc4af01da6a684093b9070c2e7ecc6db restart&#125;&#34;&#10;time=&#34;2014-11-05T10:00:13Z&#34; level=&#34;info&#34; msg=&#34;Closing old servers&#34;&#10;time=&#34;2014-11-05T10:00:13Z&#34; level=&#34;info&#34; msg=&#34;Stopping proxy on tcp/[::]:6379 for tcp/172.17.0.97:6379 (accept tcp [::]:6379: use of closed network connection)&#34;&#10;time=&#34;2014-11-05T10:00:13Z&#34; level=&#34;info&#34; msg=&#34;Servers closed&#34;&#10;time=&#34;2014-11-05T10:00:13Z&#34; level=&#34;info&#34; msg=&#34;Proxying 172.17.0.106:6379/tcp&#34;&#10;time=&#34;2014-11-05T10:01:15Z&#34; level=&#34;info&#34; msg=&#34;Can&#39;t forward traffic to backend tcp/172.17.0.97:6379: dial tcp 172.17.0.97:6379: connection timed out\n&#34;</span><br></pre></td></tr></table></figure>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/docker/">docker</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/docker/">docker</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2014/11/11/introduce-coreos/" class="alignleft prev" title="introduce CoreOS">introduce CoreOS</a>
+    
+    
+    <a href="/blog/2014/10/29/docker-redis-master-slave/" class="alignright next" title="docker redis master slave">docker redis master slave</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2014/11/11/redis-proxy-for-ip-change/" data-title="redis proxy for ip change" data-url="http://yoursite.com/blog/2014/11/11/redis-proxy-for-ip-change/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

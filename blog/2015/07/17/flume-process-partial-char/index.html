@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>flume process partial char | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="flume bug 修复">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="flume process partial char"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	flume process partial char
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-07-17T03:50:06.000Z" itemprop="datePublished">2015-07-17</time>
+    更新日期:<time datetime="2016-01-16T03:44:47.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73B0_u8C61"><span class="toc-number">1.</span> <span class="toc-text">现象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5206_u6790_u5B9A_u4F4D"><span class="toc-number">2.</span> <span class="toc-text">分析定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u89E3_u51B3"><span class="toc-number">3.</span> <span class="toc-text">解决</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u6784_u5EFAflume"><span class="toc-number">4.</span> <span class="toc-text">构建flume</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">4.1.</span> <span class="toc-text">环境准备</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#debug_flume_u6E90_u7801"><span class="toc-number">5.</span> <span class="toc-text">debug flume源码</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#u914D_u7F6E"><span class="toc-number">5.1.</span> <span class="toc-text">配置</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#DEBUG"><span class="toc-number">5.2.</span> <span class="toc-text">DEBUG</span></a></li></ol></li></ol>
+			</div>
+		
+        <p>修复了flume的一个BUG</p>
+<a id="more"></a>
+<p>当flume读取到 特殊字符时，会中断对整个文件的读取，1.5.0 。1.6.0 这里的代码稍微不一样，但是也直接返回 -1 了</p>
+<hr>
+<h2 id="u73B0_u8C61"><a href="#u73B0_u8C61" class="headerlink" title="现象"></a>现象</h2><p>flume source 为 spooldir 方式，默认会以utf8读取log文件，但是如果写入的数据夹杂了非utf8编码的记录，则flume读取到此非法字符时，就会中止整个文件的读取。</p>
+<p>例如log文件中有1000行，500行时有这样一条记录 ，写入时以非utf8写</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#34;user_account&#34;:&#34;&#128174;&#27611;&#33151;&#33151;&#128174;&#34;,&#34;user_id&#8221;:&#34;11111111&#34;,&#34;ip&#8221;:&#8221;127.0.0.1&#34;,&#34;time&#34;:&#34;1430755546&#34;,&#34;hour&#34;:&#34;2015050500&#34;&#125;</span><br></pre></td></tr></table></figure>
+<p>则flume 只会读取前500行，并传递给source，其中第500行</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#123;&#34;user_account&#34;:&#34;</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u5206_u6790_u5B9A_u4F4D"><a href="#u5206_u6790_u5B9A_u4F4D" class="headerlink" title="分析定位"></a>分析定位</h2><p>为什么会产生这样的现象？先一起来看一下 spooldir 读取日志的流程</p>
+<p><img src="/images/flume/20150717/1.png" alt=""></p>
+<p>flume会把日志里每一行，转换为一个Event 来处理，Event是最小单位。但flume操作的时候，以文件为逻辑单位，所以当遇到特殊字符时，jdk utf8 decoder 解析不出来，flume则认为到了文件末尾，因此就中止了整个文件的读取。</p>
+<hr>
+<h2 id="u89E3_u51B3"><a href="#u89E3_u51B3" class="headerlink" title="解决"></a>解决</h2><p>知道了原因，那么我们就可以修改flume源码了，修改ResettableFileInputStream.java</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// there may be a partial character in the decoder buffer</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      incrPosition(delta, <span class="keyword">false</span>);</span><br><span class="line">      <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>修改为，我们把特殊字符替换成空格（ASCII 32）flume 1.5.0</p>
+<p>原理：当解析不出字符时，走到else分支，如果已到文件末尾，则自增全局文件指针 delta （值为1）个，并返回 -1 代表文件结束。如果未到文件末尾，则自增全局指针1下，跳过 “脏字符”，清空缓冲区，再填充，并处理</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// there may be a partial character in the decoder buffer</span></span><br><span class="line">   &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">     <span class="keyword">if</span>(isEndOfInput) &#123;</span><br><span class="line">         incrPosition(delta, <span class="keyword">false</span>);</span><br><span class="line">         logger.info(<span class="string">"End of File."</span>);</span><br><span class="line">         <span class="keyword">return</span> -<span class="number">1</span>;<span class="comment">//end of file</span></span><br><span class="line">     &#125; <span class="keyword">else</span>&#123;</span><br><span class="line">         incrPosition(<span class="number">1</span>, <span class="keyword">false</span>);</span><br><span class="line">         buf.clear();</span><br><span class="line">         buf.flip();</span><br><span class="line">         refillBuf();</span><br><span class="line">         logger.warn(<span class="string">"May have special characters."</span>);</span><br><span class="line">         <span class="keyword">return</span> <span class="number">32</span>;<span class="comment">//a partial character 空格的ASCII</span></span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<p>flume 1.6.0 <a href="https://github.com/apache/flume/blob/release-1.6.0/flume-ng-core/src/main/java/org/apache/flume/serialization/ResettableFileInputStream.java" target="_blank" rel="external">ResettableFileInputStream.java</a></p>
+<hr>
+<h2 id="u6784_u5EFAflume"><a href="#u6784_u5EFAflume" class="headerlink" title="构建flume"></a>构建flume</h2><h3 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h3><ul>
+<li>选择一个flume版本，fork到自己的仓库</li>
+<li>maven</li>
+</ul>
+<p>1.修改parent pom.xml，修改<hadoop.version>为自己的版本</hadoop.version></p>
+<p>2.注释掉下面子pom.xml的单元测试</p>
+<ul>
+<li>flume-ng-sinks/flume-hdfs-sink/pom.xml</li>
+<li>flume-tools/pom.xml</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hbase<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hbase<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">version</span>&gt;</span>$&#123;hbase.version&#125;<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">classifier</span>&gt;</span>tests<span class="tag">&lt;/<span class="title">classifier</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="title">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">dependency</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="title">groupId</span>&gt;</span>org.apache.hadoop<span class="tag">&lt;/<span class="title">groupId</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="title">artifactId</span>&gt;</span>hadoop-test<span class="tag">&lt;/<span class="title">artifactId</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="title">version</span>&gt;</span>$&#123;hadoop.version&#125;<span class="tag">&lt;/<span class="title">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>3.删除 flume-ng-sinks/flume-ng-hbase-sink/src/test 下的单元测试（我这里编译不过，因此删了）</p>
+<p>4.获取ua-parser-1.3.0.jar ，并复制到本地仓库，<a href="http://pan.baidu.com/s/1kT69toN" target="_blank" rel="external"><font color="#3573c6">我的百度云共享</font></a></p>
+<p>5.执行 <code>mvn install -Phadoop-2 -DskipTests -Dtar</code>  （如果你是hadoop2的话指定为 -Phadoop-2，否则不用添加）</p>
+<p>6.flume-ng-dist/target  下就是构建完成的东西，apache-flume-1.5.2-bin.tar.gz 就可以直接用了</p>
+<hr>
+<h2 id="debug_flume_u6E90_u7801"><a href="#debug_flume_u6E90_u7801" class="headerlink" title="debug flume源码"></a>debug flume源码</h2><h3 id="u914D_u7F6E"><a href="#u914D_u7F6E" class="headerlink" title="配置"></a>配置</h3><p>启动flume命令，其中 –name realtime 是配置文件中自定义的，其中 http://<ip>:34545/metrics 是flume的监控统计信息</ip></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./flume-ng agent --conf ../conf --conf-file ../conf/flume-conf.properties --name realtime -Dflume.monitoring.type=http -Dflume.monitoring.port=<span class="number">34545</span></span><br></pre></td></tr></table></figure>
+<p>修改 <code>flume-conf.properties</code> 其中 <code>realtime.sources.fortest.ignorePattern=^.*(?&lt;!\\d{4}\\.log)$</code> 表示只匹配监控 0001.log 、7743.log 这样的文件</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"># globel</span><br><span class="line">realtime.sources=fortest</span><br><span class="line">realtime.channels=fortest</span><br><span class="line">realtime.sinks=fortest</span><br><span class="line"></span><br><span class="line">#source</span><br><span class="line">realtime.sources.fortest.type=spooldir</span><br><span class="line">realtime.sources.fortest.spoolDir=/Users/xiaolongyuan/Downloads/apache-flume-1.5.0.1-bin/data/send</span><br><span class="line">realtime.sources.fortest.channels=fortest</span><br><span class="line">realtime.sources.fortest.batchSize=1000</span><br><span class="line">realtime.sources.fortest.deserializer=LINE</span><br><span class="line">realtime.sources.fortest.deserializer.maxLineLength=20000000</span><br><span class="line">realtime.sources.fortest.bufferMaxLineLength＝2000000</span><br><span class="line">realtime.sources.fortest.decodeErrorPolicy=IGNORE</span><br><span class="line">realtime.sources.fortest.ignorePattern=^.*(?&lt;!\\d&#123;4&#125;\\.log)$</span><br><span class="line"></span><br><span class="line">#channel</span><br><span class="line">realtime.channels.fortest.type = memory</span><br><span class="line">realtime.channels.fortest.capacity = 10000</span><br><span class="line">realtime.channels.fortest.transactionCapacity = 10000</span><br><span class="line">realtime.channels.fortest.byteCapacityBufferPercentage = 20</span><br><span class="line">realtime.channels.fortest.byteCapacity = 800000</span><br><span class="line"></span><br><span class="line">#sink</span><br><span class="line">realtime.sinks.fortest.type=file_roll</span><br><span class="line">realtime.sinks.fortest.sink.directory=/Users/xiaolongyuan/Downloads/apache-flume-1.5.0.1-bin/data/received</span><br><span class="line">realtime.sinks.fortest.channel = fortest</span><br></pre></td></tr></table></figure>
+<p>本地读取file，输出到本地file，方便对比2个file的行数</p>
+<h3 id="DEBUG"><a href="#DEBUG" class="headerlink" title="DEBUG"></a>DEBUG</h3><p>源码导入到eclipse 或 idea，并修改 <code>flume-env.sh</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JAVA_OPTS=<span class="string">"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=y”</span></span><br></pre></td></tr></table></figure>
+<p>在eclipse或idea里新建 remote debug，ip本地，端口8001，连接、打断点、测试。</p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/flume/">flume</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/flume/">flume</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/07/28/sparkr-read-from-hive/" class="alignleft prev" title="sparkR read from hive">sparkR read from hive</a>
+    
+    
+    <a href="/blog/2015/07/03/install-hadoop-cluster-with-cloudera-manager/" class="alignright next" title="install hadoop cluster with cloudera manager">install hadoop cluster with cloudera manager</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/07/17/flume-process-partial-char/" data-title="flume process partial char" data-url="http://yoursite.com/blog/2015/07/17/flume-process-partial-char/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+

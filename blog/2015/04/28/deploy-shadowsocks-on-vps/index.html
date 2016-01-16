@@ -1,0 +1,438 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>deploy shadowsocks on VPS | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="利用vps搭建属于自己的通道">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="deploy shadowsocks on VPS"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	deploy shadowsocks on VPS
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2015-04-28T13:27:15.000Z" itemprop="datePublished">2015-04-28</time>
+    更新日期:<time datetime="2016-01-16T04:24:31.000Z" itemprop="dateModified">2016-01-16</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u73AF_u5883_u51C6_u5907"><span class="toc-number">1.</span> <span class="toc-text">环境准备</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u539F_u7406_u4ECB_u7ECD"><span class="toc-number">2.</span> <span class="toc-text">原理介绍</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Server_u7AEF"><span class="toc-number">3.</span> <span class="toc-text">Server端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Client__u7AEF"><span class="toc-number">4.</span> <span class="toc-text">Client 端</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5207_u6362_u8BF7_u6C42"><span class="toc-number">5.</span> <span class="toc-text">切换请求</span></a></li></ol>
+			</div>
+		
+        <p>利用自己的VPS，搭建一个代理通道，以便访问google等资源</p>
+<a id="more"></a>
+<p>好久没写blog了，最近非工作事情比较忙，才耽搁了一阵，但是保证都是干货。</p>
+<hr>
+<h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><p>VPS一台，我用的是 digtal Ocean 的，2015年提供了新加坡的机房，可以买在新加坡。比纽约和旧金山要快一倍访问速度，大约 ping 200ms</p>
+<p>CentOS 6.x</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum install git openssl-devel -y</span><br><span class="line">yum install build-essential autoconf libtool gcc -y</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="u539F_u7406_u4ECB_u7ECD"><a href="#u539F_u7406_u4ECB_u7ECD" class="headerlink" title="原理介绍"></a>原理介绍</h2><p><img src="/images/vps/20150428/1.png" alt=""></p>
+<p>如果浏览器直接访问 google 则由于墙的存在，导致不通。因此需要用代理做请求的转发。</p>
+<p>Shadowsocks 是一种安全的 socks5 代理，可以保护你的上网流量。基于多种加密方式，推荐使用 aes-256-cfb 加密。安装和使用需要本地端和服务端</p>
+<p>shadowsocks 就是这样的一个代理，在海外vps上装Server，在本机上装Client就可以了</p>
+<h2 id="Server_u7AEF"><a href="#Server_u7AEF" class="headerlink" title="Server端"></a>Server端</h2><p>将下面脚本，在 <code>CentOS 6.x</code> 上运行</p>
+<figure class="highlight bash"><figcaption><span>shadowsocks-libev.sh</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#! /bin/bash</span></span><br><span class="line">PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/<span class="built_in">local</span>/bin:/usr/<span class="built_in">local</span>/sbin:~/bin</span><br><span class="line"><span class="built_in">export</span> PATH</span><br><span class="line"><span class="comment">#===============================================================================================</span></span><br><span class="line"><span class="comment">#   System Required:  CentOS6.x (32bit/64bit)</span></span><br><span class="line"><span class="comment">#   Description:  Install Shadowsocks(libev) for CentOS</span></span><br><span class="line"><span class="comment">#   Author: Teddysun &lt;i@teddysun.com&gt;</span></span><br><span class="line"><span class="comment">#   Intro:  http://teddysun.com/357.html</span></span><br><span class="line"><span class="comment">#===============================================================================================</span></span><br><span class="line"></span><br><span class="line">clear</span><br><span class="line"><span class="built_in">echo</span> <span class="string">"#############################################################"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"# Install Shadowsocks(libev) for CentOS 6 or 7 (32bit/64bit)"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"# Intro: http://teddysun.com/357.html"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"#"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"# Author: Teddysun &lt;i@teddysun.com&gt;"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"#"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"#############################################################"</span></span><br><span class="line"><span class="built_in">echo</span> <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Make sure only root can run our script</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">rootness</span></span>()&#123;</span><br><span class="line"><span class="keyword">if</span> [[ <span class="variable">$EUID</span> <span class="operator">-ne</span> <span class="number">0</span> ]]; <span class="keyword">then</span></span><br><span class="line">   <span class="built_in">echo</span> <span class="string">"Error:This script must be run as root!"</span> <span class="number">1</span>&gt;&amp;<span class="number">2</span></span><br><span class="line">   <span class="built_in">exit</span> <span class="number">1</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Get version</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">getversion</span></span>()&#123;</span><br><span class="line">    <span class="keyword">if</span> [[ <span class="operator">-s</span> /etc/redhat-release ]];<span class="keyword">then</span></span><br><span class="line">        grep -oE  <span class="string">"[0-9.]+"</span> /etc/redhat-release</span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        grep -oE  <span class="string">"[0-9.]+"</span> /etc/issue</span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># CentOS version</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">centosversion</span></span>()&#123;</span><br><span class="line">    <span class="built_in">local</span> code=<span class="variable">$1</span></span><br><span class="line">    <span class="built_in">local</span> version=<span class="string">"`getversion`"</span></span><br><span class="line">    <span class="built_in">local</span> main_ver=<span class="variable">$&#123;version%%.*&#125;</span></span><br><span class="line">    <span class="keyword">if</span> [ <span class="variable">$main_ver</span> == <span class="variable">$code</span> ];<span class="keyword">then</span></span><br><span class="line">        <span class="built_in">return</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">else</span></span><br><span class="line">        <span class="built_in">return</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Disable selinux</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">disable_selinux</span></span>()&#123;</span><br><span class="line"><span class="keyword">if</span> [ <span class="operator">-s</span> /etc/selinux/config ] &amp;&amp; grep <span class="string">'SELINUX=enforcing'</span> /etc/selinux/config; <span class="keyword">then</span></span><br><span class="line">    sed -i <span class="string">'s/SELINUX=enforcing/SELINUX=disabled/g'</span> /etc/selinux/config</span><br><span class="line">    setenforce <span class="number">0</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"># Pre-installation settings</span></span><br><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">pre_install</span></span>()&#123;</span><br><span class="line">    <span class="comment"># Not support CentOS 5</span></span><br><span class="line">    <span class="keyword">if</span> centosversion <span class="number">5</span>; <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"Not support CentOS 5, please change to CentOS 6 or 7 and try again."</span></span><br><span class="line">        <span class="built_in">exit</span> <span class="number">1</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="comment">#Set shadowsocks-libev config password</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"Please input password for shadowsocks-libev:"</span></span><br><span class="line">    <span class="built_in">read</span> -p <span class="string">"(Default password: teddysun.com):"</span> shadowsockspwd</span><br><span class="line">    <span class="keyword">if</span> [ <span class="string">"<span class="variable">$shadowsockspwd</span>"</span> = <span class="string">""</span> ]; <span class="keyword">then</span></span><br><span class="line">        shadowsockspwd=<span class="string">"teddysun.com"</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"password:<span class="variable">$shadowsockspwd</span>"</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"####################################"</span></span><br><span class="line">    <span class="function"><span class="title">get_char</span></span>()&#123;</span><br><span class="line">        SAVEDSTTY=`stty -g`</span><br><span class="line">        stty -echo</span><br><span class="line">        stty cbreak</span><br><span class="line">        dd <span class="keyword">if</span>=/dev/tty bs=<span class="number">1</span> count=<span class="number">1</span> <span class="number">2</span>&gt; /dev/null</span><br><span class="line">        stty -raw</span><br><span class="line">        stty <span class="built_in">echo</span></span><br><span class="line">        stty <span class="variable">$SAVEDSTTY</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">echo</span> <span class="string">""</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"Press any key to start...or Press Ctrl+C to cancel"</span></span><br><span class="line">    char=`get_char`</span><br><span class="line">    <span class="comment">#Install necessary dependencies</span></span><br><span class="line">    yum install -y wget unzip openssl-devel gcc swig python python-devel python-setuptools autoconf libtool libevent</span><br><span class="line">    yum install -y automake make curl curl-devel zlib-devel openssl-devel perl perl-devel cpio expat-devel gettext-devel</span><br><span class="line">    <span class="comment"># Get IP address</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"Getting Public IP address, Please wait a moment..."</span></span><br><span class="line">    IP=$(curl <span class="operator">-s</span> -<span class="number">4</span> icanhazip.com)</span><br><span class="line">    <span class="keyword">if</span> [[ <span class="string">"<span class="variable">$IP</span>"</span> = <span class="string">""</span> ]]; <span class="keyword">then</span></span><br><span class="line">        IP=`curl <span class="operator">-s</span> -<span class="number">4</span> ipinfo.io | grep <span class="string">"ip"</span> | awk -F\<span class="string">" '&#123;print <span class="variable">$4</span>&#125;'`</span><br><span class="line">    fi</span><br><span class="line">    echo -e "</span>Your main public IP is\t\<span class="number">033</span>[<span class="number">32</span>m<span class="variable">$IP</span>\<span class="number">033</span>[<span class="number">0</span>m<span class="string">"</span><br><span class="line">    echo "</span><span class="string">"</span><br><span class="line">    #Current folder</span><br><span class="line">    cur_dir=`pwd`</span><br><span class="line">    cd <span class="variable">$cur_dir</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Download latest shadowsocks-libev</span><br><span class="line">function download_files()&#123;</span><br><span class="line">    if [ -f shadowsocks-libev.zip ];then</span><br><span class="line">        echo "</span>shadowsocks-libev.zip [found]<span class="string">"</span><br><span class="line">    else</span><br><span class="line">        if ! wget --no-check-certificate https://github.com/shadowsocks/shadowsocks-libev/archive/master.zip -O shadowsocks-libev.zip;then</span><br><span class="line">            echo "</span>Failed to download shadowsocks-libev.zip<span class="string">"</span><br><span class="line">            exit 1</span><br><span class="line">        fi</span><br><span class="line">    fi</span><br><span class="line">    unzip shadowsocks-libev.zip</span><br><span class="line">    if [ $? -eq 0 ];then</span><br><span class="line">        cd <span class="variable">$cur_dir</span>/shadowsocks-libev-master/</span><br><span class="line">    else</span><br><span class="line">        echo "</span><span class="string">"</span><br><span class="line">        echo "</span>Unzip shadowsocks-libev failed! Please visit http://teddysun.com/<span class="number">357</span>.html and contact.<span class="string">"</span><br><span class="line">        exit 1</span><br><span class="line">    fi</span><br><span class="line">    # Download start script</span><br><span class="line">    if ! wget --no-check-certificate https://raw.githubusercontent.com/teddysun/shadowsocks_install/master/shadowsocks-libev; then</span><br><span class="line">        echo "</span>Failed to download shadowsocks-libev start script!<span class="string">"</span><br><span class="line">        exit 1</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Config shadowsocks</span><br><span class="line">function config_shadowsocks()&#123;</span><br><span class="line">    if [ ! -d /etc/shadowsocks-libev ];then</span><br><span class="line">        mkdir /etc/shadowsocks-libev</span><br><span class="line">    fi</span><br><span class="line">    cat &gt; /etc/shadowsocks-libev/config.json&lt;&lt;-EOF</span><br><span class="line">&#123;</span><br><span class="line">    "</span>server<span class="string">":"</span><span class="number">0.0</span>.<span class="number">0.0</span><span class="string">",</span><br><span class="line">    "</span>server_port<span class="string">":8989,</span><br><span class="line">    "</span><span class="built_in">local</span>_address<span class="string">":"</span><span class="number">127.0</span>.<span class="number">0.1</span><span class="string">",</span><br><span class="line">    "</span><span class="built_in">local</span>_port<span class="string">":1080,</span><br><span class="line">    "</span>password<span class="string">":"</span><span class="variable">$&#123;shadowsockspwd&#125;</span><span class="string">",</span><br><span class="line">    "</span>timeout<span class="string">":600,</span><br><span class="line">    "</span>method<span class="string">":"</span>aes-<span class="number">256</span>-cfb<span class="string">"</span><br><span class="line">&#125;</span><br><span class="line">EOF</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># iptables set</span><br><span class="line">function iptables_set()&#123;</span><br><span class="line">    echo "</span>iptables start setting...<span class="string">"</span><br><span class="line">    /sbin/service iptables status 1&gt;/dev/null 2&gt;&amp;1</span><br><span class="line">    if [ $? -eq 0 ]; then</span><br><span class="line">        /etc/init.d/iptables status | grep '8989' | grep 'ACCEPT' &gt;/dev/null 2&gt;&amp;1</span><br><span class="line">        if [ $? -ne 0 ]; then</span><br><span class="line">            /sbin/iptables -I INPUT -m state --state NEW -m tcp -p tcp --dport 8989 -j ACCEPT</span><br><span class="line">            /etc/init.d/iptables save</span><br><span class="line">            /etc/init.d/iptables restart</span><br><span class="line">        else</span><br><span class="line">            echo "</span>port <span class="number">8989</span> has been <span class="built_in">set</span> up.<span class="string">"</span><br><span class="line">        fi</span><br><span class="line">    else</span><br><span class="line">        echo "</span>iptables looks like shutdown, please manually <span class="built_in">set</span> it <span class="keyword">if</span> necessary.<span class="string">"</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Install</span><br><span class="line">function install()&#123;</span><br><span class="line">    # Build and Install shadowsocks-libev</span><br><span class="line">    if [ -s /usr/local/bin/ss-server ];then</span><br><span class="line">        echo "</span>shadowsocks-libev has been installed!<span class="string">"</span><br><span class="line">        exit 0</span><br><span class="line">    else</span><br><span class="line">        ./configure</span><br><span class="line">        make &amp;&amp; make install</span><br><span class="line">        if [ $? -eq 0 ]; then</span><br><span class="line">            mv <span class="variable">$cur_dir</span>/shadowsocks-libev-master/shadowsocks-libev /etc/init.d/shadowsocks</span><br><span class="line">            chmod +x /etc/init.d/shadowsocks</span><br><span class="line">            # Add run on system start up</span><br><span class="line">            chkconfig --add shadowsocks</span><br><span class="line">            chkconfig shadowsocks on</span><br><span class="line">            # Start shadowsocks</span><br><span class="line">            /etc/init.d/shadowsocks start</span><br><span class="line">            if [ $? -eq 0 ]; then</span><br><span class="line">                echo "</span>Shadowsocks-libev start success!<span class="string">"</span><br><span class="line">            else</span><br><span class="line">                echo "</span>Shadowsocks-libev start failure!<span class="string">"</span><br><span class="line">            fi</span><br><span class="line">        else</span><br><span class="line">            echo "</span><span class="string">"</span><br><span class="line">            echo "</span>Shadowsocks-libev install failed! Please visit http://teddysun.com/<span class="number">357</span>.html and contact.<span class="string">"</span><br><span class="line">            exit 1</span><br><span class="line">        fi</span><br><span class="line">    fi</span><br><span class="line">    cd <span class="variable">$cur_dir</span></span><br><span class="line">    # Delete shadowsocks-libev floder</span><br><span class="line">    rm -rf <span class="variable">$cur_dir</span>/shadowsocks-libev-master/</span><br><span class="line">    # Delete shadowsocks-libev zip file</span><br><span class="line">    rm -f shadowsocks-libev.zip</span><br><span class="line">    clear</span><br><span class="line">    echo "</span><span class="string">"</span><br><span class="line">    echo "</span>Congratulations, shadowsocks-libev install completed!<span class="string">"</span><br><span class="line">    echo -e "</span>Your Server IP: \<span class="number">033</span>[<span class="number">41</span>;<span class="number">37</span>m <span class="variable">$&#123;IP&#125;</span> \<span class="number">033</span>[<span class="number">0</span>m<span class="string">"</span><br><span class="line">    echo -e "</span>Your Server Port: \<span class="number">033</span>[<span class="number">41</span>;<span class="number">37</span>m <span class="number">8989</span> \<span class="number">033</span>[<span class="number">0</span>m<span class="string">"</span><br><span class="line">    echo -e "</span>Your Password: \<span class="number">033</span>[<span class="number">41</span>;<span class="number">37</span>m <span class="variable">$&#123;shadowsockspwd&#125;</span> \<span class="number">033</span>[<span class="number">0</span>m<span class="string">"</span><br><span class="line">    echo -e "</span>Your Local IP: \<span class="number">033</span>[<span class="number">41</span>;<span class="number">37</span>m <span class="number">127.0</span>.<span class="number">0.1</span> \<span class="number">033</span>[<span class="number">0</span>m<span class="string">"</span><br><span class="line">    echo -e "</span>Your Local Port: \<span class="number">033</span>[<span class="number">41</span>;<span class="number">37</span>m <span class="number">1080</span> \<span class="number">033</span>[<span class="number">0</span>m<span class="string">"</span><br><span class="line">    echo -e "</span>Your Encryption Method: \<span class="number">033</span>[<span class="number">41</span>;<span class="number">37</span>m aes-<span class="number">256</span>-cfb \<span class="number">033</span>[<span class="number">0</span>m<span class="string">"</span><br><span class="line">    echo "</span><span class="string">"</span><br><span class="line">    echo "</span>Welcome to visit:http://teddysun.com/<span class="number">357</span>.html<span class="string">"</span><br><span class="line">    echo "</span>Enjoy it!<span class="string">"</span><br><span class="line">    echo "</span><span class="string">"</span><br><span class="line">    exit 0</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Uninstall Shadowsocks-libev</span><br><span class="line">function uninstall_shadowsocks_libev()&#123;</span><br><span class="line">    printf "</span>Are you sure uninstall shadowsocks_libev? (y/n) <span class="string">"</span><br><span class="line">    printf "</span>\n<span class="string">"</span><br><span class="line">    read -p "</span>(Default: n):<span class="string">" answer</span><br><span class="line">    if [ -z <span class="variable">$answer</span> ]; then</span><br><span class="line">        answer="</span>n<span class="string">"</span><br><span class="line">    fi</span><br><span class="line">    if [ "</span><span class="variable">$answer</span><span class="string">" = "</span>y<span class="string">" ]; then</span><br><span class="line">        ps -ef | grep -v grep | grep -v ps | grep -i "</span>ss-server<span class="string">" &gt; /dev/null 2&gt;&amp;1</span><br><span class="line">        if [ $? -eq 0 ]; then</span><br><span class="line">            /etc/init.d/shadowsocks stop</span><br><span class="line">        fi</span><br><span class="line">        chkconfig --del shadowsocks</span><br><span class="line">        # delete config file</span><br><span class="line">        rm -rf /etc/shadowsocks-libev</span><br><span class="line">        # delete shadowsocks</span><br><span class="line">        rm -f /usr/local/bin/ss-local</span><br><span class="line">        rm -f /usr/local/bin/ss-tunnel</span><br><span class="line">        rm -f /usr/local/bin/ss-server</span><br><span class="line">        rm -f /usr/local/bin/ss-redir</span><br><span class="line">        rm -f /usr/local/lib/libshadowsocks.a</span><br><span class="line">        rm -f /usr/local/lib/libshadowsocks.la</span><br><span class="line">        rm -f /usr/local/include/shadowsocks.h</span><br><span class="line">        rm -rf /usr/local/lib/pkgconfig</span><br><span class="line">        rm -f /usr/local/share/man/man8/shadowsocks.8</span><br><span class="line">        rm -f /etc/init.d/shadowsocks</span><br><span class="line">        echo "</span>Shadowsocks-libev uninstall success!<span class="string">"</span><br><span class="line">    else</span><br><span class="line">        echo "</span>uninstall cancelled, Nothing to <span class="keyword">do</span><span class="string">"</span><br><span class="line">    fi</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Install Shadowsocks-libev</span><br><span class="line">function install_shadowsocks_libev()&#123;</span><br><span class="line">    rootness</span><br><span class="line">    disable_selinux</span><br><span class="line">    pre_install</span><br><span class="line">    download_files</span><br><span class="line">    config_shadowsocks</span><br><span class="line">    if ! centosversion 7; then</span><br><span class="line">        iptables_set</span><br><span class="line">    fi</span><br><span class="line">    install</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"># Initialization step</span><br><span class="line">action=<span class="variable">$1</span></span><br><span class="line">[  -z <span class="variable">$1</span> ] &amp;&amp; action=install</span><br><span class="line">case "</span><span class="variable">$action</span><span class="string">" in</span><br><span class="line">install)</span><br><span class="line">    install_shadowsocks_libev</span><br><span class="line">    ;;</span><br><span class="line">uninstall)</span><br><span class="line">    uninstall_shadowsocks_libev</span><br><span class="line">    ;;</span><br><span class="line">*)</span><br><span class="line">    echo "</span>Arguments error! [<span class="variable">$&#123;action&#125;</span> ]<span class="string">"</span><br><span class="line">    echo "</span>Usage: `basename <span class="variable">$0</span>` &#123;install|uninstall&#125;<span class="string">"</span><br><span class="line">    ;;</span><br><span class="line">esac</span></span><br></pre></td></tr></table></figure>
+<p>然后执行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod +x shadowsocks-libev.sh</span><br><span class="line">./shadowsocks-libev.sh <span class="number">2</span>&gt;&amp;<span class="number">1</span> | tee shadowsocks-libev.log</span><br></pre></td></tr></table></figure>
+<p>中间提示输入自己的密码</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Congratulations, shadowsocks-libev install completed!</span><br><span class="line">Your Server IP:your_server_ip</span><br><span class="line">Your Server Port:<span class="number">8989</span></span><br><span class="line">Your Password:&lt;你的密码&gt;</span><br><span class="line">Your Local IP:<span class="number">127.0</span>.<span class="number">0.1</span></span><br><span class="line">Your Local Port:<span class="number">1080</span></span><br><span class="line">Your Encryption Method:aes-<span class="number">256</span>-cfb</span><br><span class="line"></span><br><span class="line">Welcome to visit:http://teddysun.com/<span class="number">357</span>.html</span><br><span class="line">Enjoy it!</span><br></pre></td></tr></table></figure>
+<p>查看启动后的进程</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ps -ef | grep ss-server | grep -v ps | grep -v grep</span><br></pre></td></tr></table></figure>
+<p>卸载命令</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./shadowsocks-libev.sh uninstall</span><br></pre></td></tr></table></figure>
+<p>防火墙（如果有，则配置，没亲测，我关闭了防火墙）</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">service iptables status   （查看状态）</span><br><span class="line">service iptables stop     （停止）</span><br><span class="line">service iptables start    （启动）</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-A INPUT -p tcp -m state --state NEW -m tcp --dport <span class="number">8989</span> -j ACCEPT</span><br><span class="line">-A INPUT -j REJECT --reject-with icmp-host-prohibited                (如果有这条，则需要加在这条的前面)</span><br></pre></td></tr></table></figure>
+<hr>
+<h2 id="Client__u7AEF"><a href="#Client__u7AEF" class="headerlink" title="Client 端"></a>Client 端</h2><p>百度搜索关键词 <code>shadowsockx + 你的OS</code> 根据自己的操作系统，下载不同的客户端</p>
+<p>我的是mac的，共享百度云 <a href="http://pan.baidu.com/s/1bnsBOIj" target="_blank" rel="external"><font color="#22832f"> 点击这里 </font></a></p>
+<p>配置客户端</p>
+<p><img src="/images/vps/20150428/2.png" alt=""></p>
+<p><img src="/images/vps/20150428/3.png" alt=""></p>
+<p>至此，就有了一个通道 客户端 <code>默认1080端口</code> ，即请求经过1080代理后，转发到服务器上的8989，通过shadowsock代理</p>
+<hr>
+<h2 id="u5207_u6362_u8BF7_u6C42"><a href="#u5207_u6362_u8BF7_u6C42" class="headerlink" title="切换请求"></a>切换请求</h2><p>在chrome里装一个插件，这个插件就可以当做开关，让请求是直接连接，还是用shadowsock代理</p>
+<p>插件叫switchysharp，这里有篇安装教程<br><a href="http://switchysharp.com/install.html" target="_blank" rel="external"><font color="#22832f"> http://switchysharp.com/install.html </font></a></p>
+<p>配置switchysharp如下，其中 “不代理的地址” 即不想用shadowsock代理访问的地址，类似 <code>*.youku.com</code> ，因为看视频可能流量大，VPS每月是限制流量限额的，跟手机一样。</p>
+<p><img src="/images/vps/20150428/4.png" alt=""></p>
+<p>参考资料：</p>
+<ul>
+<li><a href="http://teddysun.com/357.html" target="_blank" rel="external"><font color="#22832f"> http://teddysun.com/357.html </font></a></li>
+<li><a href="http://switchysharp.com/install.html" target="_blank" rel="external"><font color="#22832f"> http://switchysharp.com/install.html </font></a></li>
+</ul>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/vps/">vps</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/vps/">vps</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    <a href="/blog/2015/04/29/oozie-jobtracker-not-in-whitelist/" class="alignleft prev" title="oozie jobtracker not in whitelist">oozie jobtracker not in whitelist</a>
+    
+    
+    <a href="/blog/2015/01/13/zookeeper-distribute-read-write-lock/" class="alignright next" title="zookeeper distribute read write lock">zookeeper distribute read write lock</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2015/04/28/deploy-shadowsocks-on-vps/" data-title="deploy shadowsocks on VPS" data-url="http://yoursite.com/blog/2015/04/28/deploy-shadowsocks-on-vps/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>9</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax</a></li>
+</ul>
+</div>
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016 
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+
