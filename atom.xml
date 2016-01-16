@@ -347,7 +347,7 @@
     <link href="http://yoursite.com/blog/2015/12/27/tez-on-yarn/"/>
     <id>http://yoursite.com/blog/2015/12/27/tez-on-yarn/</id>
     <published>2015-12-27T09:47:23.000Z</published>
-    <updated>2016-01-16T11:49:36.000Z</updated>
+    <updated>2016-01-16T11:53:56.000Z</updated>
     <content type="html"><![CDATA[<p>介绍 tez 框架运行在 yarn上</p>
 <a id="more"></a>
 <p>tez是一个底层框架，跟mr不同之处，是在于 tez 将mr处理进行了优化，然后再跑优化后的 mr DAG，因此效率会快一些</p>
