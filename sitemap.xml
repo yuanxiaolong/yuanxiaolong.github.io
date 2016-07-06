@@ -2,8 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yoursite.com/blog/2016/07/06/parquet-data-storeage/</loc>
+    <lastmod>2016-07-06T13:21:24.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com/blog/2016/07/06/AWS-S3-Java-API/</loc>
+    <lastmod>2016-07-06T13:17:47.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://yoursite.com//about/index.html</loc>
+    <lastmod>2016-07-06T13:11:37.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/blog/2015/12/27/tez-on-yarn/</loc>
-    <lastmod>2016-01-16T11:53:56.000Z</lastmod>
+    <lastmod>2016-01-16T12:08:52.000Z</lastmod>
   </url>
   
   <url>
@@ -284,11 +299,6 @@
   <url>
     <loc>http://yoursite.com/blog/2014/07/20/install-apache-james/</loc>
     <lastmod>2016-01-16T01:33:55.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com//about/index.html</loc>
-    <lastmod>2016-01-15T17:10:32.000Z</lastmod>
   </url>
   
   <url>

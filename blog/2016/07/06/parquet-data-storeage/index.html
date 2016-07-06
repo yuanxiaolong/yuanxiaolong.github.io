@@ -1,0 +1,432 @@
+
+
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="http://tajs.qq.com/stats?sId=35560703" charset="UTF-8"></script>
+  <script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?bff04574fa519e13fcdae39988dba110";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+  
+  <title>parquet data storeage | Sam小龙</title>
+  <meta name="author" content="yuanxiaolong">
+  
+  <meta name="description" content="利用parquet格式来存储数据">
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+  <meta property="og:title" content="parquet data storeage"/>
+  <meta property="og:site_name" content="Sam小龙"/>
+
+  
+    <meta property="og:image" content="undefined"/>
+  
+
+  <link href="/imgs/favicon.ico" rel="icon" type="image/x-ico">
+  <link rel="alternate" href="/atom.xml" title="Sam小龙" type="application/atom+xml">
+  <link rel="stylesheet" href="/css/style.css" media="screen" type="text/css">
+  <!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+  <script src="//libs.baidu.com/jquery/1.8.0/jquery.min.js"></script>
+</head>
+
+
+<body>
+  <header><div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/imgs/logo.png" alt="Sam小龙" title="Sam小龙"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name">Sam小龙</h1>
+				<h2 class="blog-motto">喵喵</h2>
+			</div>
+			<nav class="animated">
+				<ul>
+					
+						<li><a href="/">主页</a></li>
+					
+						<li><a href="/archives">文章</a></li>
+					
+						<li><a href="/about">关于</a></li>
+					
+					<li> <a href="/atom.xml">RSS</a> </li>
+				</ul>
+			</nav>			
+</div>
+</header>
+  <div id="content" class="inner">
+    <div id="main-col" class="alignleft"><div id="wrapper"><article class="post">
+  
+    <div class="gallery">
+  <div class="photoset">
+    
+      <img src="">
+    
+  </div>
+  <div class="control">
+    <div class="prev"></div>
+    <div class="next"></div>
+  </div>
+</div>
+  
+  <div class="post-content">
+    <header class="article-info clearfix">
+  <h1 itemprop="name">
+	parquet data storeage
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://yoursite.com" title="yuanxiaolong">yuanxiaolong</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2016-07-06T13:19:30.000Z" itemprop="datePublished">2016-07-06</time>
+    更新日期:<time datetime="2016-07-06T13:21:24.000Z" itemprop="dateModified">2016-07-06</time>
+    
+  </p>
+</header>
+    <div class="entry">
+		
+			<div id="toc" class="toc-article">
+				<strong class="toc-title">文章目录</strong>
+				<ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#u83B7_u53D6parquet_schema"><span class="toc-number">1.</span> <span class="toc-text">获取parquet schema</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u7F16_u5199mr"><span class="toc-number">2.</span> <span class="toc-text">编写mr</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#u5BFC_u5165hive_u8868_uFF08_u53EF_u9009_uFF0C_u6839_u636E_u81EA_u5DF1_u4E1A_u52A1_uFF09"><span class="toc-number">3.</span> <span class="toc-text">导入hive表（可选，根据自己业务）</span></a></li></ol>
+			</div>
+		
+        <p>本文介绍如何将 textfile 转换成为 parquetfile 的过程</p>
+<a id="more"></a>
+<p>parquet 格式在 impala 中使用效率奇高，本身结合hive使用也十分快。因此转换成 parquet存储格式是十分有必要的。</p>
+<p>转换的方式有2种：<br>1.将原始的 textfile 转换成hive的外部表，再从hive中 insert overwrite into <your-parquet-table> select cols from <your-textfile-table><br>2.将原始textfile文件，通过MR程序，先转换成parquet文件，再用hive外部表挂载到此文件上，或其他应用方式。</your-textfile-table></your-parquet-table></p>
+<p>第一种方法较方便，不做介绍。第二种较复杂，但每次转换的量是可控的，所以也有应用场景。</p>
+<h2 id="u83B7_u53D6parquet_schema"><a href="#u83B7_u53D6parquet_schema" class="headerlink" title="获取parquet schema"></a>获取parquet schema</h2><p>1.有textfile，则先将textfile获取几条数据，insert到textfile hive表中，然后再利用第一种方法，转成parquet hive表。因为数据不是很多，所以转换很快。</p>
+<p>2.在 git上获取工具 parquet-tools</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/apache/parquet-mr.git&#10;git checkout parquet-1.5.0</span><br></pre></td></tr></table></figure>
+<p>3.修改顶层pom.xml 的hadoop版本跟自己的版本一致，然后注释掉 Twitter 仓库，加快下载速度</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;!--&#10;&#60;pluginRepositories&#62;&#10;    &#60;pluginRepository&#62;&#10;      &#60;id&#62;Twitter public Maven repo&#60;/id&#62;&#10;      &#60;url&#62;http://maven.twttr.com&#60;/url&#62;&#10;    &#60;/pluginRepository&#62;&#10;  &#60;/pluginRepositories&#62;&#10;&#8212;&#62;</span><br></pre></td></tr></table></figure>
+<p>4.编译子工程（如果添加-Plocal则表示读取本地文件，如果不加，则可以读取hdfs文件，视情况而定）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cd ./parquet-tools&#10;mvn clean package [-Plocal]</span><br></pre></td></tr></table></figure>
+<p>5.成功后 解压并执行文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tar zxf parquet-tools-1.5.0-bin.tar.gz &#38;&#38; cd parquet-tools-1.5.0</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./parquet-schema /Users/mfw/Downloads/tmp/front_access_pa2/dt=20160101/000000_0&#10;message hive_schema &#123;&#10;  optional binary remote_addr (UTF8);&#10;  optional binary upstream_addr (UTF8);&#10;  optional binary http_x_forwarded_for (UTF8);&#10;  optional binary visit_time (UTF8);&#10;  optional binary request_uri (UTF8);&#10;  optional binary request_method (UTF8);&#10;  optional binary server_protocol (UTF8);&#10;  optional int32 status;&#10;  optional int32 body_bytes_sent;&#10;  optional float request_time;&#10;  optional int64 uid;&#10;  optional binary uuid (UTF8);&#10;  optional binary user_agent (UTF8);&#10;  optional binary refer (UTF8);&#10;  optional binary request_body (UTF8);&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>这里我们就获取到了 parquet schema 的结构 其中 <code>hive_schema</code> 可以随意写。<br>值得注意的是，为了简便于我们后面 mapreduce的编码，建议把这里的 int float 等都换成 binary ，然后对应的hive表的字段都用 string类型</p>
+<h2 id="u7F16_u5199mr"><a href="#u7F16_u5199mr" class="headerlink" title="编写mr"></a>编写mr</h2><p>1.先在pom.xml中添加依赖，将工程打包成包含依赖的 fat jar</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;dependencies&#62;&#10;&#10;        &#60;!-- hadoop --&#62;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;org.apache.hadoop&#60;/groupId&#62;&#10;            &#60;artifactId&#62;hadoop-common&#60;/artifactId&#62;&#10;            &#60;version&#62;2.6.0&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;org.apache.hadoop&#60;/groupId&#62;&#10;            &#60;artifactId&#62;hadoop-hdfs&#60;/artifactId&#62;&#10;            &#60;version&#62;2.6.0&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;org.apache.hadoop&#60;/groupId&#62;&#10;            &#60;artifactId&#62;hadoop-client&#60;/artifactId&#62;&#10;            &#60;version&#62;2.6.0&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;&#10;        &#60;!-- parquet --&#62;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;com.twitter&#60;/groupId&#62;&#10;            &#60;artifactId&#62;parquet-hadoop&#60;/artifactId&#62;&#10;            &#60;version&#62;1.5.0&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;com.twitter&#60;/groupId&#62;&#10;            &#60;artifactId&#62;parquet-column&#60;/artifactId&#62;&#10;            &#60;version&#62;1.5.0&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;com.twitter&#60;/groupId&#62;&#10;            &#60;artifactId&#62;parquet-common&#60;/artifactId&#62;&#10;            &#60;version&#62;1.5.0&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;com.twitter&#60;/groupId&#62;&#10;            &#60;artifactId&#62;parquet-format&#60;/artifactId&#62;&#10;            &#60;version&#62;2.1.0&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;&#10;        &#60;!-- Logging --&#62;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;org.slf4j&#60;/groupId&#62;&#10;            &#60;artifactId&#62;slf4j-api&#60;/artifactId&#62;&#10;            &#60;version&#62;1.7.2&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;log4j&#60;/groupId&#62;&#10;            &#60;artifactId&#62;log4j&#60;/artifactId&#62;&#10;            &#60;version&#62;1.2.16&#60;/version&#62;&#10;        &#60;/dependency&#62;&#10;&#10;        &#60;dependency&#62;&#10;            &#60;groupId&#62;org.slf4j&#60;/groupId&#62;&#10;            &#60;artifactId&#62;slf4j-log4j12&#60;/artifactId&#62;&#10;            &#60;version&#62;1.7.2&#60;/version&#62;&#10;            &#60;exclusions&#62;&#10;                &#60;exclusion&#62;&#10;                    &#60;groupId&#62;log4j&#60;/groupId&#62;&#10;                    &#60;artifactId&#62;log4j&#60;/artifactId&#62;&#10;                &#60;/exclusion&#62;&#10;            &#60;/exclusions&#62;&#10;        &#60;/dependency&#62;&#10;&#10;    &#60;/dependencies&#62;</span><br></pre></td></tr></table></figure>
+<p>2.编写主函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> com.yxl.parquet.WriteParquet;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.util.ToolRunner;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * 入口函数</span><br><span class="line"> *</span><br><span class="line"> * Created by xiaolong.yuanxl on 16-1-28.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Main</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger LOG = LoggerFactory.getLogger(Main.class);</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (args.length &lt; <span class="number">2</span>) &#123;</span><br><span class="line">            LOG.warn(<span class="string">"Usage: "</span> + <span class="string">" INPUTFILE OUTPUTFILE [compression gzip | snappy]"</span>);</span><br><span class="line">            System.out.println(<span class="string">"Usage: "</span> + <span class="string">" INPUTFILE OUTPUTFILE [compression gzip | snappy]"</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        String inputPath = args[<span class="number">0</span>];</span><br><span class="line">        String outputPath = args[<span class="number">1</span>];</span><br><span class="line">        String compression = (args.length &gt; <span class="number">2</span>) ? args[<span class="number">2</span>] : <span class="string">"none"</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            ToolRunner.run(<span class="keyword">new</span> WriteParquet(), <span class="keyword">new</span> String[]&#123;inputPath, outputPath, compression&#125;);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            LOG.error(<span class="string">"run mr JOB convert parquet file happend error: "</span>, e);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>3.编写模块函数</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.yxl.parquet;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configured;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.*;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IntWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.Job;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.input.FileInputFormat;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.input.TextInputFormat;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.util.Tool;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.Logger;</span><br><span class="line"><span class="keyword">import</span> org.slf4j.LoggerFactory;</span><br><span class="line"><span class="keyword">import</span> parquet.example.data.Group;</span><br><span class="line"><span class="keyword">import</span> parquet.hadoop.ParquetFileReader;</span><br><span class="line"><span class="keyword">import</span> parquet.hadoop.example.ExampleInputFormat;</span><br><span class="line"><span class="keyword">import</span> parquet.hadoop.example.ExampleOutputFormat;</span><br><span class="line"><span class="keyword">import</span> parquet.hadoop.example.GroupWriteSupport;</span><br><span class="line"><span class="keyword">import</span> parquet.hadoop.metadata.CompressionCodecName;</span><br><span class="line"><span class="keyword">import</span> parquet.hadoop.metadata.ParquetMetadata;</span><br><span class="line"><span class="keyword">import</span> parquet.schema.MessageType;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> * 写文件为parquet格式</span><br><span class="line"> *</span><br><span class="line"> * Created by xiaolong.yuanxl on 16-1-28.</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">WriteParquet</span> <span class="keyword">extends</span> <span class="title">Configured</span> <span class="keyword">implements</span> <span class="title">Tool</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Logger LOG = LoggerFactory.getLogger(WriteParquet.class);</span><br><span class="line"></span><br><span class="line">    <span class="annotation">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">run</span><span class="params">(String[] strings)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        String input = strings[<span class="number">0</span>];</span><br><span class="line">        String output = strings[<span class="number">1</span>];</span><br><span class="line">        String compression = strings[<span class="number">2</span>];</span><br><span class="line"></span><br><span class="line">        Configuration conf = <span class="keyword">new</span> Configuration();</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 删除已有结果集</span></span><br><span class="line">        FileSystem fs = FileSystem.get(conf);</span><br><span class="line">        Path out = <span class="keyword">new</span> Path(output);</span><br><span class="line">        <span class="keyword">if</span> (fs.exists(out)) &#123;</span><br><span class="line">            fs.delete(out, <span class="keyword">true</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Job job = Job.getInstance();</span><br><span class="line"></span><br><span class="line">        job.setJobName(<span class="string">"Convert Text to Parquet"</span>);</span><br><span class="line">        job.setJarByClass(getClass());</span><br><span class="line"></span><br><span class="line">        job.setMapperClass(WriteParquetMapper.class);</span><br><span class="line">        job.setInputFormatClass(TextInputFormat.class);</span><br><span class="line">        job.setOutputFormatClass(ExampleOutputFormat.class);</span><br><span class="line">        ExampleOutputFormat.setSchema(job, WriteParquetMapper.SCHEMA);</span><br><span class="line">        job.setNumReduceTasks(<span class="number">0</span>);   <span class="comment">//不需要reduce</span></span><br><span class="line">        job.setOutputKeyClass(Void.class);</span><br><span class="line">        job.setOutputValueClass(Group.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//设置压缩</span></span><br><span class="line">        CompressionCodecName codec = CompressionCodecName.UNCOMPRESSED;</span><br><span class="line">        <span class="keyword">if</span> (compression.equalsIgnoreCase(<span class="string">"snappy"</span>)) &#123;</span><br><span class="line">            codec = CompressionCodecName.SNAPPY;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (compression.equalsIgnoreCase(<span class="string">"gzip"</span>)) &#123;</span><br><span class="line">            codec = CompressionCodecName.GZIP;</span><br><span class="line">        &#125;</span><br><span class="line">        LOG.info(<span class="string">"Output compression: "</span> + codec);</span><br><span class="line">        ExampleOutputFormat.setCompression(job, codec);</span><br><span class="line"></span><br><span class="line">        FileInputFormat.setInputPaths(job, <span class="keyword">new</span> Path(input));</span><br><span class="line">        FileOutputFormat.setOutputPath(job, <span class="keyword">new</span> Path(output));</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> job.waitForCompletion(<span class="keyword">true</span>) ? <span class="number">0</span> : <span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>4.编写mapper (Mapper根据自己情况优化代码，这里只实现功能)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">package com.yxl.parquet;&#10;&#10;import org.apache.commons.lang.StringUtils;&#10;import org.apache.hadoop.io.LongWritable;&#10;import org.apache.hadoop.io.Text;&#10;import org.apache.hadoop.mapreduce.Mapper;&#10;import parquet.example.data.Group;&#10;import parquet.example.data.GroupFactory;&#10;import parquet.example.data.simple.SimpleGroupFactory;&#10;import parquet.hadoop.ParquetWriter;&#10;import parquet.schema.MessageType;&#10;import parquet.schema.MessageTypeParser;&#10;&#10;import java.io.IOException;&#10;&#10;/**&#10; * &#20889;parquet mapper&#10; *&#10; * Created by xiaolong.yuanxl on 16-1-28.&#10; */&#10;public class WriteParquetMapper extends Mapper&#60;LongWritable, Text, Void, Group&#62; &#123;&#10;&#10;    public static final MessageType SCHEMA = MessageTypeParser.parseMessageType(&#10;            &#34;message hive_schema &#123;\n&#34; +&#10;                    &#34;  optional binary remote_addr (UTF8);\n&#34; +&#10;                    &#34;  optional binary upstream_addr (UTF8);\n&#34; +&#10;                    &#34;  optional binary http_x_forwarded_for (UTF8);\n&#34; +&#10;                    &#34;  optional binary visit_time (UTF8);\n&#34; +&#10;                    &#34;  optional binary request_uri (UTF8);\n&#34; +&#10;                    &#34;  optional binary request_method (UTF8);\n&#34; +&#10;                    &#34;  optional binary server_protocol (UTF8);\n&#34; +&#10;                    &#34;  optional binary status (UTF8);\n&#34; +&#10;                    &#34;  optional binary body_bytes_sent (UTF8);\n&#34; +&#10;                    &#34;  optional binary request_time (UTF8);\n&#34; +&#10;                    &#34;  optional binary uid (UTF8);\n&#34; +&#10;                    &#34;  optional binary uuid (UTF8);\n&#34; +&#10;                    &#34;  optional binary user_agent (UTF8);\n&#34; +&#10;                    &#34;  optional binary refer (UTF8);\n&#34; +&#10;                    &#34;  optional binary request_body (UTF8);\n&#34; +&#10;                    &#34;&#125;&#34;&#10;    );&#10;&#10;    private GroupFactory groupFactory = new SimpleGroupFactory(SCHEMA);&#10;&#10;    @Override&#10;    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException &#123;&#10;        String line = StringUtils.trim(value.toString());&#10;        String[] arr = StringUtils.splitByWholeSeparatorPreserveAllTokens(line, &#34;\t&#34;);&#10;        Group group = groupFactory.newGroup();&#10;        try&#123;&#10;            if (arr != null)&#123;&#10;                //&#30452;&#25509;&#33719;&#21462;&#19979;&#26631;&#10;                group&#10;                    .append(&#34;remote_addr&#34;, arr[0])&#10;                    .append(&#34;upstream_addr&#34;, arr[1])&#10;                    .append(&#34;http_x_forwarded_for&#34;, arr[2])&#10;                    .append(&#34;visit_time&#34;, arr[3])&#10;                    .append(&#34;request_uri&#34;,arr[4])&#10;                    .append(&#34;request_method&#34;,arr[5])&#10;                    .append(&#34;server_protocol&#34;, arr[6])&#10;                    .append(&#34;status&#34;,arr[7])&#10;                    .append(&#34;body_bytes_sent&#34;,arr[8])&#10;                    .append(&#34;request_time&#34;, arr[9])&#10;                    .append(&#34;uid&#34;, arr[10])&#10;                    .append(&#34;uuid&#34;, arr[11])&#10;                    .append(&#34;user_agent&#34;, arr[12])&#10;                    .append(&#34;refer&#34;, arr[13])&#10;                    .append(&#34;request_body&#34;, arr[14]);&#10;&#10;            &#125;&#10;        &#125;catch (Exception e)&#123;&#10;            System.out.println(&#34;[ERROR]: map happend error &#34; + e.getMessage());&#10;        &#125;&#10;        context.write(null, group);&#10;    &#125;&#10;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>5.然后运行即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop jar parquet-0.0.1-SNAPSHOT.jar &#60;input&#62; &#60;output&#62; &#60;&#21387;&#32553;&#26684;&#24335;snappy&#25110;gzip&#62;</span><br></pre></td></tr></table></figure>
+<p>6.验证，可以用刚才我们编译的 parquet-cat 来看一下字段是否都ok了</p>
+<h2 id="u5BFC_u5165hive_u8868_uFF08_u53EF_u9009_uFF0C_u6839_u636E_u81EA_u5DF1_u4E1A_u52A1_uFF09"><a href="#u5BFC_u5165hive_u8868_uFF08_u53EF_u9009_uFF0C_u6839_u636E_u81EA_u5DF1_u4E1A_u52A1_uFF09" class="headerlink" title="导入hive表（可选，根据自己业务）"></a>导入hive表（可选，根据自己业务）</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alter table &#60;your-parquet-table&#62; add partition(dt=20160101,hour=00) location &#39;&#60;output&#62;&#39;;</span><br></pre></td></tr></table></figure>
+<p>附上hive建表语句</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CREATE EXTERNAL TABLE `nginx_log`(&#10;  `remote_addr` string,&#10;  `upstream_addr` string,&#10;  `http_x_forwarded_for` string,&#10;  `visit_time` string,&#10;  `request_uri` string,&#10;  `request_method` string,&#10;  `server_protocol` string,&#10;  `status` string,&#10;  `body_bytes_sent` string,&#10;  `request_time` string,&#10;  `uid` string,&#10;  `uuid` string,&#10;  `user_agent` string,&#10;  `refer` string,&#10;  `request_body` string)&#10;PARTITIONED BY (&#10;  `dt` string,&#10;  `hour` string)&#10;ROW FORMAT DELIMITED&#10;  FIELDS TERMINATED BY &#39;\t&#39;&#10;STORED AS parquetfile</span><br></pre></td></tr></table></figure>
+<p>可以利用下面脚本每日导入或初始化补数据导入</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="function"><span class="title">loadToHive</span></span>()&#123;</span><br><span class="line">    INPUT_BASE_DIR=/camus/topics/system_nginx</span><br><span class="line">    OUTPUT_BASE_DIR=/user/hive/warehouse/<span class="built_in">source</span>_log.db/nginx_<span class="built_in">log</span></span><br><span class="line"></span><br><span class="line">    INPUT_PARTITION=<span class="variable">$&#123;INPUT_BASE_DIR&#125;</span>/dt=<span class="variable">$1</span>/hour=<span class="variable">$2</span>/</span><br><span class="line">    OUTPUT_PARTITION=<span class="variable">$&#123;OUTPUT_BASE_DIR&#125;</span>/dt=<span class="variable">$1</span>/hour=<span class="variable">$2</span>/</span><br><span class="line"></span><br><span class="line">    COMPRESS=snappy</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 1. delete and mkdir output on hdfs</span></span><br><span class="line"></span><br><span class="line">    /usr/<span class="built_in">local</span>/datacenter/hadoop/bin/hadoop fs -rm -r -skipTrash <span class="variable">$&#123;OUTPUT_PARTITION&#125;</span></span><br><span class="line">    /usr/<span class="built_in">local</span>/datacenter/hadoop/bin/hadoop fs -mkdir -p <span class="variable">$&#123;OUTPUT_PARTITION&#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 2. convert textfile to parquetfile</span></span><br><span class="line"></span><br><span class="line">    /usr/<span class="built_in">local</span>/datacenter/hadoop/bin/hadoop jar /usr/<span class="built_in">local</span>/datacenter/camus/lib/parquet-<span class="number">0.0</span>.<span class="number">1</span>-SNAPSHOT.jar <span class="variable">$&#123;INPUT_PARTITION&#125;</span> <span class="variable">$&#123;OUTPUT_PARTITION&#125;</span> <span class="variable">$&#123;COMPRESS&#125;</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># 3. after parquet load data into hive external table</span></span><br><span class="line"></span><br><span class="line">    /usr/<span class="built_in">local</span>/datacenter/hive/bin/hive <span class="operator">-e</span> <span class="string">"alter table source_log.nginx_log add partition(dt=<span class="variable">$1</span>,hour=<span class="variable">$2</span>) location \"<span class="variable">$&#123;OUTPUT_PARTITION&#125;</span>\";"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">startdate=<span class="number">20160128</span></span><br><span class="line">enddate=<span class="number">20160128</span></span><br><span class="line"></span><br><span class="line">curr=<span class="string">"<span class="variable">$startdate</span>"</span></span><br><span class="line"><span class="keyword">while</span> <span class="literal">true</span>; <span class="keyword">do</span></span><br><span class="line">    <span class="built_in">echo</span> <span class="string">"<span class="variable">$curr</span>"</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">#loadToHive $curr 00</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 01</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 02</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 03</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 04</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 05</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 06</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 07</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 08</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 09</span></span><br><span class="line">    <span class="comment">#loadToHive $curr 10</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">11</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">12</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">13</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">14</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">15</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">16</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">17</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">18</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">19</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">20</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">21</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">22</span></span><br><span class="line">    loadToHive <span class="variable">$curr</span> <span class="number">23</span></span><br><span class="line"></span><br><span class="line">    [ <span class="string">"<span class="variable">$curr</span>"</span> \&lt; <span class="string">"<span class="variable">$enddate</span>"</span> ] || <span class="built_in">break</span></span><br><span class="line">    curr=$( date +%Y%m%d --date <span class="string">"<span class="variable">$curr</span> +1 day"</span> )</span><br><span class="line"><span class="keyword">done</span></span><br></pre></td></tr></table></figure>
+<p>PS：你也可以clone 我在 github 上的 demo 工程 <a href="https://github.com/yuanxiaolong/ParquetDemo.git" target="_blank" rel="external">https://github.com/yuanxiaolong/ParquetDemo.git</a></p>
+
+    </div>
+    <footer>
+        
+  
+  <div class="categories">
+    <a href="/categories/hadoop/">hadoop</a>
+  </div>
+
+        
+  
+  <div class="tags">
+    <a href="/tags/hadoop/">hadoop</a>
+  </div>
+
+		<div class="bdsharebuttonbox">
+	<a href="#" class="bds_qzone" data-cmd="qzone" title="分享到QQ空间"></a>
+	<a href="#" class="bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="bds_tqq" data-cmd="tqq" title="分享到腾讯微博"></a>
+	<a href="#" class="bds_renren" data-cmd="renren" title="分享到人人网"></a>
+	<a href="#" class="bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="bds_more" data-cmd="more"></a>
+	<a href="#" class="bds_count" data-cmd="count"></a>
+</div>
+<script>
+window._bd_share_config=
+{
+	"common":{
+		"bdSnsKey":{},
+		"bdText":"",
+		"bdMini":"2",
+		"bdMiniList":false,
+		"bdPic":"",
+		"bdStyle":"0",
+		"bdSize":"24"
+	},
+	"share":{},
+	"image":{
+		"viewList":["qzone","tsina","tqq","renren","weixin","fbook","twi"],
+		"viewText":"分享到：",
+		"viewSize":"24"
+	},
+	"selectShare":{
+		"bdContainerClass":null,
+		"bdSelectMiniList":["qzone","tsina","tqq","renren","weixin","fbook","twi"]
+	}
+};
+with(document)0[
+	(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)
+];
+</script>    
+        <div class="clearfix"></div>
+    </footer>
+  </div>
+</article>
+
+ <nav id="pagination" >
+    
+    
+    <a href="/blog/2016/07/06/AWS-S3-Java-API/" class="alignright next" title="AWS S3 Java API">AWS S3 Java API</a>
+    
+    <div class="clearfix"></div>
+</nav>
+
+
+
+	
+	<section id="comment">
+		<!-- 多说评论框 start -->
+		<div class="ds-thread" data-thread-key="blog/2016/07/06/parquet-data-storeage/" data-title="parquet data storeage" data-url="http://yoursite.com/blog/2016/07/06/parquet-data-storeage/"></div>
+		<!-- 多说评论框 end -->
+		<!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+		<script type="text/javascript">
+		var duoshuoQuery = {short_name:"yuanxiaolong"};
+		(function() {
+			var ds = document.createElement('script');
+			ds.type = 'text/javascript';ds.async = true;
+			ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+			ds.charset = 'UTF-8';
+			(document.getElementsByTagName('head')[0] 
+			 || document.getElementsByTagName('body')[0]).appendChild(ds);
+		})();
+		</script>
+		<!-- 多说公共JS代码 end -->
+	</section>
+	
+</div></div>
+    <aside id="sidebar" class="alignright">
+  <!-- <div class="search">
+  <form action="//google.com/search" method="get" accept-charset="utf-8">
+    <input type="search" name="q" results="0" placeholder="搜索">
+    <input type="hidden" name="q" value="site:yoursite.com">
+  </form>
+</div> -->
+<div class="search">
+  <form>
+    <input type="search" id="blog-yuanxiaolong" placeholder="搜索">
+  </form>
+</div>
+
+
+  
+<div class="widget tag">
+  <h3 class="title">分类</h3>
+  <ul class="entry">
+  
+    <li><a href="/categories/AWS/">AWS</a><small>1</small></li>
+  
+    <li><a href="/categories/NFS/">NFS</a><small>1</small></li>
+  
+    <li><a href="/categories/apache-james/">apache james</a><small>1</small></li>
+  
+    <li><a href="/categories/cabot/">cabot</a><small>2</small></li>
+  
+    <li><a href="/categories/coreos/">coreos</a><small>2</small></li>
+  
+    <li><a href="/categories/dns/">dns</a><small>1</small></li>
+  
+    <li><a href="/categories/docker/">docker</a><small>6</small></li>
+  
+    <li><a href="/categories/dubbo/">dubbo</a><small>1</small></li>
+  
+    <li><a href="/categories/flume/">flume</a><small>2</small></li>
+  
+    <li><a href="/categories/go/">go</a><small>1</small></li>
+  
+    <li><a href="/categories/graphite/">graphite</a><small>1</small></li>
+  
+    <li><a href="/categories/hadoop/">hadoop</a><small>10</small></li>
+  
+    <li><a href="/categories/hbase/">hbase</a><small>2</small></li>
+  
+    <li><a href="/categories/highcharts/">highcharts</a><small>1</small></li>
+  
+    <li><a href="/categories/hive/">hive</a><small>2</small></li>
+  
+    <li><a href="/categories/impala/">impala</a><small>3</small></li>
+  
+    <li><a href="/categories/java/">java</a><small>1</small></li>
+  
+    <li><a href="/categories/jvm/">jvm</a><small>2</small></li>
+  
+    <li><a href="/categories/neo4j/">neo4j</a><small>1</small></li>
+  
+    <li><a href="/categories/netty/">netty</a><small>1</small></li>
+  
+    <li><a href="/categories/nodejs/">nodejs</a><small>2</small></li>
+  
+    <li><a href="/categories/oozie/">oozie</a><small>1</small></li>
+  
+    <li><a href="/categories/pgxl/">pgxl</a><small>1</small></li>
+  
+    <li><a href="/categories/python/">python</a><small>1</small></li>
+  
+    <li><a href="/categories/spark/">spark</a><small>3</small></li>
+  
+    <li><a href="/categories/sql/">sql</a><small>1</small></li>
+  
+    <li><a href="/categories/sqoop/">sqoop</a><small>2</small></li>
+  
+    <li><a href="/categories/ssh/">ssh</a><small>1</small></li>
+  
+    <li><a href="/categories/storm/">storm</a><small>1</small></li>
+  
+    <li><a href="/categories/tez/">tez</a><small>1</small></li>
+  
+    <li><a href="/categories/thrift/">thrift</a><small>1</small></li>
+  
+    <li><a href="/categories/vps/">vps</a><small>1</small></li>
+  
+    <li><a href="/categories/zookeeper/">zookeeper</a><small>1</small></li>
+  
+  </ul>
+</div>
+
+
+  
+<div class="widget tagcloud">
+  <h3 class="title">标签云</h3>
+  <div class="entry">
+    <a href="/tags/AWS/" style="font-size: 10px;">AWS</a> <a href="/tags/CoreOS/" style="font-size: 12.5px;">CoreOS</a> <a href="/tags/NFS/" style="font-size: 10px;">NFS</a> <a href="/tags/apache-james/" style="font-size: 10px;">apache james</a> <a href="/tags/cabot/" style="font-size: 15px;">cabot</a> <a href="/tags/dns/" style="font-size: 10px;">dns</a> <a href="/tags/docker/" style="font-size: 17.5px;">docker</a> <a href="/tags/duboo/" style="font-size: 10px;">duboo</a> <a href="/tags/flume/" style="font-size: 12.5px;">flume</a> <a href="/tags/go/" style="font-size: 10px;">go</a> <a href="/tags/graphite/" style="font-size: 10px;">graphite</a> <a href="/tags/hadoop/" style="font-size: 20px;">hadoop</a> <a href="/tags/hbase/" style="font-size: 12.5px;">hbase</a> <a href="/tags/highcharts/" style="font-size: 10px;">highcharts</a> <a href="/tags/hive/" style="font-size: 12.5px;">hive</a> <a href="/tags/impala/" style="font-size: 15px;">impala</a> <a href="/tags/java/" style="font-size: 10px;">java</a> <a href="/tags/jvm/" style="font-size: 12.5px;">jvm</a> <a href="/tags/neo4j/" style="font-size: 10px;">neo4j</a> <a href="/tags/netty/" style="font-size: 10px;">netty</a> <a href="/tags/nodejs/" style="font-size: 12.5px;">nodejs</a> <a href="/tags/oozie/" style="font-size: 10px;">oozie</a> <a href="/tags/pgxl/" style="font-size: 10px;">pgxl</a> <a href="/tags/python/" style="font-size: 10px;">python</a> <a href="/tags/spark/" style="font-size: 15px;">spark</a> <a href="/tags/sql/" style="font-size: 10px;">sql</a> <a href="/tags/sqoop/" style="font-size: 12.5px;">sqoop</a> <a href="/tags/ssh/" style="font-size: 10px;">ssh</a> <a href="/tags/strom/" style="font-size: 10px;">strom</a> <a href="/tags/tez/" style="font-size: 10px;">tez</a> <a href="/tags/thrift/" style="font-size: 10px;">thrift</a> <a href="/tags/vps/" style="font-size: 10px;">vps</a> <a href="/tags/zookeeper/" style="font-size: 10px;">zookeeper</a>
+  </div>
+</div>
+
+
+  <!-- <iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=2&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&colors=fafafa,fafafa,666666,0082cb,ecfbfd&dpc=1"></iframe> -->
+<iframe width="100%" height="140" class="share_self"  frameborder="0" scrolling="no" src="http://widget.weibo.com/weiboshow/index.php?language=&width=0&height=550&fansRow=1&ptype=1&speed=0&skin=1&isTitle=1&noborder=1&isWeibo=0&isFans=0&uid=2023177924&verifier=1bb19983&dpc=1"></iframe>
+
+
+  <div class="widget tag">
+<h3 class="title">友情链接</h3>
+<ul class="entry">
+<li><a href="http://opiece.me" title="Chillax's Blog" target="_blank">Chillax (本站主题作者) </a></li>
+<li><a href="http://xueliang.org/" title="LiangZai's Blog" target="_blank">LiangZai </a></li>
+</ul>
+</div>
+
+</aside>
+    <div class="clearfix"></div>
+  </div>
+  <footer id="footer"><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<div class="social-font clearfix">
+		
+		<a href="http://weibo.com/2023177924" target="_blank" title="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/yuanxiaolong" target="_blank" title="github"></a>
+		
+		
+		
+		
+		<a href="mailto:232351936@qq.com" target="_blank" class="icon-email" title="Email Me"></a>
+		
+	</div>
+	  <p class="copyright">感谢 <a href="http://gitcafe.com/signup?invited_by=yuanxiaolong" target="_blank">GitCafe</a> 为本站提供存储空间
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/huangjunhui/concise" target="_blank" title="Concise">Concise</a> © 2016
+		
+		<a href="http://yoursite.com/about" target="_blank" title="yuanxiaolong">yuanxiaolong</a>
+		
+		</p>
+</div>
+</footer>
+  <script src="//libs.baidu.com/jquery/2.0.3/jquery.min.js"></script>
+<script src="/js/jquery.imagesloaded.min.js"></script>
+<script src="/js/gallery.js"></script>
+<script src="/js/counter.js"></script>
+
+
+
+
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.css" media="screen" type="text/css">
+<script src="/fancybox/jquery.fancybox.pack.js"></script>
+<script type="text/javascript">
+(function($){
+  $('.fancybox').fancybox();
+})(jQuery);
+</script>
+
+<div id="totop" style="position:fixed;bottom:100px;right:10px;cursor: pointer;">
+<a title="返回顶部"><img src="/imgs/scrollup.png"/></a>
+</div>
+<script src="/js/totop.js"></script>
+
+<!-- swiftype search -->
+<script type="text/javascript">
+  (function(w,d,t,u,n,s,e){w['SwiftypeObject']=n;w[n]=w[n]||function(){
+  (w[n].q=w[n].q||[]).push(arguments);};s=d.createElement(t);
+  e=d.getElementsByTagName(t)[0];s.async=1;s.src=u;e.parentNode.insertBefore(s,e);
+  })(window,document,'script','//s.swiftypecdn.com/install/v2/st.js','_st');
+
+  _st('install','4BiYNKCyCtK1Df2UPomF','2.0.0');
+</script>
+
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
+
+
