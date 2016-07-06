@@ -70,9 +70,9 @@
     <link href="http://yoursite.com/blog/2016/07/06/AWS-S3-Java-API/"/>
     <id>http://yoursite.com/blog/2016/07/06/AWS-S3-Java-API/</id>
     <published>2016-07-06T13:12:48.000Z</published>
-    <updated>2016-07-06T13:17:47.000Z</updated>
+    <updated>2016-07-06T13:33:46.000Z</updated>
     <content type="html"><![CDATA[<p>本文介绍一下 aws s3 （simple storage service）的 api 操作</p>
-<hr>
+<a id="more"></a>
 <p>利用 s3 我们可以将存储外挂在 aws 上，是一种扩展性的服务</p>
 <h2 id="u73AF_u5883_u51C6_u5907"><a href="#u73AF_u5883_u51C6_u5907" class="headerlink" title="环境准备"></a>环境准备</h2><ul>
 <li>一个aws账号，目前只能申请国际账号，即非中国账号。申请的时候，需要一张信用卡，及电话一部</li>
