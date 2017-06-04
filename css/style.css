@@ -1,4 +1,4 @@
-@import url("//fonts.useso.com/css?family=Lato:400,400italic");
+@import url("//fonts.googleapis.com/css?family=Lato:400,400italic");
 @font-face {
   font-family: 'FontAwesome';
   font-style: normal;
@@ -109,8 +109,8 @@ body >header {
   width: 100%;
   -webkit-box-shadow: 2px 4px 5px rgba(3,3,3,0.2);
   box-shadow: 2px 4px 5px rgba(3,3,3,0.2);
-  background: #5a167a;
-  color: #fff;
+  background: #c35fa1;
+  color: #282727;
   padding: 1em 0 0.8em;
 }
 @media only screen and (min-width: 1024px) {
@@ -131,7 +131,7 @@ body >header >div {
 }
 body >header a {
   display: block;
-  color: #fff;
+  color: #282727;
 }
 #imglogo {
   float: left;
@@ -264,7 +264,7 @@ header nav ul li a {
   }
 }
 header nav ul li a:hover {
-  background: #440c60;
+  background: #a3367f;
   color: #e9cd4c;
 }
 .shownav {
@@ -858,7 +858,7 @@ a
 }
 #page-navs a:hover {
   background: color-grey;
-  color: #5a167a;
+  color: #c35fa1;
 }
 #page-navs .prev {
   float: left;
@@ -1051,7 +1051,7 @@ a
   line-height: 1.3em;
   width: 90%;
   margin: 0 auto;
-  color: #fff;
+  color: #282727;
 }
 @media only screen and (min-width: 768px) {
   .info-logo {
@@ -1144,7 +1144,7 @@ a
   display: block;
   width: 0.5em;
   height: 6.25em;
-  border-right: 0.125em solid #fff;
+  border-right: 0.125em solid #282727;
   margin: 0 auto;
 }
 @media only screen and (min-width: 768px) {
@@ -1190,7 +1190,7 @@ a
   line-height: 1.3em;
   width: 90%;
   margin: 0 auto;
-  color: #fff;
+  color: #282727;
 }
 @media only screen and (min-width: 768px) {
   .info {
@@ -1222,7 +1222,7 @@ a
   float: left;
   display: block;
   width: 14%;
-  color: #fff;
+  color: #282727;
   font-size: 180%;
   padding: 0.5em;
 }
@@ -1266,7 +1266,7 @@ a
   font-family: Georgia, 'Times New Roman', Times, 'Songti SC', SimSun, "Microsoft YaHei", serif;
   font-size: 0.8em;
   width: 100%;
-  color: #fff;
+  color: #282727;
   text-align: center;
 }
 @media only screen and (min-width: 768px) {
@@ -1275,7 +1275,7 @@ a
   }
 }
 .copyright a {
-  color: #fff;
+  color: #282727;
 }
 .copyright a:hover {
   color: #2ca6cb;
